@@ -116,7 +116,7 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.vpnButton,
   DashboardWidget.networkTakeover,
   DashboardWidget.intranetIp,
-  DashboardWidget.recentRequests,
+  DashboardWidget.quickRoutes,
   DashboardWidget.profiles,
   DashboardWidget.proxyGroups,
   DashboardWidget.connectionStats,
@@ -225,6 +225,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default(defaultDashboardWidgets)
     @JsonKey(fromJson: dashboardWidgetsFromJson)
     List<DashboardWidget> dashboardWidgets,
+    @Default({}) Map<String, String> dashboardQuickGroups,
     @Default(false) bool onlyStatisticsProxy,
     @Default(true) bool showNotificationStopAction,
     @Default(false) bool autoLaunch,

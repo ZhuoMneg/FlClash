@@ -746,6 +746,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
       "Nouvelle version disponible",
     ),
+    "dmitProtocol": MessageLookupByLibrary.simpleMessage("Protocole DMIT"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
       "Sans cette entrée, TUN détourne toutes les requêtes DNS vers le port 53 (any:53).",
     ),
@@ -780,6 +781,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Éditeur indisponible",
     ),
     "elapsed": MessageLookupByLibrary.simpleMessage("Durée"),
+    "embyExit": MessageLookupByLibrary.simpleMessage("Sortie Emby"),
     "emptyFallback": MessageLookupByLibrary.simpleMessage("Repli si vide"),
     "emptyTip": m23,
     "en": MessageLookupByLibrary.simpleMessage("Anglais"),
@@ -1455,6 +1457,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m65,
     "proxiesReplacedTip": m66,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Chaîne de proxys"),
+    "proxyExit": MessageLookupByLibrary.simpleMessage("Sortie Proxy"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Groupe de proxys"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Le groupe de proxys est vide",
@@ -1478,6 +1481,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("Actions rapides"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Modification rapide"),
+    "quickRoutes": MessageLookupByLibrary.simpleMessage(
+      "Raccourcis de routage",
+    ),
     "realtimeRequests": MessageLookupByLibrary.simpleMessage(
       "Requêtes en temps réel",
     ),
@@ -1736,6 +1742,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Clé"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
+    "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
+      "Choisir un groupe de proxys",
+    ),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
       "Veuillez sélectionner un jeu de règles",
     ),

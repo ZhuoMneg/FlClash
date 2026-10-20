@@ -702,6 +702,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
       "New version found",
     ),
+    "dmitProtocol": MessageLookupByLibrary.simpleMessage("DMIT protocol"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
       "Without this entry, TUN hijacks every DNS query to port 53 (any:53).",
     ),
@@ -732,6 +733,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Editor unavailable",
     ),
     "elapsed": MessageLookupByLibrary.simpleMessage("Took"),
+    "embyExit": MessageLookupByLibrary.simpleMessage("Emby exit"),
     "emptyFallback": MessageLookupByLibrary.simpleMessage("Empty fallback"),
     "emptyTip": m23,
     "en": MessageLookupByLibrary.simpleMessage("English"),
@@ -1351,6 +1353,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m65,
     "proxiesReplacedTip": m66,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Proxy chain"),
+    "proxyExit": MessageLookupByLibrary.simpleMessage("Proxy exit"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Proxy group"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Proxy group is empty",
@@ -1372,6 +1375,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("Quick actions"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Quick edit"),
+    "quickRoutes": MessageLookupByLibrary.simpleMessage("Route shortcuts"),
     "realtimeRequests": MessageLookupByLibrary.simpleMessage(
       "Realtime requests",
     ),
@@ -1614,6 +1618,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Key"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
+    "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
+      "Select proxy group",
+    ),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
       "Please select a rule set",
     ),

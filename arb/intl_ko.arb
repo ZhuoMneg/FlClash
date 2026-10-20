@@ -941,5 +941,10 @@
   "allReferencedProxies": "참조된 모든 프록시",
   "allReferencedProxyProviders": "참조된 모든 프록시 공급자",
   "realtimeRequests": "실시간 요청",
-  "routing": "라우팅"
+  "routing": "라우팅",
+  "quickRoutes": "경로 빠른 전환",
+  "dmitProtocol": "DMIT 연결 프로토콜",
+  "proxyExit": "Proxy 출구",
+  "embyExit": "Emby 출구",
+  "selectProxyGroup": "프록시 그룹 선택"
 }

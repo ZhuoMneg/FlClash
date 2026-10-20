@@ -941,5 +941,10 @@
   "allReferencedProxies": "Все используемые прокси",
   "allReferencedProxyProviders": "Все используемые провайдеры прокси",
   "realtimeRequests": "Запросы в реальном времени",
-  "routing": "Маршрутизация"
+  "routing": "Маршрутизация",
+  "quickRoutes": "Быстрое переключение",
+  "dmitProtocol": "Протокол DMIT",
+  "proxyExit": "Выход Proxy",
+  "embyExit": "Выход Emby",
+  "selectProxyGroup": "Выбрать группу прокси"
 }

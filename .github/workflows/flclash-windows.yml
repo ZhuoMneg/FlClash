@@ -48,9 +48,11 @@ jobs:
           path.write_text(source.replace('setup:\n      build_assets: true', 'setup:\n      build_assets: false', 1))
           PY
       - name: Verify interface and source rules
-        run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/white_surfaces_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/views/dashboard/recent_requests_test.dart test/common/migration_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
+        run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/white_surfaces_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/views/dashboard/quick_routes_test.dart test/common/migration_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
       - name: Verify custom release versions
         run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
+      - name: Verify settings destinations
+        run: flutter test test/widgets/views_smoke_test.dart --name 'settings opens|settings renders its default state'
 
   windows:
     needs: checks
@@ -79,8 +81,10 @@ jobs:
       - name: Build
         run: |
           flutter build windows --release --build-number=$env:GITHUB_RUN_NUMBER "--dart-define=UPDATE_REPOSITORY=$env:GITHUB_REPOSITORY"
-      - name: Include license
-        run: Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
+      - name: Include license and modification notice
+        run: |
+          Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
+          Copy-Item MODIFICATIONS.md build/windows/x64/runner/Release/MODIFICATIONS.md
       - uses: actions/upload-artifact@v4
         with:
           name: FlClash-windows-amd64

@@ -941,5 +941,10 @@
   "allReferencedProxies": "Tous les proxys référencés",
   "allReferencedProxyProviders": "Tous les fournisseurs de proxys référencés",
   "realtimeRequests": "Requêtes en temps réel",
-  "routing": "Routage"
+  "routing": "Routage",
+  "quickRoutes": "Raccourcis de routage",
+  "dmitProtocol": "Protocole DMIT",
+  "proxyExit": "Sortie Proxy",
+  "embyExit": "Sortie Emby",
+  "selectProxyGroup": "Choisir un groupe de proxys"
 }

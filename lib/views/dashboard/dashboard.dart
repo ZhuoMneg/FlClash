@@ -201,7 +201,7 @@ class _DesktopDashboard extends StatelessWidget {
                 ),
                 sized(
                   middleHeight,
-                  row(const [(1, RecentRequestsCard()), (1, MemoryInfo())]),
+                  row(const [(1, QuickRoutesCard()), (1, MemoryInfo())]),
                 ),
                 sized(summaryHeight, summaries),
               ],
@@ -227,10 +227,10 @@ class _DesktopDashboard extends StatelessWidget {
               (1, const IntranetIpCard()),
               (1, const ProfilesCard()),
               if (column >= _memoryColumnMin * scale) ...[
-                (1, const RecentRequestsCard()),
+                (1, const QuickRoutesCard()),
                 (1, const MemoryInfo()),
               ] else
-                (2, const RecentRequestsCard()),
+                (2, const QuickRoutesCard()),
             ]),
           ),
         ];

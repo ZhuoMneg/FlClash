@@ -941,5 +941,10 @@
   "allReferencedProxies": "参照されているすべてのプロキシ",
   "allReferencedProxyProviders": "参照されているすべてのプロキシプロバイダー",
   "realtimeRequests": "リアルタイムリクエスト",
-  "routing": "ルーティング"
+  "routing": "ルーティング",
+  "quickRoutes": "経路のクイック切替",
+  "dmitProtocol": "DMIT 接続方式",
+  "proxyExit": "Proxy 出口",
+  "embyExit": "Emby 出口",
+  "selectProxyGroup": "プロキシグループを選択"
 }

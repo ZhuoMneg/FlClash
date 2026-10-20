@@ -729,6 +729,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
       "Доступна новая версия",
     ),
+    "dmitProtocol": MessageLookupByLibrary.simpleMessage("Протокол DMIT"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
       "Без этого параметра TUN перехватывает все DNS-запросы на порт 53 (any:53).",
     ),
@@ -761,6 +762,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Редактор недоступен",
     ),
     "elapsed": MessageLookupByLibrary.simpleMessage("Время"),
+    "embyExit": MessageLookupByLibrary.simpleMessage("Выход Emby"),
     "emptyFallback": MessageLookupByLibrary.simpleMessage(
       "Резерв для пустой группы",
     ),
@@ -1412,6 +1414,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m65,
     "proxiesReplacedTip": m66,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Цепочка прокси"),
+    "proxyExit": MessageLookupByLibrary.simpleMessage("Выход Proxy"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Группа прокси"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "Группа прокси пуста",
@@ -1433,6 +1436,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("Быстрые действия"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Быстрое редактирование"),
+    "quickRoutes": MessageLookupByLibrary.simpleMessage("Быстрое переключение"),
     "realtimeRequests": MessageLookupByLibrary.simpleMessage(
       "Запросы в реальном времени",
     ),
@@ -1691,6 +1695,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Ключ"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Выбрать всё"),
+    "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
+      "Выбрать группу прокси",
+    ),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
       "Выберите набор правил",
     ),

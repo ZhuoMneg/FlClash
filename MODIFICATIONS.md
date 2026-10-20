@@ -12,8 +12,9 @@ third-party notices are retained.
 - Desktop page transitions and standard liquid glass as the new-config default.
 - Cloud checks, Windows builds, stable upstream merging, and same-repository
   release checks using job-scoped GitHub tokens.
+- Homepage shortcuts for DMIT protocol, Proxy exit, and Emby exit, with saved
+  group bindings and searchable choices using the existing switching logic.
 
-The homepage route shortcuts are still under development. A preview is not a
-released implementation. Release notes identify the exact source commit for each
-published binary. Clone release source with `--recursive` to include the pinned
-core submodule; build commands and dependencies are in `.agents/commands.md`.
+Release notes identify the exact source commit for each published binary. Clone
+release source with `--recursive` to include the pinned core submodule; build
+commands and dependencies are in `.agents/commands.md`.

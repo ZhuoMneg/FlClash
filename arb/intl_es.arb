@@ -941,5 +941,10 @@
   "allReferencedProxies": "Todos los proxies referenciados",
   "allReferencedProxyProviders": "Todos los proveedores de proxies referenciados",
   "realtimeRequests": "Solicitudes en tiempo real",
-  "routing": "Enrutamiento"
+  "routing": "Enrutamiento",
+  "quickRoutes": "Atajos de rutas",
+  "dmitProtocol": "Protocolo DMIT",
+  "proxyExit": "Salida Proxy",
+  "embyExit": "Salida Emby",
+  "selectProxyGroup": "Elegir grupo de proxies"
 }

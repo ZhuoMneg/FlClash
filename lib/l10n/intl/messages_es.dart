@@ -743,6 +743,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
       "Nueva versión disponible",
     ),
+    "dmitProtocol": MessageLookupByLibrary.simpleMessage("Protocolo DMIT"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
       "Sin esta entrada, TUN secuestra todas las consultas DNS al puerto 53 (any:53).",
     ),
@@ -775,6 +776,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Editor no disponible",
     ),
     "elapsed": MessageLookupByLibrary.simpleMessage("Tardó"),
+    "embyExit": MessageLookupByLibrary.simpleMessage("Salida Emby"),
     "emptyFallback": MessageLookupByLibrary.simpleMessage(
       "Respaldo si está vacío",
     ),
@@ -1450,6 +1452,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m65,
     "proxiesReplacedTip": m66,
     "proxyChains": MessageLookupByLibrary.simpleMessage("Cadena de proxies"),
+    "proxyExit": MessageLookupByLibrary.simpleMessage("Salida Proxy"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("Grupo de proxies"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage(
       "El grupo de proxies está vacío",
@@ -1473,6 +1476,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("Acciones rápidas"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Edición rápida"),
+    "quickRoutes": MessageLookupByLibrary.simpleMessage("Atajos de rutas"),
     "realtimeRequests": MessageLookupByLibrary.simpleMessage(
       "Solicitudes en tiempo real",
     ),
@@ -1733,6 +1737,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Clave"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Seleccionar todo"),
+    "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
+      "Elegir grupo de proxies",
+    ),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage(
       "Selecciona un conjunto de reglas",
     ),

@@ -597,6 +597,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
       "新しいバージョンが見つかりました",
     ),
+    "dmitProtocol": MessageLookupByLibrary.simpleMessage("DMIT 接続方式"),
     "dnsHijackDesc": MessageLookupByLibrary.simpleMessage(
       "追加しない場合、ポート 53 宛てのすべての DNS 問い合わせをハイジャックします（any:53）。",
     ),
@@ -621,6 +622,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "editSsid": MessageLookupByLibrary.simpleMessage("SSIDを編集"),
     "editorUnavailable": MessageLookupByLibrary.simpleMessage("エディターを利用できません"),
     "elapsed": MessageLookupByLibrary.simpleMessage("所要時間"),
+    "embyExit": MessageLookupByLibrary.simpleMessage("Emby 出口"),
     "emptyFallback": MessageLookupByLibrary.simpleMessage("空グループのフォールバック"),
     "emptyTip": m23,
     "en": MessageLookupByLibrary.simpleMessage("英語"),
@@ -1159,6 +1161,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "proxiesRemovedTip": m65,
     "proxiesReplacedTip": m66,
     "proxyChains": MessageLookupByLibrary.simpleMessage("プロキシチェーン"),
+    "proxyExit": MessageLookupByLibrary.simpleMessage("Proxy 出口"),
     "proxyGroup": MessageLookupByLibrary.simpleMessage("プロキシグループ"),
     "proxyGroupEmpty": MessageLookupByLibrary.simpleMessage("プロキシグループが空です"),
     "proxyGroupInUse": m67,
@@ -1178,6 +1181,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("クイック操作"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("クイック編集"),
+    "quickRoutes": MessageLookupByLibrary.simpleMessage("経路のクイック切替"),
     "realtimeRequests": MessageLookupByLibrary.simpleMessage("リアルタイムリクエスト"),
     "recentRequests": MessageLookupByLibrary.simpleMessage("最近のリクエスト"),
     "recommendedIcons": MessageLookupByLibrary.simpleMessage("おすすめ"),
@@ -1386,6 +1390,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("キー"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("すべて選択"),
+    "selectProxyGroup": MessageLookupByLibrary.simpleMessage("プロキシグループを選択"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("ルールセットを選択してください"),
     "selectSplitStrategy": MessageLookupByLibrary.simpleMessage(
       "振り分け戦略を選択してください",

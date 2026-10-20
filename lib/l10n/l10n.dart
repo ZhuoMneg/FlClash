@@ -7851,6 +7851,46 @@ class AppLocalizations {
   String get routing {
     return Intl.message('Routing', name: 'routing', desc: '', args: []);
   }
+
+  /// `Route shortcuts`
+  String get quickRoutes {
+    return Intl.message(
+      'Route shortcuts',
+      name: 'quickRoutes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DMIT protocol`
+  String get dmitProtocol {
+    return Intl.message(
+      'DMIT protocol',
+      name: 'dmitProtocol',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Proxy exit`
+  String get proxyExit {
+    return Intl.message('Proxy exit', name: 'proxyExit', desc: '', args: []);
+  }
+
+  /// `Emby exit`
+  String get embyExit {
+    return Intl.message('Emby exit', name: 'embyExit', desc: '', args: []);
+  }
+
+  /// `Select proxy group`
+  String get selectProxyGroup {
+    return Intl.message(
+      'Select proxy group',
+      name: 'selectProxyGroup',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

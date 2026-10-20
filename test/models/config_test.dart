@@ -18,6 +18,21 @@ T roundTrip<T>(
 }
 
 void main() {
+  test(
+    'dashboard group bindings survive JSON and default empty on old configs',
+    () {
+      const settings = AppSettingProps(
+        dashboardQuickGroups: {
+          'dmit': 'Transport',
+          'proxy': 'Proxy',
+          'emby': 'Emby',
+        },
+      );
+      final restored = roundTrip(settings.toJson, AppSettingProps.fromJson);
+      expect(restored.dashboardQuickGroups, settings.dashboardQuickGroups);
+      expect(AppSettingProps.fromJson({}).dashboardQuickGroups, isEmpty);
+    },
+  );
   group('GeoResource JSON', () {
     test('exposes mihomo raw config keys', () {
       expect(GeoResource.MMDB.configKey, 'mmdb');

@@ -278,7 +278,7 @@ void main() {
           expect(config.currentProfileId, 7);
           expect(config.appSettingProps.dashboardWidgets, [
             DashboardWidget.currentOutbound,
-            DashboardWidget.recentRequests,
+            DashboardWidget.quickRoutes,
             DashboardWidget.profiles,
           ]);
           final later = _FakeMigrationStore(

@@ -941,5 +941,10 @@
   "allReferencedProxies": "全部被引用的代理",
   "allReferencedProxyProviders": "全部被引用的代理集",
   "realtimeRequests": "实时请求",
-  "routing": "分流"
+  "routing": "分流",
+  "quickRoutes": "线路快捷切换",
+  "dmitProtocol": "DMIT 前置协议",
+  "proxyExit": "Proxy 出口",
+  "embyExit": "Emby 出口",
+  "selectProxyGroup": "选择策略组"
 }

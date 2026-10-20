@@ -475,7 +475,7 @@ enum DashboardWidget {
   connectionStats,
   intranetIp,
   memoryInfo,
-  recentRequests;
+  quickRoutes;
 
   final List<SupportPlatform> platforms;
 

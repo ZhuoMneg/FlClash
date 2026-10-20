@@ -96,7 +96,7 @@ class Migration {
   static const Map<int, Config Function(Config config)> _upgrades = {
     1: _resetThemeColors,
     2: _keepGlassLook,
-    3: _showRecentRequests,
+    3: _showQuickRoutes,
   };
 
   Future<Config> run() async {
@@ -210,12 +210,12 @@ Config _keepGlassLook(Config config) =>
       )
     : config;
 
-Config _showRecentRequests(Config config) => config.copyWith(
+Config _showQuickRoutes(Config config) => config.copyWith(
   appSettingProps: config.appSettingProps.copyWith(
     dashboardWidgets: {
       for (final widget in config.appSettingProps.dashboardWidgets)
         widget == DashboardWidget.serviceStatus
-            ? DashboardWidget.recentRequests
+            ? DashboardWidget.quickRoutes
             : widget,
     }.toList(),
   ),
