@@ -879,7 +879,7 @@ void main() {
 
   for (final width in [500.0, 1200.0]) {
     testWidgets(
-      'the fade tab switch cross-fades the pages in place at $width',
+      'mobile fades while desktop switches pages immediately at $width',
       (tester) async {
         tester.view.physicalSize = Size(width, 800);
         tester.view.devicePixelRatio = 1;
@@ -936,13 +936,18 @@ void main() {
               ),
             )
             .opacity;
-        expect(tester.getTopLeft(find.text('page:dashboard')).dx, start);
         expect(tester.getTopLeft(find.text('page:tools')).dx, start);
-        expect(opacityOf('page:dashboard'), inExclusiveRange(0, 1));
-        expect(
-          opacityOf('page:dashboard') + opacityOf('page:tools'),
-          moreOrLessEquals(1),
-        );
+        if (width == 500) {
+          expect(tester.getTopLeft(find.text('page:dashboard')).dx, start);
+          expect(opacityOf('page:dashboard'), inExclusiveRange(0, 1));
+          expect(
+            opacityOf('page:dashboard') + opacityOf('page:tools'),
+            moreOrLessEquals(1),
+          );
+        } else {
+          expect(find.text('page:dashboard'), findsNothing);
+          expect(opacityOf('page:tools'), 1);
+        }
 
         await tester.pumpAndSettle();
         expect(container.read(currentPageLabelProvider), PageLabel.tools);
