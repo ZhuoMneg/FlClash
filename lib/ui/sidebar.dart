@@ -24,7 +24,7 @@ const _indicatorWidth = 3.0;
 const _indicatorHeight = 16.0;
 const _expandDuration = Duration(milliseconds: 250);
 const _indicatorDuration = Duration(milliseconds: 320);
-final _itemShape = AppShape.all(10);
+const _itemShape = AppShape.full;
 
 class SidebarDestination {
   const SidebarDestination({
@@ -236,7 +236,12 @@ class _SidebarOverlay extends StatelessWidget {
 
 class _SidebarColors {
   _SidebarColors(ColorScheme scheme)
-    : selectedFill = scheme.onSurface.withValues(alpha: 0.08),
+    : selectedFill = scheme.brightness == Brightness.light
+          ? Color.alphaBlend(
+              scheme.primary.withValues(alpha: 0.08),
+              Colors.white,
+            )
+          : scheme.onSurface.withValues(alpha: 0.08),
       label = scheme.onSurface,
       icon = scheme.onSurfaceVariant,
       indicator = scheme.primary,
@@ -410,6 +415,13 @@ class _SidebarButton extends StatelessWidget {
           shape: _itemShape,
           child: Material(
             color: selected == true ? colors.selectedFill : Colors.transparent,
+            elevation:
+                selected == true &&
+                    context.colorScheme.brightness == Brightness.light
+                ? 1
+                : 0,
+            shadowColor: context.colorScheme.primary.withValues(alpha: 0.12),
+            surfaceTintColor: Colors.transparent,
             shape: _itemShape,
             child: InkWell(
               onTap: onTap,
@@ -421,7 +433,14 @@ class _SidebarButton extends StatelessWidget {
                 message: tooltip,
                 excludeFromSemantics: !tooltipIsLabel,
                 child: IconTheme.merge(
-                  data: IconThemeData(size: _iconSize, color: colors.icon),
+                  data: IconThemeData(
+                    size: _iconSize,
+                    color:
+                        selected == true &&
+                            context.colorScheme.brightness == Brightness.light
+                        ? context.colorScheme.primary
+                        : colors.icon,
+                  ),
                   child: SizedBox(height: height, child: child),
                 ),
               ),
@@ -491,7 +510,11 @@ class _DestinationRow extends StatelessWidget {
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
-                  style: style,
+                  style:
+                      selected &&
+                          context.colorScheme.brightness == Brightness.light
+                      ? style?.copyWith(color: context.colorScheme.primary)
+                      : style,
                 ),
               ),
             ),

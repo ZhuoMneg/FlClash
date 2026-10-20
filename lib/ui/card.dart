@@ -223,7 +223,17 @@ class CommonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final button = _buildButton(context, context.raisedSurfaceLevel);
+    final level = context.raisedSurfaceLevel;
+    final shape = this.shape ?? AppShape.all(radius ?? AppCorner.md);
+    final button = DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: shape,
+        shadows: level == SurfaceLevel.card && !_filled && !isError
+            ? context.colorScheme.raisedCardShadows
+            : null,
+      ),
+      child: _buildButton(context, level),
+    );
     final card = !enterActionsOnRight
         ? button
         : Focus(

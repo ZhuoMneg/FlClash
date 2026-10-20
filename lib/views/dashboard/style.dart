@@ -60,12 +60,12 @@ class DashboardColors {
   final Color onWarnContainer;
 }
 
-/// Values are the design's CSS shadows. A CSS blur is twice its sigma while
-/// Flutter turns a blur radius r into a sigma of 0.577 r + 0.5, so each one
-/// goes through [_blur] or it renders a third heavier.
+/// Floating shadows convert CSS blur into Flutter's blur radius.
 abstract final class DashboardShadows {
   static List<BoxShadow> e1(BuildContext context) =>
-      context.colorScheme.brightness == Brightness.dark ? _e1Dark : _e1Light;
+      context.colorScheme.brightness == Brightness.dark
+      ? _e1Dark
+      : context.colorScheme.raisedCardShadows;
 
   static List<BoxShadow> e2(BuildContext context) =>
       context.colorScheme.brightness == Brightness.dark ? _e2Dark : _e2Light;
@@ -85,12 +85,6 @@ abstract final class DashboardShadows {
   static double _blur(double cssBlur) =>
       cssBlur <= 1 ? 0 : (cssBlur / 2 - 0.5) / 0.57735;
 
-  static final _e1Light = [
-    _shadow(0x0D, 0.5, 1),
-    _shadow(0x0A, 2, 6),
-    _shadow(0x17, 12, 32, -6),
-  ];
-
   static final _e1Dark = [_shadow(0x80, 1, 2), _shadow(0x8C, 10, 28, -6)];
 
   static final _e2Light = [
@@ -105,8 +99,8 @@ abstract final class DashboardShadows {
 /// Off the [AppCorner] scale: a dashboard card is taller than any other
 /// surface in the app and keeps a larger corner than a sheet.
 abstract final class DashboardCorner {
-  static const desktopCard = 32.0;
-  static const mobileCard = 34.0;
+  static const desktopCard = 36.0;
+  static const mobileCard = 36.0;
   static const block = 20.0;
   static const mobileBlock = 22.0;
   static const tab = 16.0;
