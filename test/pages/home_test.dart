@@ -149,7 +149,14 @@ void main() {
       );
       expect(sidebarSurface.color, colorScheme.chromeSurface);
       expect(sidebarSurface.color, Colors.white);
-      expect(sidebarSurface.shape, AppShape.xxl);
+      expect(
+        sidebarSurface.shape,
+        AppShape.all(32).copyWith(side: colorScheme.cardEdge),
+      );
+      expect(
+        tester.getSize(find.byType(NavigationSidebar)).height,
+        lessThanOrEqualTo(610),
+      );
 
       await tester.tap(find.text('count: 0'));
       await tester.pump();

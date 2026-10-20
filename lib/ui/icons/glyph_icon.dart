@@ -3,12 +3,20 @@ import 'package:fl_clash/ui/icons/glyph_painter.dart';
 import 'package:material_ui/material_ui.dart';
 
 class GlyphIcon extends StatelessWidget {
-  const GlyphIcon(this.glyph, {super.key, this.fill, this.size, this.color});
+  const GlyphIcon(
+    this.glyph, {
+    super.key,
+    this.fill,
+    this.size,
+    this.color,
+    this.strokeWidth,
+  });
 
   final Glyph glyph;
   final double? fill;
   final double? size;
   final Color? color;
+  final double? strokeWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +33,7 @@ class GlyphIcon extends StatelessWidget {
             glyph: glyph,
             fill: fill ?? iconTheme.fill ?? 0,
             color: color.withValues(alpha: color.a * opacity),
+            strokeWidth: strokeWidth ?? Glyph.strokeWidth,
           ),
         ),
       ),

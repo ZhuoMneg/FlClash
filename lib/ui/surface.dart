@@ -22,10 +22,11 @@ enum SurfaceLevel {
     final dark = colorScheme.brightness == Brightness.dark;
     return switch (this) {
       page => dark ? colorScheme.surface : Colors.white,
-      card => dark ? colorScheme.surfaceContainer : colorScheme.surfaceBright,
+      card => dark ? colorScheme.surfaceContainer : const Color(0xFFFCFCFE),
       block =>
-        dark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainer,
-      inset => colorScheme.surfaceContainerHighest,
+        dark ? colorScheme.surfaceContainerHigh : const Color(0xFFF3F5F9),
+      inset =>
+        dark ? colorScheme.surfaceContainerHighest : const Color(0xFFE9EDF4),
     };
   }
 }
@@ -63,6 +64,20 @@ extension SurfaceContext on BuildContext {
 }
 
 extension ChromeSurfaceExt on ColorScheme {
+  BorderSide get cardEdge => brightness == Brightness.dark
+      ? BorderSide.none
+      : const BorderSide(color: Color(0xFFE6EAF1));
+
+  List<BoxShadow> get cardShadows => brightness == Brightness.dark
+      ? const []
+      : const [
+          BoxShadow(
+            color: Color(0x061A304C),
+            offset: Offset(0, 2),
+            blurRadius: 5,
+          ),
+        ];
+
   Color get chromeSurface =>
       brightness == Brightness.dark ? surfaceContainerLow : Colors.white;
 }

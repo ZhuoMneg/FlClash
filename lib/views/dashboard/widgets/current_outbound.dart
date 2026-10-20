@@ -121,7 +121,14 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard>
                           child: ShapeBadge(
                             shape: MaterialShapes.cookie12Sided,
                             color: Color.lerp(
-                              colors.tone,
+                              colorScheme.brightness == Brightness.light
+                                  ? Color.alphaBlend(
+                                      colorScheme.primary.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      colors.card,
+                                    )
+                                  : colors.tone,
                               Color.alphaBlend(
                                 colorScheme.primary.withValues(alpha: 0.1),
                                 colors.card,

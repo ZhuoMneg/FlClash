@@ -407,6 +407,7 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
       onDragStart: desktopWindow.startDragging,
       onDoubleTap: caption.toggleMaximized,
       title: system.isMacOS ? const Text(appName) : null,
+      leading: system.isMacOS ? null : const WindowHeaderBrand(),
       actions: system.isMacOS
           ? null
           : WindowHeaderActions(
@@ -422,6 +423,25 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
   }
 }
 
+class WindowHeaderBrand extends StatelessWidget {
+  const WindowHeaderBrand({super.key});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    spacing: 8,
+    children: [
+      Image.asset('assets/images/icon.png', width: 17, height: 17),
+      Text(
+        appName,
+        style: AppTextStyle.caption1
+            .of(context)
+            .copyWith(color: context.colorScheme.onSurfaceVariant),
+      ),
+    ],
+  );
+}
+
 class WindowHeaderBar extends StatelessWidget {
   const WindowHeaderBar({
     super.key,
@@ -430,6 +450,7 @@ class WindowHeaderBar extends StatelessWidget {
     required this.onDoubleTap,
     this.translucent = false,
     this.title,
+    this.leading,
     this.actions,
   });
 
@@ -438,6 +459,7 @@ class WindowHeaderBar extends StatelessWidget {
   final VoidCallback onDoubleTap;
   final bool translucent;
   final Widget? title;
+  final Widget? leading;
   final Widget? actions;
 
   @override
@@ -445,7 +467,6 @@ class WindowHeaderBar extends StatelessWidget {
     final colorScheme = context.colorScheme;
     return Material(
       color: translucent ? Colors.transparent : null,
-      shape: Border(bottom: Divider.createBorderSide(context)),
       child: SizedBox(
         height: height,
         child: Stack(
@@ -466,6 +487,13 @@ class WindowHeaderBar extends StatelessWidget {
                 ),
               ),
             ),
+            if (leading != null)
+              PositionedDirectional(
+                top: 0,
+                bottom: 0,
+                start: 16,
+                child: IgnorePointer(child: leading),
+              ),
             if (title != null)
               Positioned.fill(
                 child: IgnorePointer(child: Center(child: title)),

@@ -18,7 +18,7 @@ double get listHeaderHeight {
 double getItemHeight(ProxyCardType proxyCardType) {
   final measure = globalState.measure;
   final baseHeight =
-      16 +
+      32 +
       measure.textHeight(AppTextStyle.subheadline) * 2 +
       measure.textHeight(AppTextStyle.footnote) +
       8 +

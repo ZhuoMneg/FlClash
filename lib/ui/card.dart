@@ -132,13 +132,21 @@ class CommonCard extends StatelessWidget {
   final OutlinedBorder? shape;
   final WidgetStatesController? statesController;
 
+  bool _hasCardChrome(BuildContext context) =>
+      context.surfaceLevel == SurfaceLevel.page &&
+      shape == null &&
+      !isError &&
+      !_filled;
+
   BorderSide _buildBorderSide(
     BuildContext context,
     Set<WidgetState> states, {
     required bool ringed,
   }) {
     if (!ringed || !states.contains(WidgetState.focused)) {
-      return BorderSide.none;
+      return _hasCardChrome(context)
+          ? context.colorScheme.cardEdge
+          : BorderSide.none;
     }
     final colorScheme = context.colorScheme;
     final side = focusRingSide(colorScheme);
@@ -224,7 +232,7 @@ class CommonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final button = _buildButton(context, context.raisedSurfaceLevel);
-    final card = !enterActionsOnRight
+    final focusedCard = !enterActionsOnRight
         ? button
         : Focus(
             canRequestFocus: false,
@@ -256,6 +264,15 @@ class CommonCard extends StatelessWidget {
             child: button,
           );
 
+    final card = _hasCardChrome(context)
+        ? DecoratedBox(
+            decoration: ShapeDecoration(
+              shape: AppShape.all(radius ?? AppCorner.md),
+              shadows: context.colorScheme.cardShadows,
+            ),
+            child: focusedCard,
+          )
+        : focusedCard;
     return switch (enterAnimated) {
       true => FadeScaleEnterBox(child: card),
       false => card,

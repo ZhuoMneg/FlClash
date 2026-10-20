@@ -298,7 +298,11 @@ class _RecordTableHeader<T> extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: _recordTableMargin),
       child: Material(
-        color: context.raisedSurfaceLevel.colorOf(colorScheme),
+        color:
+            (colorScheme.brightness == Brightness.light
+                    ? SurfaceLevel.block
+                    : context.raisedSurfaceLevel)
+                .colorOf(colorScheme),
         shape: AppShape.all(AppCorner.fit(height)),
         clipBehavior: Clip.antiAlias,
         child: TableColumnResizer(

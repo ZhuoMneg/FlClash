@@ -14,7 +14,8 @@ import 'package:material_ui/material_ui.dart';
 const _compactWidth = 48.0;
 const _expandedWidth = 220.0;
 const _dockWidth = 90.0;
-const _dockItemHeight = 62.0;
+const _dockItemHeight = 58.0;
+const _dockMinimumContentHeight = 530.0;
 const _itemSize = 40.0;
 const _itemGap = 4.0;
 const _toggleGap = 8.0;
@@ -253,7 +254,9 @@ class _SidebarColors {
       overlay = WidgetStateProperty.fromMap({
         WidgetState.pressed: scheme.onSurface.withValues(alpha: 0.06),
         WidgetState.focused: scheme.onSurface.withValues(alpha: 0.1),
-        WidgetState.hovered: scheme.onSurface.withValues(alpha: 0.04),
+        WidgetState.hovered: scheme.brightness == Brightness.light
+            ? const Color(0xFFF6F8FC)
+            : scheme.onSurface.withValues(alpha: 0.04),
         WidgetState.any: Colors.transparent,
       });
 
@@ -291,7 +294,14 @@ class _SidebarPane extends StatelessWidget {
     final fontSize = AppTextStyle.subheadline.size;
     final labelOpacity = ((progress - 0.4) / 0.6).clamp(0.0, 1.0);
     final compactWidth = math.max(_compactWidth, windowControls.width);
-    final sideInset = math.min(_maxSideInset, (compactWidth - _itemSize) / 2);
+    final compactInset = math.min(
+      _maxSideInset,
+      (compactWidth - _itemSize) / 2,
+    );
+    final sideInset = docked
+        ? lerpDouble(compactInset, 8, progress)!
+        : compactInset;
+    final itemGap = docked ? 8.0 : _itemGap;
     final itemWidth = compactWidth - sideInset * 2;
     final iconInset = (itemWidth - _iconSize) / 2;
     final itemHeight =
@@ -329,6 +339,7 @@ class _SidebarPane extends StatelessWidget {
           tooltip: rowTooltip(destination.label),
           onTap: () => onSelected(index),
           shape: docked ? AppShape.lg : _itemShape,
+          gap: itemGap,
           child: docked
               ? _DestinationDock(
                   destination: destination,
@@ -346,59 +357,75 @@ class _SidebarPane extends StatelessWidget {
         );
     return SizedBox(
       width: paneWidth,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: windowControls.height + _verticalInset),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: _SidebarButton(
-              colors: colors,
-              height: docked ? _itemSize : itemHeight,
-              sideInset: sideInset,
-              tooltip: expanded
-                  ? UiLocalizations.of(context).showLess
-                  : UiLocalizations.of(context).showMore,
-              tooltipIsLabel: true,
-              onTap: onToggle,
-              child: SizedBox(
-                width: docked ? paneWidth - sideInset * 2 : itemWidth,
-                child: Center(child: GlyphIcon(AppGlyphs.sidebar(progress))),
-              ),
-            ),
-          ),
-          const SizedBox(height: _toggleGap),
-          Expanded(
-            child: ScrollConfiguration(
-              behavior: const HiddenBarScrollBehavior(),
-              child: SingleChildScrollView(
-                child: Stack(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (final (index, destination) in destinations.indexed)
-                          if (!destination.isFooter)
-                            destinationButton(index, destination),
-                      ],
+      child: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: windowControls.height + _verticalInset),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: _SidebarButton(
+                colors: colors,
+                height: docked ? 24 : itemHeight,
+                sideInset: sideInset,
+                tooltip: expanded
+                    ? UiLocalizations.of(context).showLess
+                    : UiLocalizations.of(context).showMore,
+                tooltipIsLabel: true,
+                onTap: onToggle,
+                child: SizedBox(
+                  width: docked ? paneWidth - sideInset * 2 : itemWidth,
+                  child: Center(
+                    child: GlyphIcon(
+                      AppGlyphs.sidebar(progress),
+                      strokeWidth: docked ? 2 : null,
                     ),
-                    if (selectedIndex < destinations.length &&
-                        !destinations[selectedIndex].isFooter)
-                      _SelectionIndicator(
-                        color: colors.indicator,
-                        index: selectedIndex,
-                        start: sideInset,
-                        stride: itemHeight + _itemGap,
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          for (final (index, destination) in destinations.indexed)
-            if (destination.isFooter) destinationButton(index, destination),
-          const SizedBox(height: _verticalInset),
-        ],
+            SizedBox(height: docked ? 2 : _toggleGap),
+            Expanded(
+              child: ScrollConfiguration(
+                behavior: const HiddenBarScrollBehavior(),
+                child: SingleChildScrollView(
+                  child: Stack(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (index, destination)
+                              in destinations.indexed)
+                            if (!destination.isFooter)
+                              destinationButton(index, destination),
+                        ],
+                      ),
+                      if (!docked &&
+                          selectedIndex < destinations.length &&
+                          !destinations[selectedIndex].isFooter)
+                        _SelectionIndicator(
+                          color: colors.indicator,
+                          index: selectedIndex,
+                          start: sideInset,
+                          stride: itemHeight + _itemGap,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            for (final (index, destination) in destinations.indexed)
+              if (destination.isFooter) destinationButton(index, destination),
+            SizedBox(
+              height: docked
+                  ? (constraints.maxHeight - _dockMinimumContentHeight).clamp(
+                      _verticalInset,
+                      80.0,
+                    )
+                  : _verticalInset,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -416,6 +443,7 @@ class _SidebarButton extends StatelessWidget {
     this.selected,
     this.tooltipIsLabel = false,
     this.shape = _itemShape,
+    this.gap = _itemGap,
   });
 
   final _SidebarColors colors;
@@ -427,14 +455,12 @@ class _SidebarButton extends StatelessWidget {
   final VoidCallback onTap;
   final Widget child;
   final OutlinedBorder shape;
+  final double gap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: sideInset,
-        vertical: _itemGap / 2,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: sideInset, vertical: gap / 2),
       child: Semantics(
         container: true,
         button: true,
@@ -448,7 +474,7 @@ class _SidebarButton extends StatelessWidget {
                     context.colorScheme.brightness == Brightness.light
                 ? 1
                 : 0,
-            shadowColor: context.colorScheme.primary.withValues(alpha: 0.12),
+            shadowColor: context.colorScheme.primary.withValues(alpha: 0.04),
             surfaceTintColor: Colors.transparent,
             shape: shape,
             child: InkWell(
@@ -497,7 +523,16 @@ class _DestinationDock extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        AnimatedGlyph(glyph: destination.glyph, filled: selected),
+        IconTheme.merge(
+          data: IconThemeData(
+            color: selected ? scheme.primary : scheme.onSurface,
+          ),
+          child: AnimatedGlyph(
+            glyph: destination.glyph,
+            filled: selected,
+            outlined: true,
+          ),
+        ),
         ClipRect(
           child: Align(
             heightFactor: progress,

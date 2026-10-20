@@ -8,10 +8,16 @@ const _fillDuration = Duration(milliseconds: 350);
 const _popScale = 0.1;
 
 class AnimatedGlyph extends StatefulWidget {
-  const AnimatedGlyph({super.key, required this.glyph, required this.filled});
+  const AnimatedGlyph({
+    super.key,
+    required this.glyph,
+    required this.filled,
+    this.outlined = false,
+  });
 
   final Glyph glyph;
   final bool filled;
+  final bool outlined;
 
   @override
   State<AnimatedGlyph> createState() => _AnimatedGlyphState();
@@ -68,7 +74,11 @@ class _AnimatedGlyphState extends State<AnimatedGlyph>
             : 0.0;
         return Transform.scale(
           scale: 1 + pop,
-          child: GlyphIcon(widget.glyph, fill: _fill.value),
+          child: GlyphIcon(
+            widget.glyph,
+            fill: widget.outlined ? 0 : _fill.value,
+            strokeWidth: widget.outlined ? 2 : null,
+          ),
         );
       },
     );

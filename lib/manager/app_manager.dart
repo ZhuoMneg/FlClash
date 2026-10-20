@@ -190,6 +190,7 @@ class _Sidebar extends ConsumerWidget {
 }
 
 class AppSidebarContainer extends ConsumerWidget {
+  static const _dockPanelCorner = 32.0;
   final Widget child;
 
   const AppSidebarContainer({super.key, required this.child});
@@ -241,26 +242,37 @@ class AppSidebarContainer extends ConsumerWidget {
           AnimatedVisibility.sidebar(
             visible: hasSidebar,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              child: Material(
-                color: blur
-                    ? chrome.withValues(alpha: kSidebarBlurOpacity)
-                    : chrome,
-                shape: AppShape.xxl,
-                elevation: 3,
-                shadowColor: context.colorScheme.shadow.withValues(alpha: 0.14),
-                surfaceTintColor: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: MediaQuery.removePadding(
-                    context: context,
-                    removeLeft: !isLtr,
-                    removeRight: isLtr,
-                    child: _Sidebar(
-                      items: navigationItems,
-                      currentIndex: currentIndex,
-                      viewMode: viewMode,
-                      onSelected: onSelected,
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              child: Align(
+                alignment: AlignmentDirectional.topStart,
+                widthFactor: 1,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 610),
+                  child: Material(
+                    color: blur
+                        ? chrome.withValues(alpha: kSidebarBlurOpacity)
+                        : chrome,
+                    shape: AppShape.all(
+                      _dockPanelCorner,
+                    ).copyWith(side: context.colorScheme.cardEdge),
+                    elevation: 2,
+                    shadowColor: context.colorScheme.shadow.withValues(
+                      alpha: 0.1,
+                    ),
+                    surfaceTintColor: Colors.transparent,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: MediaQuery.removePadding(
+                        context: context,
+                        removeLeft: !isLtr,
+                        removeRight: isLtr,
+                        child: _Sidebar(
+                          items: navigationItems,
+                          currentIndex: currentIndex,
+                          viewMode: viewMode,
+                          onSelected: onSelected,
+                        ),
+                      ),
                     ),
                   ),
                 ),

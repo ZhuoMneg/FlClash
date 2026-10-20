@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui' show Size;
 
 import 'package:fl_clash/enum/enum.dart';
@@ -62,7 +61,7 @@ Size windowControlsOverPage({
 }
 
 int getProxiesColumns(double viewWidth, ProxiesLayout proxiesLayout) {
-  final columns = max((viewWidth / 250).ceil(), 2);
+  final columns = (viewWidth / 250).ceil().clamp(2, 3);
   return switch (proxiesLayout) {
     ProxiesLayout.tight => columns + 1,
     ProxiesLayout.standard => columns,
@@ -78,7 +77,7 @@ double cardSpacingOf(BuildContext context, ViewMode viewMode) =>
     }.mAp(context);
 
 const profileItemMinWidth = 300.0;
-const _profilesMaxColumns = 3;
+const _profilesMaxColumns = 2;
 
 int getProfilesColumns(
   double viewWidth, {

@@ -19,19 +19,21 @@ class GlyphPainter extends CustomPainter {
     required this.glyph,
     required this.fill,
     required this.color,
+    this.strokeWidth = Glyph.strokeWidth,
   });
 
   final Glyph glyph;
   final double fill;
   final Color color;
+  final double strokeWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
     final opaque = color.withValues(alpha: 1);
-    final stroke = _stroke(opaque, Glyph.strokeWidth);
+    final stroke = _stroke(opaque, strokeWidth);
     final line = _stroke(
       opaque,
-      lerpDouble(Glyph.strokeWidth, _filledLineWidth, fill.clamp(0, 1))!,
+      lerpDouble(strokeWidth, _filledLineWidth, fill.clamp(0, 1))!,
     );
     final area = Paint()..color = opaque;
     Paint paintFor(GlyphShape shape) => shape.solid
@@ -104,7 +106,7 @@ class GlyphPainter extends CustomPainter {
     if (!detail.solid) {
       canvas.drawPath(
         detail.path,
-        _stroke(color, Glyph.strokeWidth * scale)..blendMode = blendMode,
+        _stroke(color, strokeWidth * scale)..blendMode = blendMode,
       );
       return;
     }
@@ -126,7 +128,8 @@ class GlyphPainter extends CustomPainter {
   bool shouldRepaint(GlyphPainter oldDelegate) =>
       glyph != oldDelegate.glyph ||
       fill != oldDelegate.fill ||
-      color != oldDelegate.color;
+      color != oldDelegate.color ||
+      strokeWidth != oldDelegate.strokeWidth;
 }
 
 Paint _stroke(Color color, double width) => Paint()

@@ -2,8 +2,16 @@ import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
-Widget _icon({required bool filled, IconThemeData? theme}) {
-  final icon = AnimatedGlyph(glyph: AppGlyphs.profiles, filled: filled);
+Widget _icon({
+  required bool filled,
+  IconThemeData? theme,
+  bool outlined = false,
+}) {
+  final icon = AnimatedGlyph(
+    glyph: AppGlyphs.profiles,
+    filled: filled,
+    outlined: outlined,
+  );
   return Directionality(
     textDirection: TextDirection.ltr,
     child: Center(
@@ -35,6 +43,20 @@ double _scale(WidgetTester tester) {
 }
 
 void main() {
+  testWidgets('outlined navigation keeps its strokes while selection pops', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_icon(filled: false, outlined: true));
+    await tester.pumpWidget(_icon(filled: true, outlined: true));
+    await tester.pump(const Duration(milliseconds: 60));
+    expect(_fill(tester), 0);
+    expect(_painter(tester).strokeWidth, 2);
+    expect(_scale(tester), greaterThan(1));
+    await tester.pumpAndSettle();
+    expect(_fill(tester), 0);
+    expect(_scale(tester), 1);
+  });
+
   testWidgets('rests on the outline and on the fill', (tester) async {
     await tester.pumpWidget(_icon(filled: false));
     expect(_fill(tester), 0);

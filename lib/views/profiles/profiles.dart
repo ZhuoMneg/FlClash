@@ -18,13 +18,14 @@ import 'edit.dart';
 import 'preview.dart';
 
 const _infoGap = 4.0;
+const _profileVerticalPadding = 18.0;
 
 double get _profileItemHeight {
   final measure = globalState.measure;
   return measure.textHeight(AppTextStyle.headline) +
       _infoGap +
       measure.textHeight(AppTextStyle.footnote) +
-      2 * listRowVerticalPadding;
+      2 * _profileVerticalPadding;
 }
 
 class ProfilesView extends ConsumerStatefulWidget {
@@ -495,7 +496,7 @@ class ProfileItem extends ConsumerWidget {
         child: ListItem(
           key: Key(profile.id.toString()),
           minTileHeight: _profileItemHeight,
-          minVerticalPadding: listRowVerticalPadding,
+          minVerticalPadding: _profileVerticalPadding,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: 8,

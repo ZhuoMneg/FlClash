@@ -13,6 +13,7 @@ import 'package:fl_clash/ui/measure.dart';
 import 'package:fl_clash/ui/metrics.dart';
 import 'package:fl_clash/ui/models.dart';
 import 'package:fl_clash/ui/shape.dart';
+import 'package:fl_clash/ui/surface.dart';
 import 'package:fl_clash/ui/typography.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -591,10 +592,31 @@ Widget generateSection({
     children: [
       if (items.isNotEmpty && title != null)
         ListHeader(title: title, actions: actions),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [...genItems],
-      ),
+      if (items.isNotEmpty)
+        Builder(
+          builder: (context) => DecoratedBox(
+            decoration: ShapeDecoration(
+              shape: AppShape.xl,
+              shadows: context.surfaceLevel == SurfaceLevel.page
+                  ? context.colorScheme.cardShadows
+                  : const [],
+            ),
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: ShapeDecoration(
+                shape: AppShape.xl.copyWith(
+                  side: context.surfaceLevel == SurfaceLevel.page
+                      ? context.colorScheme.cardEdge
+                      : BorderSide.none,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [...genItems],
+              ),
+            ),
+          ),
+        ),
       if (items.isNotEmpty && footer != null) ListFooter(text: footer),
     ],
   );

@@ -1,9 +1,9 @@
 # Surfaces
 
-FlClash draws structure with fills and keeps color for state. A surface stands out from what it sits on by a step in
-lightness, never by a border. Color appears where something is selected, on, failing, or the one action a screen is
-for. The dashboard set this direction; every other screen follows it, and Material components keep their behavior
-but give up their tonal container fills.
+This fork follows the user's approved white desktop preview: cool near-white cards,
+fine cool outlines and restrained shadows separate cards from the white page.
+Accent color still marks selection, status and the main action. Layout density and
+navigation proportions follow that preview; original interactions remain intact.
 
 ## Levels
 
@@ -13,13 +13,14 @@ it sits on, which `SurfaceScope` passes down the tree.
 | Level   | Light                     | Dark                      | Holds                                                   |
 |---------|---------------------------|---------------------------|---------------------------------------------------------|
 | `page`  | white                     | `surface`                 | scaffold body, sheets                                   |
-| `card`  | `surfaceBright`           | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
-| `block` | `surfaceContainer`        | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
-| `inset` | `surfaceContainerHighest` | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
+| `card`  | `#FCFCFE`                 | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
+| `block` | `#F3F5F9`                 | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
+| `inset` | `#E9EDF4`                 | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
 
-This fork uses white light-mode page, canvas and window chrome backgrounds. Card fills, inner controls, grouped
-rows, corner sizes and shadows retain upstream styling. The desktop sidebar floats in a rounded chrome panel;
-its shadow separates it from the white page. The seeded ColorScheme itself is unchanged. Dark mode only
+The shared `cardEdge` and `cardShadows` roles apply to standalone cards and the outside
+of grouped settings, never to every nested row. They are empty in dark mode.
+The desktop dock has the preview's outlined panel, bounded height and outlined
+vector icons; settings remains at its foot. The seeded ColorScheme itself is unchanged. Dark mode only
 lightens, because a darker step inside a lighter surface reads as a hole rather than a layer. `inset` is the floor;
 nothing nests below it, so a design that needs a fifth level needs fewer containers instead.
 
@@ -39,8 +40,8 @@ nothing nests below it, so a design that needs a fifth level needs fewer contain
 - What floats over content, dialogs, menus, popups, the mobile dock, toasts, takes `SurfaceLevel.floatingOf`: `card`
   in light, `block` in dark. A shadow does not show on a dark page, so a float has to come out lighter than the cards
   it covers, and its content scopes to that level so a block inside still steps away from it.
-- Shadows mark what floats, plus the dashboard cards. Cards in a scrolling list have none; a grid of proxies with a
-  blurred shadow each costs raster time for no extra layering. A render object that paints a shadow itself draws it
+- Shadows mark what floats, plus the dashboard cards. Root cards use only the preview's small shared shadow;
+  grouped rows and nested controls do not repeat it. A render object that paints a shadow itself draws it
   with `drawRSuperellipse`, as `ShapeDecoration` does: Impeller blurs a superellipse in one analytic pass, but a path
   through an offscreen Gaussian blur on every frame, which made the shadows the largest raster cost of an opening menu.
 

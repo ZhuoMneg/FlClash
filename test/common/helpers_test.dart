@@ -202,7 +202,8 @@ void main() {
 
     test('scales with width', () {
       expect(getProxiesColumns(500, ProxiesLayout.standard), 2);
-      expect(getProxiesColumns(800, ProxiesLayout.standard), 4);
+      expect(getProxiesColumns(800, ProxiesLayout.standard), 3);
+      expect(getProxiesColumns(1100, ProxiesLayout.standard), 3);
     });
 
     test('tight layout adds column', () {
@@ -226,12 +227,12 @@ void main() {
     test('scales with width', () {
       expect(getProfilesColumns(300), 1);
       expect(getProfilesColumns(700), 2);
-      expect(getProfilesColumns(960), 3);
+      expect(getProfilesColumns(960), 2);
     });
 
-    test('caps at three columns', () {
-      expect(getProfilesColumns(1300), 3);
-      expect(getProfilesColumns(2400, spacing: 14), 3);
+    test('caps at two columns to preserve the preview spacing', () {
+      expect(getProfilesColumns(1300), 2);
+      expect(getProfilesColumns(2400, spacing: 14), 2);
     });
 
     test('spacing costs a column at the breakpoint', () {
@@ -258,8 +259,8 @@ void main() {
     });
 
     test('a larger minimum yields fewer columns', () {
-      expect(getProfilesColumns(1000, minItemWidth: 320), 3);
-      expect(getProfilesColumns(1000, minItemWidth: 480), 2);
+      expect(getProfilesColumns(1000, minItemWidth: 320), 2);
+      expect(getProfilesColumns(1000, minItemWidth: 540), 1);
     });
   });
 
