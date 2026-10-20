@@ -5,8 +5,9 @@ contributors. This repository and its releases are modified builds, maintained
 separately from upstream. The original copyright notices, GPL-3.0 license, and
 third-party notices are retained.
 
-- White light surfaces, rounded navigation pills and softly raised cards,
-  based on official v0.9.1 desktop/mobile layouts, icon, and theme options.
+- White light-mode page and window backgrounds with a floating, rounded desktop
+  navigation dock, labeled icons and a collapsible compact mode. Original v0.9.1
+  content layouts, card styling, mobile navigation, icon, and theme options.
 - Navigation for overview, proxies, profiles, routing, realtime requests, tools,
   and settings; connections are available from Tools.
 - Searchable request history and reuse of the current profile's routing editor.

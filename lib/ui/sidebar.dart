@@ -13,6 +13,8 @@ import 'package:material_ui/material_ui.dart';
 
 const _compactWidth = 48.0;
 const _expandedWidth = 220.0;
+const _dockWidth = 90.0;
+const _dockItemHeight = 62.0;
 const _itemSize = 40.0;
 const _itemGap = 4.0;
 const _toggleGap = 8.0;
@@ -52,6 +54,7 @@ class NavigationSidebar extends StatefulWidget {
     required this.onSelected,
     this.onToggle,
     this.windowControls = Size.zero,
+    this.docked = false,
   });
 
   final List<SidebarDestination> destinations;
@@ -60,6 +63,7 @@ class NavigationSidebar extends StatefulWidget {
   final ValueChanged<int> onSelected;
   final VoidCallback? onToggle;
   final Size windowControls;
+  final bool docked;
 
   @override
   State<NavigationSidebar> createState() => _NavigationSidebarState();
@@ -152,6 +156,7 @@ class _NavigationSidebarState extends State<NavigationSidebar>
           duration: _expandDuration,
           curve: Easing.standard,
           builder: (context, progress, _) => _SidebarPane(
+            docked: widget.docked,
             progress: progress,
             windowControls: widget.windowControls,
             expanded: widget.expanded,
@@ -268,6 +273,7 @@ class _SidebarPane extends StatelessWidget {
     required this.selectedIndex,
     required this.onSelected,
     required this.onToggle,
+    this.docked = false,
   });
 
   final double progress;
@@ -277,6 +283,7 @@ class _SidebarPane extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelected;
   final VoidCallback onToggle;
+  final bool docked;
 
   @override
   Widget build(BuildContext context) {
@@ -288,12 +295,24 @@ class _SidebarPane extends StatelessWidget {
     final itemWidth = compactWidth - sideInset * 2;
     final iconInset = (itemWidth - _iconSize) / 2;
     final itemHeight =
-        _itemSize + MediaQuery.textScalerOf(context).scale(fontSize) - fontSize;
+        (docked
+            ? lerpDouble(_itemSize, _dockItemHeight, progress)!
+            : _itemSize) +
+        MediaQuery.textScalerOf(context).scale(fontSize) -
+        fontSize;
+    final paneWidth = lerpDouble(
+      compactWidth,
+      docked ? math.max(_dockWidth, compactWidth) : _expandedWidth,
+      progress,
+    )!;
     final rowWidth = _expandedWidth - sideInset * 2;
-    final labelStyle = AppTextStyle.subheadline
-        .of(context)
-        .copyWith(color: colors.label);
-    final labelWidth = rowWidth - iconInset - _iconSize - _labelGap * 2;
+    final labelStyle =
+        (docked ? AppTextStyle.caption1 : AppTextStyle.subheadline)
+            .of(context)
+            .copyWith(color: colors.label);
+    final labelWidth = docked
+        ? paneWidth - sideInset * 2
+        : rowWidth - iconInset - _iconSize - _labelGap * 2;
     String rowTooltip(String label) =>
         expanded &&
             progress == 1 &&
@@ -309,17 +328,24 @@ class _SidebarPane extends StatelessWidget {
           selected: index == selectedIndex,
           tooltip: rowTooltip(destination.label),
           onTap: () => onSelected(index),
-          child: _DestinationRow(
-            destination: destination,
-            selected: index == selectedIndex,
-            width: rowWidth,
-            iconInset: iconInset,
-            style: labelStyle,
-            labelOpacity: labelOpacity,
-          ),
+          shape: docked ? AppShape.lg : _itemShape,
+          child: docked
+              ? _DestinationDock(
+                  destination: destination,
+                  selected: index == selectedIndex,
+                  progress: progress,
+                )
+              : _DestinationRow(
+                  destination: destination,
+                  selected: index == selectedIndex,
+                  width: rowWidth,
+                  iconInset: iconInset,
+                  style: labelStyle,
+                  labelOpacity: labelOpacity,
+                ),
         );
     return SizedBox(
-      width: lerpDouble(compactWidth, _expandedWidth, progress),
+      width: paneWidth,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -328,7 +354,7 @@ class _SidebarPane extends StatelessWidget {
             alignment: AlignmentDirectional.centerStart,
             child: _SidebarButton(
               colors: colors,
-              height: itemHeight,
+              height: docked ? _itemSize : itemHeight,
               sideInset: sideInset,
               tooltip: expanded
                   ? UiLocalizations.of(context).showLess
@@ -336,7 +362,7 @@ class _SidebarPane extends StatelessWidget {
               tooltipIsLabel: true,
               onTap: onToggle,
               child: SizedBox(
-                width: itemWidth,
+                width: docked ? paneWidth - sideInset * 2 : itemWidth,
                 child: Center(child: GlyphIcon(AppGlyphs.sidebar(progress))),
               ),
             ),
@@ -389,6 +415,7 @@ class _SidebarButton extends StatelessWidget {
     required this.child,
     this.selected,
     this.tooltipIsLabel = false,
+    this.shape = _itemShape,
   });
 
   final _SidebarColors colors;
@@ -399,6 +426,7 @@ class _SidebarButton extends StatelessWidget {
   final bool tooltipIsLabel;
   final VoidCallback onTap;
   final Widget child;
+  final OutlinedBorder shape;
 
   @override
   Widget build(BuildContext context) {
@@ -412,7 +440,7 @@ class _SidebarButton extends StatelessWidget {
         button: true,
         selected: selected,
         child: FocusRing(
-          shape: _itemShape,
+          shape: shape,
           child: Material(
             color: selected == true ? colors.selectedFill : Colors.transparent,
             elevation:
@@ -422,10 +450,10 @@ class _SidebarButton extends StatelessWidget {
                 : 0,
             shadowColor: context.colorScheme.primary.withValues(alpha: 0.12),
             surfaceTintColor: Colors.transparent,
-            shape: _itemShape,
+            shape: shape,
             child: InkWell(
               onTap: onTap,
-              customBorder: _itemShape,
+              customBorder: shape,
               mouseCursor: SystemMouseCursors.basic,
               splashFactory: NoSplash.splashFactory,
               overlayColor: colors.overlay,
@@ -448,6 +476,53 @@ class _SidebarButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DestinationDock extends StatelessWidget {
+  const _DestinationDock({
+    required this.destination,
+    required this.selected,
+    required this.progress,
+  });
+
+  final SidebarDestination destination;
+  final bool selected;
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AnimatedGlyph(glyph: destination.glyph, filled: selected),
+        ClipRect(
+          child: Align(
+            heightFactor: progress,
+            child: Opacity(
+              opacity: progress,
+              alwaysIncludeSemantics: true,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  destination.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.caption1
+                      .of(context)
+                      .copyWith(
+                        color: selected && scheme.brightness == Brightness.light
+                            ? scheme.primary
+                            : scheme.onSurface,
+                      ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

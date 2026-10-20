@@ -159,6 +159,7 @@ class _Sidebar extends ConsumerWidget {
     );
     final version = ref.watch(versionProvider);
     return NavigationSidebar(
+      docked: true,
       destinations: [
         for (final item in items)
           SidebarDestination(
@@ -239,20 +240,29 @@ class AppSidebarContainer extends ConsumerWidget {
         children: [
           AnimatedVisibility.sidebar(
             visible: hasSidebar,
-            child: Material(
-              color: blur
-                  ? chrome.withValues(alpha: kSidebarBlurOpacity)
-                  : chrome,
-              shape: BorderDirectional(end: Divider.createBorderSide(context)),
-              child: MediaQuery.removePadding(
-                context: context,
-                removeLeft: !isLtr,
-                removeRight: isLtr,
-                child: _Sidebar(
-                  items: navigationItems,
-                  currentIndex: currentIndex,
-                  viewMode: viewMode,
-                  onSelected: onSelected,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              child: Material(
+                color: blur
+                    ? chrome.withValues(alpha: kSidebarBlurOpacity)
+                    : chrome,
+                shape: AppShape.xxl,
+                elevation: 3,
+                shadowColor: context.colorScheme.shadow.withValues(alpha: 0.14),
+                surfaceTintColor: Colors.transparent,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: MediaQuery.removePadding(
+                    context: context,
+                    removeLeft: !isLtr,
+                    removeRight: isLtr,
+                    child: _Sidebar(
+                      items: navigationItems,
+                      currentIndex: currentIndex,
+                      viewMode: viewMode,
+                      onSelected: onSelected,
+                    ),
+                  ),
                 ),
               ),
             ),

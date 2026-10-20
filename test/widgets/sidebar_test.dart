@@ -9,7 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 import '../helpers/test_app.dart';
 
 final _paneFinder = find
-    .byWidgetPredicate((widget) => widget is Material && widget.elevation > 0)
+    .byWidgetPredicate(
+      (widget) =>
+          widget is Material &&
+          widget.elevation > 0 &&
+          widget.shape is BorderDirectional,
+    )
     .first;
 
 const _destinations = [
@@ -33,6 +38,7 @@ Widget _sidebar({
   List<SidebarDestination> destinations = _destinations,
   int selectedIndex = 0,
   bool expanded = true,
+  bool docked = false,
   ValueChanged<int>? onSelected,
   VoidCallback? onToggle,
   Size windowControls = Size.zero,
@@ -51,6 +57,7 @@ Widget _sidebar({
                   destinations: destinations,
                   selectedIndex: selectedIndex,
                   expanded: expanded,
+                  docked: docked,
                   onSelected: onSelected ?? (_) {},
                   onToggle: onToggle,
                   windowControls: windowControls,
@@ -103,6 +110,41 @@ Finder _rowTooltip(String message) => find.byWidgetPredicate(
 );
 
 void main() {
+  testWidgets('the dock keeps labels and a footer while selecting pages', (
+    tester,
+  ) async {
+    int? selected;
+    await tester.pumpWidget(
+      _sidebar(
+        docked: true,
+        destinations: const [
+          ..._destinations,
+          SidebarDestination(
+            glyph: AppGlyphs.settings,
+            label: 'Settings',
+            isFooter: true,
+          ),
+        ],
+        onSelected: (index) => selected = index,
+      ),
+    );
+    expect(tester.getSize(_sidebarFinder).width, 90);
+    expect(_labelOpacities(tester, 'Proxies'), [1]);
+    expect(
+      tester.getCenter(find.text('Settings')).dy,
+      greaterThan(tester.getCenter(find.text('Profiles')).dy),
+    );
+    await tester.tap(find.text('Proxies'));
+    expect(selected, 1);
+    await tester.tap(find.text('Settings'));
+    expect(selected, 3);
+    await tester.pumpWidget(_sidebar(docked: true, expanded: false));
+    await tester.pumpAndSettle();
+    expect(tester.getSize(_sidebarFinder).width, 48);
+    expect(_labelOpacities(tester, 'Proxies'), [0]);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('the selected row carries a centered indicator', (tester) async {
     await tester.pumpWidget(_sidebar(selectedIndex: 1));
 

@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
-  test('light backgrounds stay white while dark surfaces keep their roles', () {
+  test('white pages preserve original cards and themed controls', () {
     for (final brightness in Brightness.values) {
       for (final seed in [Colors.blue, Colors.green, Colors.pink]) {
         final scheme = seededColorScheme(
@@ -12,8 +12,7 @@ void main() {
           brightness: brightness,
         );
         final theme = ThemeData(colorScheme: scheme).withAppSurfaces;
-        expect(theme.colorScheme.primary, scheme.primary);
-        expect(theme.colorScheme.onSurface, scheme.onSurface);
+        expect(theme.colorScheme, scheme);
         expect(
           theme.scaffoldBackgroundColor,
           SurfaceLevel.page.colorOf(scheme),
@@ -21,16 +20,17 @@ void main() {
         expect(theme.cardTheme.color, SurfaceLevel.card.colorOf(scheme));
         if (brightness == Brightness.light) {
           expect(theme.scaffoldBackgroundColor, Colors.white);
-          expect(theme.cardTheme.color, Colors.white);
+          expect(theme.cardTheme.color, scheme.surfaceBright);
           expect(theme.canvasColor, Colors.white);
-          expect(theme.colorScheme.surface, Colors.white);
-          expect(theme.colorScheme.surfaceBright, Colors.white);
-          expect(SurfaceLevel.block.colorOf(scheme), isNot(Colors.white));
-          expect(theme.colorScheme.raisedCardShadows, isNotEmpty);
+          expect(SurfaceLevel.block.colorOf(scheme), scheme.surfaceContainer);
+          expect(
+            SurfaceLevel.inset.colorOf(scheme),
+            scheme.surfaceContainerHighest,
+          );
         } else {
           expect(theme.colorScheme, scheme);
           expect(theme.cardTheme.color, isNot(theme.scaffoldBackgroundColor));
-          expect(theme.colorScheme.raisedCardShadows, isEmpty);
+          expect(theme.canvasColor, scheme.surface);
         }
         expect(
           theme.colorScheme.chromeSurface,

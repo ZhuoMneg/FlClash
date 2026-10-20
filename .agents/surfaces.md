@@ -1,8 +1,9 @@
 # Surfaces
 
-This fork uses white pages and white cards in light mode, with soft shadows for raised cards and a pale accent
-pill for the active sidebar destination. Nested controls keep subtle neutral fills. Dark mode keeps upstream's
-tonal depth. Material components keep their behavior; structural borders are not used to outline cards.
+FlClash draws structure with fills and keeps color for state. A surface stands out from what it sits on by a step in
+lightness, never by a border. Color appears where something is selected, on, failing, or the one action a screen is
+for. The dashboard set this direction; every other screen follows it, and Material components keep their behavior
+but give up their tonal container fills.
 
 ## Levels
 
@@ -11,13 +12,14 @@ it sits on, which `SurfaceScope` passes down the tree.
 
 | Level   | Light                     | Dark                      | Holds                                                   |
 |---------|---------------------------|---------------------------|---------------------------------------------------------|
-| `page`  | white                    | `surface`                 | scaffold body, sheets                                   |
-| `card`  | white                    | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
-| `block` | `#F6F8FC`                | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
-| `inset` | `#EDF1F7`                | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
+| `page`  | white                     | `surface`                 | scaffold body, sheets                                   |
+| `card`  | `surfaceBright`           | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
+| `block` | `surfaceContainer`        | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
+| `inset` | `surfaceContainerHighest` | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
 
-Light mode uses shadow rather than a gray page to separate white cards. `withAppSurfaces` normalizes Material surface
-roles to the same palette so headers and native components agree; accent and status colors are retained. Dark mode only
+This fork uses white light-mode page, canvas and window chrome backgrounds. Card fills, inner controls, grouped
+rows, corner sizes and shadows retain upstream styling. The desktop sidebar floats in a rounded chrome panel;
+its shadow separates it from the white page. The seeded ColorScheme itself is unchanged. Dark mode only
 lightens, because a darker step inside a lighter surface reads as a hole rather than a layer. `inset` is the floor;
 nothing nests below it, so a design that needs a fifth level needs fewer containers instead.
 
@@ -37,8 +39,8 @@ nothing nests below it, so a design that needs a fifth level needs fewer contain
 - What floats over content, dialogs, menus, popups, the mobile dock, toasts, takes `SurfaceLevel.floatingOf`: `card`
   in light, `block` in dark. A shadow does not show on a dark page, so a float has to come out lighter than the cards
   it covers, and its content scopes to that level so a block inside still steps away from it.
-- Shadows mark what floats, dashboard cards and root-level CommonCards in light mode. Nested CommonCards do not
-  add another shadow. Keep these shadows shared and modest for scrolling proxy grids. A render object that paints a shadow itself draws it
+- Shadows mark what floats, plus the dashboard cards. Cards in a scrolling list have none; a grid of proxies with a
+  blurred shadow each costs raster time for no extra layering. A render object that paints a shadow itself draws it
   with `drawRSuperellipse`, as `ShapeDecoration` does: Impeller blurs a superellipse in one analytic pass, but a path
   through an offscreen Gaussian blur on every frame, which made the shadows the largest raster cost of an opening menu.
 
@@ -47,9 +49,6 @@ nothing nests below it, so a design that needs a fifth level needs fewer contain
 `seededColorScheme` in `lib/ui/color.dart` builds every app scheme: Material's scheme for the seed and the
 `ColorStyle` picked in the theme settings, with three groups of roles replaced. Everything else stays Material,
 including `toPureBlack` applied after it.
-
-These are the seed scheme's roles. The light app theme overrides its surface roles to the white palette above;
-seed-generated accent colors and the dark theme are unchanged.
 
 The four styles each change something a reader sees at once. Material's nine variants mostly moved secondary and
 tertiary, which the app barely shows, so most of them looked alike once surfaces stayed gray.
@@ -82,9 +81,6 @@ tertiary, which the app barely shows, so most of them looked alike once surfaces
 ## State
 
 Color marks the one item that differs, never the structure around it.
-
-- **Sidebar selection** in light mode uses a pale primary pill, primary icon/text and a small shadow. Dark mode
-  retains the neutral selected fill. The moving indicator and existing keyboard behavior remain.
 
 - **Selected**, one of several rows, cards, or tiles: the item keeps its level's fill and a primary mark says which,
   as iOS checks the option picked from a list. A row in a grouped run takes `SelectionCheck` at its edge; a card that
@@ -153,16 +149,16 @@ a full-width divider were the one structural line left on screens otherwise draw
 where a row is one line read across many columns, they drop the gap and give every other row the raised fill, inset
 and rounded like the column header, so the eye keeps its row; the dashboard's table does the same.
 
-Every divider takes its color from `ThemeData.withAppSurfaces`: `onSurface` at 6% in light and 14% in dark, never `outlineVariant`. A
+Every divider takes its color from `ThemeData.withAppSurfaces`: `onSurface` at 14%, never `outlineVariant`. A
 translucent line keeps the same contrast on the page, a card, or the chrome, in both modes; `outlineVariant` stood out
 twice as much on the dark page as on the light one and carried the seed's tint.
 
 ## Navigation
 
 - The desktop sidebar and title bar are window chrome, `ColorScheme.chromeSurface`: white in light and
-  `surfaceContainerLow` in dark, with a subtle divider along the content edge. In dark the chrome stays below `card`.
-  The overlay pane takes the same fill and edge, plus a shadow. Selected destinations use the rounded pill treatment
-  described above and keep the moving primary bar.
+  `surfaceContainerLow` in dark, with a divider along the content edge. The overlay pane takes the same fill and edge,
+  plus its original shadow. Sidebar destinations use rounded pills; the selected light-mode pill has a pale primary
+  fill, primary icon/text and a small shadow. Dark mode keeps the neutral selected fill. The moving primary bar remains.
 - The mobile dock and the docked navigation bar are floats; their indicator is a neutral platter one level above
   them, and the selected destination's content takes primary, as iOS's tab bar marks its selection.
 - With Liquid Glass on (Theme settings), the dock, the buttons of a page's bar, a sheet's docked search, popup

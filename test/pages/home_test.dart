@@ -148,13 +148,8 @@ void main() {
             .first,
       );
       expect(sidebarSurface.color, colorScheme.chromeSurface);
-      expect(sidebarSurface.color, isNot(sidebarContainer.color));
-      expect(
-        (sidebarSurface.shape! as BorderDirectional).end,
-        Divider.createBorderSide(
-          tester.element(find.byType(NavigationSidebar)),
-        ),
-      );
+      expect(sidebarSurface.color, Colors.white);
+      expect(sidebarSurface.shape, AppShape.xxl);
 
       await tester.tap(find.text('count: 0'));
       await tester.pump();
@@ -243,7 +238,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     final sidebar = find.byType(NavigationSidebar);
-    expect(tester.getSize(sidebar).width, 220);
+    expect(tester.getSize(sidebar).width, 90);
 
     await tester.tap(find.byTooltip('Collapse'));
     await tester.pump();
@@ -254,7 +249,7 @@ void main() {
     await tester.tap(find.byTooltip('Expand'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(tester.getSize(sidebar).width, 220);
+    expect(tester.getSize(sidebar).width, 90);
 
     tester.view.physicalSize = const Size(800, 800);
     container.read(viewSizeProvider.notifier).value = const Size(800, 800);

@@ -1,9 +1,8 @@
 import 'package:fl_clash/ui/color.dart';
 import 'package:material_ui/material_ui.dart';
 
-const _lightBlock = Color(0xFFF6F8FC);
-const _lightInset = Color(0xFFEDF1F7);
-
+/// `.agents/surfaces.md` explains the levels and why dark mode never steps
+/// back down.
 enum SurfaceLevel {
   page,
   card,
@@ -21,17 +20,11 @@ enum SurfaceLevel {
 
   Color colorOf(ColorScheme colorScheme) {
     final dark = colorScheme.brightness == Brightness.dark;
-    if (!dark) {
-      return switch (this) {
-        page || card => Colors.white,
-        block => _lightBlock,
-        inset => _lightInset,
-      };
-    }
     return switch (this) {
-      page => colorScheme.surface,
-      card => colorScheme.surfaceContainer,
-      block => colorScheme.surfaceContainerHigh,
+      page => dark ? colorScheme.surface : Colors.white,
+      card => dark ? colorScheme.surfaceContainer : colorScheme.surfaceBright,
+      block =>
+        dark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainer,
       inset => colorScheme.surfaceContainerHighest,
     };
   }
@@ -72,22 +65,6 @@ extension SurfaceContext on BuildContext {
 extension ChromeSurfaceExt on ColorScheme {
   Color get chromeSurface =>
       brightness == Brightness.dark ? surfaceContainerLow : Colors.white;
-
-  List<BoxShadow> get raisedCardShadows => brightness == Brightness.light
-      ? const [
-          BoxShadow(
-            color: Color(0x0D1B3357),
-            offset: Offset(0, 2),
-            blurRadius: 6,
-          ),
-          BoxShadow(
-            color: Color(0x141B3357),
-            offset: Offset(0, 10),
-            blurRadius: 26,
-            spreadRadius: -8,
-          ),
-        ]
-      : const [];
 }
 
 extension ElevatedSurfaceExt on ColorScheme {
@@ -167,17 +144,6 @@ extension AppSurfaceThemeExt on ThemeData {
   }
 
   ThemeData get withAppSurfaces {
-    final scheme = colorScheme.brightness == Brightness.light
-        ? colorScheme.copyWith(
-            surface: Colors.white,
-            surfaceBright: Colors.white,
-            surfaceContainerLowest: Colors.white,
-            surfaceContainerLow: _lightBlock,
-            surfaceContainer: Colors.white,
-            surfaceContainerHigh: _lightBlock,
-            surfaceContainerHighest: _lightInset,
-          )
-        : colorScheme;
     final page = SurfaceLevel.page.colorOf(colorScheme);
     final card = SurfaceLevel.card.colorOf(colorScheme);
     final floatingLevel = SurfaceLevel.floatingOf(colorScheme);
@@ -185,14 +151,11 @@ extension AppSurfaceThemeExt on ThemeData {
     final ring = focusRingStyle(colorScheme);
     final standingRing = focusRingStyle(colorScheme, standsOff: true);
     return copyWith(
-      colorScheme: scheme,
-      canvasColor: scheme.surface,
       dividerTheme: dividerTheme.copyWith(
-        color: colorScheme.onSurface.withValues(
-          alpha: colorScheme.brightness == Brightness.light ? 0.06 : 0.14,
-        ),
+        color: colorScheme.onSurface.withValues(alpha: 0.14),
       ),
       scaffoldBackgroundColor: page,
+      canvasColor: page,
       cardTheme: cardTheme.copyWith(color: card, elevation: 0),
       dialogTheme: dialogTheme.copyWith(backgroundColor: floating),
       popupMenuTheme: popupMenuTheme.copyWith(color: floating),
