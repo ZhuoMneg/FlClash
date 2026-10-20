@@ -1473,6 +1473,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "quickActions": MessageLookupByLibrary.simpleMessage("Acciones rápidas"),
     "quickEdit": MessageLookupByLibrary.simpleMessage("Edición rápida"),
+    "realtimeRequests": MessageLookupByLibrary.simpleMessage(
+      "Solicitudes en tiempo real",
+    ),
     "recentRequests": MessageLookupByLibrary.simpleMessage(
       "Solicitudes recientes",
     ),
@@ -1548,6 +1551,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "routeExcludeAddress": MessageLookupByLibrary.simpleMessage(
       "Direcciones excluidas de la ruta",
     ),
+    "routing": MessageLookupByLibrary.simpleMessage("Enrutamiento"),
     "routingMark": MessageLookupByLibrary.simpleMessage(
       "Marca de enrutamiento",
     ),

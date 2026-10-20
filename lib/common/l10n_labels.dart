@@ -13,10 +13,12 @@ extension PageLabelL10n on PageLabel {
       PageLabel.profiles => appLocalizations.profiles,
       PageLabel.tools => appLocalizations.tools,
       PageLabel.logs => appLocalizations.logs,
-      PageLabel.requests => appLocalizations.recentRequests,
+      PageLabel.requests => appLocalizations.realtimeRequests,
       PageLabel.resources => appLocalizations.resources,
       PageLabel.connections => appLocalizations.liveConnections,
       PageLabel.dns => appLocalizations.dnsQueries,
+      PageLabel.routing => appLocalizations.routing,
+      PageLabel.settings => appLocalizations.settings,
     };
   }
 }

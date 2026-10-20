@@ -27,10 +27,15 @@ const _indicatorDuration = Duration(milliseconds: 320);
 final _itemShape = AppShape.all(10);
 
 class SidebarDestination {
-  const SidebarDestination({required this.glyph, required this.label});
+  const SidebarDestination({
+    required this.glyph,
+    required this.label,
+    this.isFooter = false,
+  });
 
   final Glyph glyph;
   final String label;
+  final bool isFooter;
 }
 
 /// Where the sidebar cannot widen in place, [onToggle] is null and the toggle
@@ -231,7 +236,7 @@ class _SidebarOverlay extends StatelessWidget {
 
 class _SidebarColors {
   _SidebarColors(ColorScheme scheme)
-    : selectedFill = scheme.onSurface.withValues(alpha: 0.08),
+    : selectedFill = scheme.primary.withValues(alpha: 0.08),
       label = scheme.onSurface,
       icon = scheme.onSurfaceVariant,
       indicator = scheme.primary,
@@ -290,6 +295,24 @@ class _SidebarPane extends StatelessWidget {
             _fitsOneLine(context, label, labelStyle, labelWidth)
         ? ''
         : label;
+    Widget destinationButton(int index, SidebarDestination destination) =>
+        _SidebarButton(
+          key: ValueKey(destination.label),
+          colors: colors,
+          height: itemHeight,
+          sideInset: sideInset,
+          selected: index == selectedIndex,
+          tooltip: rowTooltip(destination.label),
+          onTap: () => onSelected(index),
+          child: _DestinationRow(
+            destination: destination,
+            selected: index == selectedIndex,
+            width: rowWidth,
+            iconInset: iconInset,
+            style: labelStyle,
+            labelOpacity: labelOpacity,
+          ),
+        );
     return SizedBox(
       width: lerpDouble(compactWidth, _expandedWidth, progress),
       child: Column(
@@ -324,26 +347,12 @@ class _SidebarPane extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         for (final (index, destination) in destinations.indexed)
-                          _SidebarButton(
-                            key: ValueKey(destination.label),
-                            colors: colors,
-                            height: itemHeight,
-                            sideInset: sideInset,
-                            selected: index == selectedIndex,
-                            tooltip: rowTooltip(destination.label),
-                            onTap: () => onSelected(index),
-                            child: _DestinationRow(
-                              destination: destination,
-                              selected: index == selectedIndex,
-                              width: rowWidth,
-                              iconInset: iconInset,
-                              style: labelStyle,
-                              labelOpacity: labelOpacity,
-                            ),
-                          ),
+                          if (!destination.isFooter)
+                            destinationButton(index, destination),
                       ],
                     ),
-                    if (selectedIndex < destinations.length)
+                    if (selectedIndex < destinations.length &&
+                        !destinations[selectedIndex].isFooter)
                       _SelectionIndicator(
                         color: colors.indicator,
                         index: selectedIndex,
@@ -355,6 +364,8 @@ class _SidebarPane extends StatelessWidget {
               ),
             ),
           ),
+          for (final (index, destination) in destinations.indexed)
+            if (destination.isFooter) destinationButton(index, destination),
           const SizedBox(height: _verticalInset),
         ],
       ),

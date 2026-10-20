@@ -1,0 +1,55 @@
+name: Check FlClash upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 20 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+  issues: write
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository != 'chen08209/FlClash'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Open an update for the latest stable release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          tag=$(gh api repos/chen08209/FlClash/releases/latest --jq .tag_name)
+          [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 0
+          git remote add upstream https://github.com/chen08209/FlClash.git
+          git fetch upstream "refs/tags/$tag:refs/tags/$tag"
+          if git merge-base --is-ancestor "$tag" HEAD; then exit 0; fi
+          branch="upstream/$tag"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          if git merge --no-edit "$tag"; then
+            git push origin "$branch"
+            gh workflow run flclash-windows.yml --ref "$branch" --repo "$TARGET_REPO"
+            gh pr create --repo "$TARGET_REPO" --base '${{ github.event.repository.default_branch }}' --head "$branch" --title "Update FlClash to $tag" --body 'Includes the upstream stable release. Preserve the white interface and request-history navigation. Merge after the Windows build and interface checks pass.'
+          else
+            conflicts=$(git diff --name-only --diff-filter=U)
+            git merge --abort
+            existing=$(gh issue list --repo "$TARGET_REPO" --search "Upstream merge conflict: $tag in:title" --state open --json number --jq '.[0].number // empty')
+            if [ -z "$existing" ]; then
+              printf 'The existing build is unchanged. Resolve these files before updating:\n\n%s\n' "$conflicts" > /tmp/conflict-body.txt
+              gh issue create --repo "$TARGET_REPO" --title "Upstream merge conflict: $tag" --body-file /tmp/conflict-body.txt
+            fi
+          fi

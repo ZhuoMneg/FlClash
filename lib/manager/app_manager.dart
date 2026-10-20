@@ -161,7 +161,11 @@ class _Sidebar extends ConsumerWidget {
     return NavigationSidebar(
       destinations: [
         for (final item in items)
-          SidebarDestination(glyph: item.glyph, label: item.label.label),
+          SidebarDestination(
+            glyph: item.glyph,
+            label: item.label.label,
+            isFooter: item.label == PageLabel.settings,
+          ),
       ],
       selectedIndex: currentIndex,
       expanded: canExpand && sidebarExpanded,

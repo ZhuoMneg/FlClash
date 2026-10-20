@@ -61,69 +61,96 @@ class _RequestsViewState extends ConsumerState<RequestsView>
 
   @override
   Widget build(BuildContext context) {
-    final appLocalizations = context.appLocalizations;
     return CommonScaffold(
       title: PageLabel.requests.label,
-      searchState: AppBarSearchState(onSearch: _listController.search),
       onKeywordsUpdate: _listController.updateKeywords,
-      body: ValueListenableBuilder<TrackerInfosState>(
-        valueListenable: _listController,
-        builder: (context, state, _) {
-          final requests = state.list;
-          return NullStatusSwitcher(
-            isEmpty: requests.isEmpty,
-            isSearching: state.isSearching,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.requests),
-              illustration: NullStatusIllustration.requests,
+      body: Builder(
+        builder: (context) => Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                16,
+                context.contentTopPadding,
+                16,
+                12,
+              ),
+              child: SearchField(onChanged: _listController.search),
             ),
-            child: RecordTableFrame<TrackerInfo>(
-              tableId: 'requests',
-              items: requests,
-              reverse: true,
-              columnsOf: (width) =>
-                  trackerInfoColumns(context, width: width, isLive: false),
-              builder: (context, table, requests) => Align(
-                alignment: Alignment.topCenter,
-                child: FloatingScrollbar(
+            Expanded(
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                child: FloatingBarScope(
+                  inset: 0,
+                  child: TopInsetScope(inset: 0, child: _buildRequests()),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequests() {
+    final appLocalizations = context.appLocalizations;
+    return ValueListenableBuilder<TrackerInfosState>(
+      valueListenable: _listController,
+      builder: (context, state, _) {
+        final requests = state.list;
+        return NullStatusSwitcher(
+          isEmpty: requests.isEmpty,
+          isSearching: state.isSearching,
+          nullStatus: NullStatus(
+            label: appLocalizations.nullTip(appLocalizations.requests),
+            illustration: NullStatusIllustration.requests,
+          ),
+          child: RecordTableFrame<TrackerInfo>(
+            tableId: 'requests',
+            items: requests,
+            reverse: true,
+            columnsOf: (width) =>
+                trackerInfoColumns(context, width: width, isLive: false),
+            builder: (context, table, requests) => Align(
+              alignment: Alignment.topCenter,
+              child: FloatingScrollbar(
+                controller: _scrollController,
+                hintBuilder: (fraction) {
+                  final index = (fraction * (requests.length - 1)).round();
+                  return requests[index].start.showFull;
+                },
+                child: ScrollToEndBox(
                   controller: _scrollController,
-                  hintBuilder: (fraction) {
-                    final index = (fraction * (requests.length - 1)).round();
-                    return requests[index].start.showFull;
+                  enable: state.autoScrollToEnd,
+                  onCancelToEnd: () {
+                    _listController.setAutoScrollToEnd(false);
                   },
-                  child: ScrollToEndBox(
+                  onResumeToEnd: () {
+                    _listController.resumeAutoScrollToEnd(
+                      ref.read(requestsProvider).list,
+                    );
+                  },
+                  child: TrackerInfoList(
+                    reverse: true,
+                    shrinkWrap: true,
+                    physics: _physics,
                     controller: _scrollController,
-                    enable: state.autoScrollToEnd,
-                    onCancelToEnd: () {
-                      _listController.setAutoScrollToEnd(false);
-                    },
-                    onResumeToEnd: () {
-                      _listController.resumeAutoScrollToEnd(
-                        ref.read(requestsProvider).list,
-                      );
-                    },
-                    child: TrackerInfoList(
-                      reverse: true,
-                      shrinkWrap: true,
-                      physics: _physics,
-                      controller: _scrollController,
-                      padding: EdgeInsets.only(
-                        top: context.contentTopPadding,
-                        bottom: 16 + BottomInsetScope.of(context),
-                      ),
-                      trackerInfos: requests,
-                      table: table,
-                      detailTitle: appLocalizations.details(
-                        appLocalizations.request,
-                      ),
+                    padding: EdgeInsets.only(
+                      top: 0,
+                      bottom: 16 + BottomInsetScope.of(context),
+                    ),
+                    trackerInfos: requests,
+                    table: table,
+                    detailTitle: appLocalizations.details(
+                      appLocalizations.request,
                     ),
                   ),
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

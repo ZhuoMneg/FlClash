@@ -3,6 +3,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/views.dart';
+import 'package:fl_clash/views/routing.dart';
 import 'package:material_ui/material_ui.dart';
 
 class Navigation implements NavigationPort {
@@ -36,18 +37,25 @@ class Navigation implements NavigationPort {
             const ProfilesView(key: GlobalObjectKey(PageLabel.profiles)),
       ),
       NavigationItem(
+        glyph: AppGlyphs.rules,
+        label: PageLabel.routing,
+        builder: (_) =>
+            const RoutingView(key: GlobalObjectKey(PageLabel.routing)),
+        modes: [NavigationItemMode.desktop, NavigationItemMode.moreFull],
+      ),
+      NavigationItem(
         glyph: AppGlyphs.requests,
         label: PageLabel.requests,
         builder: (_) =>
             const RequestsView(key: GlobalObjectKey(PageLabel.requests)),
-        modes: [NavigationItemMode.moreFull],
+        modes: [NavigationItemMode.desktop, NavigationItemMode.moreFull],
       ),
       NavigationItem(
         glyph: AppGlyphs.connections,
         label: PageLabel.connections,
         builder: (_) =>
             const ConnectionsView(key: GlobalObjectKey(PageLabel.connections)),
-        modes: [NavigationItemMode.desktop, NavigationItemMode.moreFull],
+        modes: [NavigationItemMode.moreFull],
       ),
       NavigationItem(
         glyph: AppGlyphs.dns,
@@ -67,15 +75,22 @@ class Navigation implements NavigationPort {
         glyph: AppGlyphs.logs,
         label: PageLabel.logs,
         builder: (_) => const LogsView(key: GlobalObjectKey(PageLabel.logs)),
-        modes: openLogs
-            ? [NavigationItemMode.desktop, NavigationItemMode.more]
-            : [],
+        modes: openLogs ? [NavigationItemMode.more] : [],
       ),
       NavigationItem(
         glyph: AppGlyphs.tools,
         label: PageLabel.tools,
         builder: (_) => const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
+      ),
+      NavigationItem(
+        glyph: AppGlyphs.settings,
+        label: PageLabel.settings,
+        builder: (_) => const ToolsView(
+          key: GlobalObjectKey(PageLabel.settings),
+          settingsOnly: true,
+        ),
+        modes: [NavigationItemMode.desktop, NavigationItemMode.moreFull],
       ),
     ];
   }

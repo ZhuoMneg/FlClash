@@ -23,8 +23,7 @@ enum SurfaceLevel {
     return switch (this) {
       page => dark ? colorScheme.surface : colorScheme.surfaceContainer,
       card => dark ? colorScheme.surfaceContainer : colorScheme.surfaceBright,
-      block =>
-        dark ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainer,
+      block => colorScheme.surfaceContainerHigh,
       inset => colorScheme.surfaceContainerHighest,
     };
   }
@@ -63,9 +62,24 @@ extension SurfaceContext on BuildContext {
 }
 
 extension ChromeSurfaceExt on ColorScheme {
-  Color get chromeSurface => brightness == Brightness.dark
-      ? surfaceContainerLow
-      : surfaceContainerHighest;
+  Color get chromeSurface =>
+      brightness == Brightness.dark ? surfaceContainerLow : surface;
+
+  ColorScheme get withWhiteSurfaces => brightness == Brightness.dark
+      ? this
+      : copyWith(
+          surface: Colors.white,
+          surfaceBright: Colors.white,
+          surfaceDim: const Color(0xFFF8FAFC),
+          surfaceContainerLowest: Colors.white,
+          surfaceContainerLow: Colors.white,
+          surfaceContainer: Colors.white,
+          surfaceContainerHigh: const Color(0xFFF5F6F8),
+          surfaceContainerHighest: const Color(0xFFF0F1F4),
+          onSurface: const Color(0xFF1E2027),
+          onSurfaceVariant: const Color(0xFF656B78),
+          outlineVariant: const Color(0xFFE4EAF2),
+        );
 }
 
 extension ElevatedSurfaceExt on ColorScheme {
@@ -145,6 +159,7 @@ extension AppSurfaceThemeExt on ThemeData {
   }
 
   ThemeData get withAppSurfaces {
+    final colorScheme = this.colorScheme.withWhiteSurfaces;
     final page = SurfaceLevel.page.colorOf(colorScheme);
     final card = SurfaceLevel.card.colorOf(colorScheme);
     final floatingLevel = SurfaceLevel.floatingOf(colorScheme);
@@ -152,6 +167,7 @@ extension AppSurfaceThemeExt on ThemeData {
     final ring = focusRingStyle(colorScheme);
     final standingRing = focusRingStyle(colorScheme, standsOff: true);
     return copyWith(
+      colorScheme: colorScheme,
       dividerTheme: dividerTheme.copyWith(
         color: colorScheme.onSurface.withValues(alpha: 0.14),
       ),

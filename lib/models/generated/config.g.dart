@@ -366,7 +366,7 @@ _ThemeProps _$ThemePropsFromJson(Map<String, dynamic> json) => _ThemeProps(
         _$LiquidGlassModeEnumMap,
         _readLiquidGlass(json, 'liquidGlass'),
       ) ??
-      LiquidGlassMode.none,
+      LiquidGlassMode.standard,
   textScale: json['textScale'] == null
       ? const TextScale()
       : TextScale.fromJson(json['textScale'] as Map<String, dynamic>),

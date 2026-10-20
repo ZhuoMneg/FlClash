@@ -1,0 +1,113 @@
+name: FlClash Windows
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, 'codex/**', 'upstream/**']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flclash-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    if: github.repository != 'chen08209/FlClash'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - uses: dtolnay/rust-toolchain@1.99.0
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Skip unused Go build hook in UI tests
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('pubspec.yaml')
+          source = path.read_text()
+          path.write_text(source.replace('setup:\n      build_assets: true', 'setup:\n      build_assets: false', 1))
+          PY
+      - name: Verify interface and source rules
+        run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/white_surfaces_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
+      - name: Verify custom release versions
+        run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=example/FlClash
+
+  windows:
+    needs: checks
+    if: github.repository != 'chen08209/FlClash'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Enable long paths
+        run: git config --global core.longpaths true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.6'
+          channel: stable
+          cache: true
+      - uses: dtolnay/rust-toolchain@1.99.0
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Build
+        run: |
+          $updateArguments = @()
+          if ('${{ github.event.repository.private }}' -eq 'false') {
+            $updateArguments += '--dart-define=UPDATE_REPOSITORY=${{ github.repository }}'
+          }
+          flutter build windows --release --build-number=${{ github.run_number }} @updateArguments
+      - name: Include license
+        run: Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlClash-windows-amd64
+          path: build/windows/x64/runner/Release/
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: windows
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: FlClash-windows-amd64
+          path: bundle
+      - name: Publish verified build
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          tag="build-v$version+$GITHUB_RUN_NUMBER"
+          if gh release view "$tag" --repo "$TARGET_REPO" >/dev/null 2>&1; then exit 0; fi
+          name="FlClash-$version-windows-amd64.zip"
+          (cd bundle && zip -qr "../$name" .)
+          sha256sum "$name" > SHA256SUMS.txt
+          printf 'FlClash %s\n\nWhite interface and realtime request history.\n' "$version" > release-notes.txt
+          gh release create "$tag" "$name" SHA256SUMS.txt --repo "$TARGET_REPO" --target "$GITHUB_SHA" --title "FlClash $version" --notes-file release-notes.txt

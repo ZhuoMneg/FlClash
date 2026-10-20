@@ -7836,6 +7836,21 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Realtime requests`
+  String get realtimeRequests {
+    return Intl.message(
+      'Realtime requests',
+      name: 'realtimeRequests',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Routing`
+  String get routing {
+    return Intl.message('Routing', name: 'routing', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

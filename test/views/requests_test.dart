@@ -123,6 +123,26 @@ void main() {
     await teardownView(tester);
   });
 
+  testWidgets('search is ready on arrival and filters recent requests', (
+    tester,
+  ) async {
+    seedRequests([
+      _tracker(id: 'a', host: 'alpha.test'),
+      _tracker(id: 'b', host: 'beta.test'),
+    ]);
+    await pumpRequests(tester);
+
+    final search = find.byType(TextField);
+    expect(search, findsOneWidget);
+    await tester.enterText(search, 'alpha');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump();
+
+    expect(find.textContaining('alpha.test'), findsWidgets);
+    expect(find.textContaining('beta.test'), findsNothing);
+    await teardownView(tester);
+  });
+
   testWidgets('a request arriving after mount reaches the list', (
     tester,
   ) async {
@@ -196,12 +216,10 @@ void main() {
       find.descendant(of: find.byKey(hintKey), matching: find.byType(Text)),
     );
     expect(label.data, requests.last.start.showFull);
-    // The hint is pinned to the thumb: at the newest end the thumb center
-    // rests 24 dp (half the 48 dp minimum thumb) below the track's top edge,
-    // which the list running under the bar leaves at the bar's foot.
+    // Half the minimum thumb height below the list's own track edge.
     expect(
       tester.getCenter(find.byKey(hintKey)).dy,
-      closeTo(tester.getRect(find.byType(AppBar)).bottom + 24, 6),
+      closeTo(tester.getRect(find.byType(FloatingScrollbar)).top + 24, 6),
     );
 
     await gesture.up();

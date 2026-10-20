@@ -109,6 +109,10 @@ const systemDnsRecordKey = 'system_dns_record';
 const bootRecordKey = 'boot_record';
 const defaultSystemDnsFallback = '223.5.5.5';
 const repository = 'chen08209/FlClash';
+const updateRepository = String.fromEnvironment('UPDATE_REPOSITORY');
+const releaseRepository = updateRepository == ''
+    ? repository
+    : updateRepository;
 const maxMobileWidth = 600;
 const maxLaptopWidth = 840;
 const defaultTestUrl = 'https://www.gstatic.com/generate_204';

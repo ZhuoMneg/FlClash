@@ -453,7 +453,7 @@ void main() {
   );
 
   testWidgets(
-    'desktop navigation keeps the tools route when logs are enabled',
+    'desktop navigation keeps the settings route when logs are enabled',
     (tester) async {
       tester.view.physicalSize = const Size(1400, 1000);
       tester.view.devicePixelRatio = 1;
@@ -464,7 +464,9 @@ void main() {
       addTearDown(container.dispose);
       globalState.container = container;
       container.read(viewSizeProvider.notifier).value = const Size(1400, 1000);
-      container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
+      container
+          .read(currentPageLabelProvider.notifier)
+          .toPage(PageLabel.settings);
 
       await tester.pumpWidget(
         UncontrolledProviderScope(
@@ -875,72 +877,80 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the fade tab switch cross-fades the pages in place', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(500, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  for (final width in [500.0, 1200.0]) {
+    testWidgets(
+      'the fade tab switch cross-fades the pages in place at $width',
+      (tester) async {
+        tester.view.physicalSize = Size(width, 800);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-    final container = ProviderContainer(
-      overrides: [
-        navigationItemsStateProvider.overrideWithValue(
-          NavigationItemsState(
-            value: [
-              NavigationItem(
-                glyph: AppGlyphs.dashboard,
-                label: PageLabel.dashboard,
-                builder: (_) => const Text('page:dashboard'),
+        final container = ProviderContainer(
+          overrides: [
+            navigationItemsStateProvider.overrideWithValue(
+              NavigationItemsState(
+                value: [
+                  NavigationItem(
+                    glyph: AppGlyphs.dashboard,
+                    label: PageLabel.dashboard,
+                    builder: (_) => const Text('page:dashboard'),
+                  ),
+                  NavigationItem(
+                    glyph: AppGlyphs.tools,
+                    label: PageLabel.tools,
+                    builder: (_) => const Text('page:tools'),
+                  ),
+                ],
               ),
-              NavigationItem(
-                glyph: AppGlyphs.tools,
-                label: PageLabel.tools,
-                builder: (_) => const Text('page:tools'),
-              ),
-            ],
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+        globalState.container = container;
+        container.read(viewSizeProvider.notifier).value = Size(width, 800);
+        container
+            .read(appSettingProvider.notifier)
+            .update((state) => state.copyWith(tabAnimation: TabAnimation.fade));
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: const TestApp(includeNavigatorKey: false, child: HomePage()),
           ),
-        ),
-      ],
+        );
+        await tester.pump();
+        final start = tester.getTopLeft(find.text('page:dashboard')).dx;
+
+        container
+            .read(currentPageLabelProvider.notifier)
+            .toPage(PageLabel.tools);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 60));
+
+        double opacityOf(String text) => tester
+            .widget<Opacity>(
+              find.ancestor(
+                of: find.text(text),
+                matching: find.byType(Opacity),
+              ),
+            )
+            .opacity;
+        expect(tester.getTopLeft(find.text('page:dashboard')).dx, start);
+        expect(tester.getTopLeft(find.text('page:tools')).dx, start);
+        expect(opacityOf('page:dashboard'), inExclusiveRange(0, 1));
+        expect(
+          opacityOf('page:dashboard') + opacityOf('page:tools'),
+          moreOrLessEquals(1),
+        );
+
+        await tester.pumpAndSettle();
+        expect(container.read(currentPageLabelProvider), PageLabel.tools);
+        expect(tester.getTopLeft(find.text('page:tools')).dx, start);
+        expect(tester.takeException(), isNull);
+      },
     );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container.read(viewSizeProvider.notifier).value = const Size(500, 800);
-    container
-        .read(appSettingProvider.notifier)
-        .update((state) => state.copyWith(tabAnimation: TabAnimation.fade));
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const TestApp(includeNavigatorKey: false, child: HomePage()),
-      ),
-    );
-    await tester.pump();
-    final start = tester.getTopLeft(find.text('page:dashboard')).dx;
-
-    container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 60));
-
-    double opacityOf(String text) => tester
-        .widget<Opacity>(
-          find.ancestor(of: find.text(text), matching: find.byType(Opacity)),
-        )
-        .opacity;
-    expect(tester.getTopLeft(find.text('page:dashboard')).dx, start);
-    expect(tester.getTopLeft(find.text('page:tools')).dx, start);
-    expect(opacityOf('page:dashboard'), inExclusiveRange(0, 1));
-    expect(
-      opacityOf('page:dashboard') + opacityOf('page:tools'),
-      moreOrLessEquals(1),
-    );
-
-    await tester.pumpAndSettle();
-    expect(container.read(currentPageLabelProvider), PageLabel.tools);
-    expect(tester.getTopLeft(find.text('page:tools')).dx, start);
-    expect(tester.takeException(), isNull);
-  });
+  }
 
   testWidgets('a far mobile page switch builds no page in between', (
     tester,

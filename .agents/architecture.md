@@ -570,7 +570,7 @@ down through `SheetCoverRouteMixin`, as `SnapSheetRoute` and `ModalSideSheetRout
 
 ## Liquid Glass
 
-`ThemeProps.liquidGlass` picks a `LiquidGlassMode`, `none` by default, and reaches widgets as `LiquidGlassScope`, on for
+`ThemeProps.liquidGlass` picks a `LiquidGlassMode`, `standard` by default, and reaches widgets as `LiquidGlassScope`, on for
 `standard` and `ultra` with that `LiquidGlassQuality`, from `ThemeManager`. With it on, `CommonScaffold` passes `glass`
 to the bar's `TonalButtonTheme`,
 which puts a `LiquidGlass` pane behind each button through `ButtonStyle.backgroundBuilder` and one behind a

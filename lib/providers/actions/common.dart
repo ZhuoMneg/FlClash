@@ -74,6 +74,7 @@ class CommonAction extends _$CommonAction {
   }
 
   Future<bool> autoCheckUpdate() async {
+    if (updateRepository.isEmpty) return false;
     if (!ref.read(appSettingProvider).autoCheckUpdate) return false;
     final Map<String, dynamic>? res;
     try {
@@ -152,7 +153,7 @@ class CommonAction extends _$CommonAction {
       if (res == true) {
         unawaited(
           launchUrl(
-            Uri.parse('https://github.com/$repository/releases/latest'),
+            Uri.parse('https://github.com/$releaseRepository/releases/latest'),
           ),
         );
       } else if (!isUser && res == false) {

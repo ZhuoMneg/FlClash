@@ -20,7 +20,9 @@ import 'disclaimer.dart';
 import 'theme.dart';
 
 class ToolsView extends ConsumerStatefulWidget {
-  const ToolsView({super.key});
+  const ToolsView({super.key, this.settingsOnly = false});
+
+  final bool settingsOnly;
 
   @override
   ConsumerState<ToolsView> createState() => _ToolViewState();
@@ -61,11 +63,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         const _CustomResourcesItem(),
         const _GeneralItem(),
       ],
-      footer: [
-        if (system.isAndroid) appLocalizations.accessControlDesc,
-        appLocalizations.advancedConfigDesc,
-        appLocalizations.customProfileResourcesDesc,
-      ].join('\n'),
     );
   }
 
@@ -75,23 +72,28 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       appSettingProvider.select((state) => state.developerMode),
     );
     final items = [
-      Consumer(
-        builder: (_, ref, _) {
-          final state = ref.watch(moreToolsSelectorStateProvider);
-          if (state.navigationItems.isEmpty) {
-            return Container();
-          }
-          return generateSection(
-            title: context.appLocalizations.more,
-            items: state.navigationItems.map(_buildNavigationMenuItem),
-          );
-        },
-      ),
-      _getSettingList(),
-      _getOtherList(developerMode),
+      if (!widget.settingsOnly)
+        Consumer(
+          builder: (_, ref, _) {
+            final state = ref.watch(moreToolsSelectorStateProvider);
+            if (state.navigationItems.isEmpty) {
+              return Container();
+            }
+            return generateSection(
+              title: context.appLocalizations.more,
+              items: state.navigationItems.map(_buildNavigationMenuItem),
+            );
+          },
+        ),
+      if (widget.settingsOnly || !system.isDesktop) ...[
+        _getSettingList(),
+        _getOtherList(developerMode),
+      ],
     ];
     return CommonScaffold(
-      title: context.appLocalizations.tools,
+      title: widget.settingsOnly
+          ? context.appLocalizations.settings
+          : context.appLocalizations.tools,
       body: Builder(
         builder: (context) => ListView.builder(
           key: toolsStoreKey,

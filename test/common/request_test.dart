@@ -6,7 +6,9 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/common/request.dart';
+import 'package:fl_clash/state.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class _StalledHttpClient extends Fake implements HttpClient {
   @override
@@ -40,6 +42,46 @@ class _HostAdapter implements HttpClientAdapter {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'compares custom release builds without offering the installed build',
+    () async {
+      globalState.packageInfo = PackageInfo(
+        appName: 'FlClash',
+        packageName: 'com.follow.clash',
+        version: '0.9.1',
+        buildNumber: '12',
+      );
+      String tag = 'build-v0.9.1+12';
+      final client = Request()
+        ..dio.httpClientAdapter = _HostAdapter({
+          'api.github.com': () => ResponseBody.fromString(
+            jsonEncode({'tag_name': tag}),
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          ),
+        });
+      expect(await client.checkForUpdate(), isNull);
+      tag = 'build-v0.9.1+13';
+      expect(await client.checkForUpdate(), {'tag_name': tag});
+      tag = 'build-v0.9.2+1';
+      expect(await client.checkForUpdate(), {'tag_name': tag});
+      tag = 'build-v0.9.0+99';
+      expect(await client.checkForUpdate(), isNull);
+    },
+    skip: updateRepository.isEmpty,
+  );
+
+  test('an unconfigured build never offers an upstream replacement', () async {
+    final client = Request()
+      ..dio.httpClientAdapter = _HostAdapter({
+        'api.github.com': () => throw StateError('Unexpected update lookup'),
+        'github.com': () => throw StateError('Unexpected update lookup'),
+      });
+    expect(await client.checkForUpdate(), isNull);
+  }, skip: updateRepository.isNotEmpty);
 
   test('getTextResponseForUrl propagates the typed DioException', () async {
     // flutter_test's mocked HttpClient answers every request with HTTP 400,

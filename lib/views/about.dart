@@ -70,9 +70,9 @@ class AboutView extends ConsumerWidget {
         children: [
           _AboutHero(
             isCheckingUpdate: isLoading,
-            onCheckUpdate: () {
-              _checkUpdate(context, ref);
-            },
+            onCheckUpdate: updateRepository.isEmpty
+                ? null
+                : () => _checkUpdate(context, ref),
             onEnterDeveloperMode: () {
               ref
                   .read(appSettingProvider.notifier)
@@ -128,7 +128,7 @@ class AboutView extends ConsumerWidget {
 
 class _AboutHero extends StatelessWidget {
   final bool isCheckingUpdate;
-  final VoidCallback onCheckUpdate;
+  final VoidCallback? onCheckUpdate;
   final VoidCallback onEnterDeveloperMode;
 
   const _AboutHero({
@@ -199,13 +199,15 @@ class _AboutHero extends StatelessWidget {
                   .copyWith(color: colorScheme.onSurfaceVariant, height: 1.5),
             ),
           ),
-          const SizedBox(height: 20),
-          TonalButton(
-            size: TonalButtonSize.bar,
-            glyph: AppGlyphs.sync,
-            label: appLocalizations.checkUpdate,
-            onPressed: isCheckingUpdate ? null : onCheckUpdate,
-          ),
+          if (onCheckUpdate != null) ...[
+            const SizedBox(height: 20),
+            TonalButton(
+              size: TonalButtonSize.bar,
+              glyph: AppGlyphs.sync,
+              label: appLocalizations.checkUpdate,
+              onPressed: isCheckingUpdate ? null : onCheckUpdate,
+            ),
+          ],
         ],
       ),
     );
