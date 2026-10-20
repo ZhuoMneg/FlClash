@@ -269,8 +269,12 @@ void main() {
 
     final header = tester.getRect(headerOf('G0'));
     final card = tester.getRect(lastCard);
+    final row = tester.getRect(
+      find.ancestor(of: lastCard, matching: find.byType(Row)).first,
+    );
     final nextHeader = tester.getRect(headerOf('G1'));
-    final sideInset = header.right - card.right;
+    final sideInset = header.right - row.right;
+    expect(row.left - header.left, sideInset);
     expect(
       nextHeader.top -
           cardSpacingOf(tester.element(headerOf('G1')), ViewMode.mobile) -
