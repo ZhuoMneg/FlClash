@@ -5,11 +5,12 @@ contributors. This repository and its releases are modified builds, maintained
 separately from upstream. The original copyright notices, GPL-3.0 license, and
 third-party notices are retained.
 
-- White surfaces with the original dashboard shapes, glass effects, and icon.
+- White pages with distinct neutral cards, original rounded shapes, and icon.
 - Navigation for overview, proxies, profiles, routing, realtime requests, tools,
   and settings; connections are available from Tools.
 - Searchable request history and reuse of the current profile's routing editor.
-- Desktop page transitions and standard liquid glass as the new-config default.
+- Desktop page transitions and original navigation settings, without liquid glass.
+- Stable build parameters prevent the development PRE banner in release packages.
 - Cloud checks, Windows builds, stable upstream merging, and same-repository
   release checks using job-scoped GitHub tokens.
 - Homepage shortcuts for DMIT protocol, Proxy exit, and Emby exit, with saved

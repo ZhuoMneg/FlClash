@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
-  test('light chrome, pages and cards are white for every accent', () {
+  test('white pages keep neutral cards distinct for every accent', () {
     for (final seed in [Colors.blue, Colors.green, Colors.pink]) {
       final theme = ThemeData(
         colorScheme: seededColorScheme(
@@ -14,7 +14,13 @@ void main() {
       ).withAppSurfaces;
 
       expect(theme.scaffoldBackgroundColor, Colors.white);
-      expect(theme.cardTheme.color, Colors.white);
+      expect(theme.cardTheme.color, const Color(0xFFF5F6F8));
+      expect(theme.cardTheme.color, isNot(theme.scaffoldBackgroundColor));
+      final card = SurfaceLevel.card.colorOf(theme.colorScheme);
+      final block = SurfaceLevel.block.colorOf(theme.colorScheme);
+      final inset = SurfaceLevel.inset.colorOf(theme.colorScheme);
+      expect(card.computeLuminance(), greaterThan(block.computeLuminance()));
+      expect(block.computeLuminance(), greaterThan(inset.computeLuminance()));
       expect(theme.colorScheme.chromeSurface, Colors.white);
       expect(theme.colorScheme.primary, isNot(Colors.white));
       expect(theme.colorScheme.onSurface.computeLuminance(), lessThan(0.1));

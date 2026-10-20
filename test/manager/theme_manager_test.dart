@@ -1,11 +1,45 @@
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/manager/theme_manager.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 void main() {
+  testWidgets('saved glass preferences cannot enable rendering effects', (
+    tester,
+  ) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    expect(
+      container.read(themeSettingProvider).liquidGlass,
+      LiquidGlassMode.none,
+    );
+    container
+        .read(themeSettingProvider.notifier)
+        .update((state) => state.copyWith(liquidGlass: LiquidGlassMode.ultra));
+    bool? glass;
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          home: ThemeManager(
+            child: Builder(
+              builder: (context) {
+                glass = LiquidGlassScope.of(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(glass, isFalse);
+    expect(find.byType(LiquidGlassHost), findsNothing);
+  });
+
   testWidgets('following the system picks up a font scale changed while the '
       'app runs', (tester) async {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);

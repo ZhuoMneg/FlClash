@@ -756,7 +756,7 @@ void main() {
       LiquidGlassMode modeOf(Object? value) =>
           ThemeProps.fromJson({'liquidGlass': value}).liquidGlass;
 
-      expect(modeOf(null), LiquidGlassMode.standard);
+      expect(modeOf(null), LiquidGlassMode.none);
       expect(modeOf(true), LiquidGlassMode.standard);
       expect(modeOf(false), LiquidGlassMode.none);
       for (final mode in LiquidGlassMode.values) {

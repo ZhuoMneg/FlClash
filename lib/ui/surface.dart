@@ -69,13 +69,13 @@ extension ChromeSurfaceExt on ColorScheme {
       ? this
       : copyWith(
           surface: Colors.white,
-          surfaceBright: Colors.white,
+          surfaceBright: const Color(0xFFF5F6F8),
           surfaceDim: const Color(0xFFF8FAFC),
           surfaceContainerLowest: Colors.white,
           surfaceContainerLow: Colors.white,
           surfaceContainer: Colors.white,
-          surfaceContainerHigh: const Color(0xFFF5F6F8),
-          surfaceContainerHighest: const Color(0xFFF0F1F4),
+          surfaceContainerHigh: const Color(0xFFEBEDF1),
+          surfaceContainerHighest: const Color(0xFFE1E5EB),
           onSurface: const Color(0xFF1E2027),
           onSurfaceVariant: const Color(0xFF656B78),
           outlineVariant: const Color(0xFFE4EAF2),

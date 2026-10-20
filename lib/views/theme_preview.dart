@@ -182,11 +182,7 @@ class _ThemeLivePreviewState extends ConsumerState<ThemeLivePreview>
     final tabAnimation = ref.watch(
       appSettingProvider.select((state) => state.tabAnimation),
     );
-    final liquidGlass = ref.watch(
-      themeSettingProvider.select(
-        (state) => state.liquidGlass != LiquidGlassMode.none,
-      ),
-    );
+    const liquidGlass = false;
     final corner = AppCorner.fit(_phoneWidth);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),

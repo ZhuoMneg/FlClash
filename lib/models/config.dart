@@ -462,7 +462,7 @@ abstract class ThemeProps with _$ThemeProps {
     ColorStyle colorStyle,
     @Default(false) bool pureBlack,
     @Default(true) bool sidebarBlur,
-    @Default(LiquidGlassMode.standard)
+    @Default(LiquidGlassMode.none)
     @JsonKey(readValue: _readLiquidGlass)
     LiquidGlassMode liquidGlass,
     @Default(TextScale()) TextScale textScale,

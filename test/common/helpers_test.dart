@@ -202,7 +202,8 @@ void main() {
 
     test('scales with width', () {
       expect(getProxiesColumns(500, ProxiesLayout.standard), 2);
-      expect(getProxiesColumns(800, ProxiesLayout.standard), 4);
+      expect(getProxiesColumns(800, ProxiesLayout.standard), 3);
+      expect(getProxiesColumns(1040, ProxiesLayout.standard), 4);
     });
 
     test('tight layout adds column', () {
