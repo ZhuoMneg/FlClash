@@ -1,3 +1,5 @@
+import 'dart:math' show max;
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -270,7 +272,12 @@ void main() {
     final header = tester.getRect(headerOf('G0'));
     final card = tester.getRect(lastCard);
     final nextHeader = tester.getRect(headerOf('G1'));
-    final sideInset = header.right - card.right;
+    final rightEdge = tester
+        .widgetList<ProxyCard>(find.byType(ProxyCard))
+        .where((proxyCard) => proxyCard.groupName == 'G0')
+        .map((proxyCard) => tester.getRect(find.byWidget(proxyCard)).right)
+        .reduce(max);
+    final sideInset = header.right - rightEdge;
     expect(
       nextHeader.top -
           cardSpacingOf(tester.element(headerOf('G1')), ViewMode.mobile) -
