@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('update_channel', Path(__file__).parents[1] / 'update_channel.py')
 channel = importlib.util.module_from_spec(spec)
@@ -20,7 +19,7 @@ class UpdateChannelTests(unittest.TestCase):
         channel.prepare(str(self.package), '0.9.1', '12', 'a' * 40)
 
     def change(self, **values):
-        path = self.directory / 'delivery.json'
+        path = self.directory / 'build-info.json'
         manifest = json.loads(path.read_text())
         manifest.update(values)
         path.write_text(json.dumps(manifest))
@@ -51,11 +50,10 @@ class UpdateChannelTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Checksum file'):
             channel.validate(self.directory)
 
-    def test_missing_and_oversize_packages_fail(self):
-        original = self.package.stat()
-        with patch.object(Path, 'stat', return_value=type('Stat', (), dict(st_size=100 * 1024 * 1024, st_mode=original.st_mode))()):
-            with self.assertRaisesRegex(ValueError, 'delivery limit'):
-                channel.validate(self.directory)
+    def test_missing_and_empty_packages_fail(self):
+        self.package.write_bytes(b'')
+        with self.assertRaisesRegex(ValueError, 'Empty package'):
+            channel.validate(self.directory)
         self.package.unlink()
         with self.assertRaisesRegex(ValueError, 'Missing package'):
             channel.validate(self.directory)

@@ -1,3 +1,5 @@
+> Modified version of [chen08209/FlClash](https://github.com/chen08209/FlClash), maintained in this repository under GPL-3.0. Changes dated 2026-10-20 are documented in [MODIFICATIONS.md](MODIFICATIONS.md). This is not an official upstream release. [Windows builds](https://github.com/ZhuoMneg/FlClash/releases).
+
 <div align="center">
 
 <img src="assets/images/icon.png" alt="FlClash" width="88">

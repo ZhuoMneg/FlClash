@@ -7,7 +7,7 @@ import sys
 
 def validate(directory):
     directory = Path(directory)
-    manifest = json.loads((directory / 'delivery.json').read_text())
+    manifest = json.loads((directory / 'build-info.json').read_text())
     version = manifest['version']
     build = manifest['build']
     if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
@@ -22,8 +22,8 @@ def validate(directory):
     package = directory / expected
     if not package.is_file() or package.is_symlink():
         raise ValueError('Missing package')
-    if not 0 < package.stat().st_size < 100 * 1024 * 1024:
-        raise ValueError('Package exceeds the delivery limit')
+    if package.stat().st_size == 0:
+        raise ValueError('Empty package')
     with package.open('rb') as stream:
         digest = hashlib.file_digest(stream, 'sha256').hexdigest()
     if manifest['sha256'] != digest:
@@ -40,7 +40,7 @@ def prepare(filename, version, build, source):
     manifest = dict(version=version, build=int(build), source=source,
                     file=package.name, sha256=digest)
     directory = package.parent
-    (directory / 'delivery.json').write_text(json.dumps(manifest) + '\n')
+    (directory / 'build-info.json').write_text(json.dumps(manifest) + '\n')
     (directory / 'SHA256SUMS.txt').write_text(f'{digest}  {package.name}\n')
     validate(directory)
 

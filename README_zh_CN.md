@@ -1,3 +1,5 @@
+> 本仓库是基于 [chen08209/FlClash](https://github.com/chen08209/FlClash) 的修改版本，继续采用 GPL-3.0。修改日期：2026-10-20；变更见 [MODIFICATIONS.md](MODIFICATIONS.md)。本仓库发布的包不属于上游官方版本。[本仓库 Windows 构建](https://github.com/ZhuoMneg/FlClash/releases)。
+
 <div align="center">
 
 <img src="assets/images/icon.png" alt="FlClash" width="88">

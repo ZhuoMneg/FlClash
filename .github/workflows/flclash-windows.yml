@@ -35,7 +35,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.99.0
       - name: Resolve dependencies
         run: flutter pub get
-      - name: Verify update delivery validation
+      - name: Verify release package validation
         run: python3 -m unittest discover -s tool/update-channel -p 'test_*.py'
       - name: Analyze
         run: flutter analyze --no-fatal-infos
@@ -50,7 +50,7 @@ jobs:
       - name: Verify interface and source rules
         run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/white_surfaces_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/views/dashboard/recent_requests_test.dart test/common/migration_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
       - name: Verify custom release versions
-        run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=example/FlClash
+        run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
 
   windows:
     needs: checks
@@ -77,15 +77,8 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
       - name: Build
-        env:
-          UPDATE_REPOSITORY: ${{ vars.UPDATE_REPOSITORY }}
         run: |
-          $updateArguments = @()
-          if ($env:UPDATE_REPOSITORY) {
-            if ($env:UPDATE_REPOSITORY -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') { throw 'Invalid update repository' }
-            $updateArguments += "--dart-define=UPDATE_REPOSITORY=$env:UPDATE_REPOSITORY"
-          }
-          flutter build windows --release --build-number=${{ github.run_number }} @updateArguments
+          flutter build windows --release --build-number=$env:GITHUB_RUN_NUMBER "--dart-define=UPDATE_REPOSITORY=$env:GITHUB_REPOSITORY"
       - name: Include license
         run: Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
       - uses: actions/upload-artifact@v4
@@ -99,6 +92,8 @@ jobs:
     needs: windows
     if: github.ref == 'refs/heads/main' && (vars.RELEASE_ENABLED == 'true' || inputs.publish == true) && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -116,32 +111,21 @@ jobs:
           name="FlClash-$version-windows-amd64.zip"
           (cd bundle && zip -qr "../$name" .)
           python3 tool/update_channel.py prepare "$name" "$version" "$GITHUB_RUN_NUMBER" "$GITHUB_SHA"
-      - name: Deliver to public update repository
+      - name: Publish in this repository
         shell: bash
         env:
-          UPDATE_REPOSITORY: ${{ vars.UPDATE_REPOSITORY }}
-          UPDATE_DEPLOY_KEY: ${{ secrets.UPDATE_DEPLOY_KEY }}
           GH_TOKEN: ${{ github.token }}
+          TARGET_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          [[ "$UPDATE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
-          test -n "$UPDATE_DEPLOY_KEY"
-          key="$RUNNER_TEMP/update-deploy-key"
-          trap 'rm -f "$key"' EXIT
-          umask 077
-          printf '%s\n' "$UPDATE_DEPLOY_KEY" > "$key"
-          gh api meta --jq '.ssh_keys[] | "github.com " + .' > "$RUNNER_TEMP/update-known-hosts"
-          export GIT_SSH_COMMAND="ssh -i '$key' -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile='$RUNNER_TEMP/update-known-hosts'"
-          git clone --depth 1 "git@github.com:$UPDATE_REPOSITORY.git" "$RUNNER_TEMP/update-channel"
-          cp delivery.json SHA256SUMS.txt FlClash-*-windows-amd64.zip "$RUNNER_TEMP/update-channel/"
-          cd "$RUNNER_TEMP/update-channel"
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          branch="deliveries/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
-          git switch -c "$branch"
-          git add delivery.json SHA256SUMS.txt FlClash-*-windows-amd64.zip
-          git commit -m 'build: deliver verified FlClash update'
-          git push origin "HEAD:refs/heads/$branch"
+          tag=$(python3 tool/update_channel.py validate .)
+          file=$(python3 -c 'import json; print(json.load(open("build-info.json"))["file"])')
+          if gh release view "$tag" --repo "$TARGET_REPO" >/dev/null 2>&1; then exit 0; fi
+          latest=$(gh api "repos/$TARGET_REPO/releases/latest" --jq .tag_name 2>/dev/null || true)
+          is_latest=true
+          if [ -n "$latest" ] && ! python3 tool/update_channel.py newer "$tag" "$latest"; then is_latest=false; fi
+          printf 'FlClash %s\n\nModified build based on [chen08209/FlClash](https://github.com/chen08209/FlClash). Licensed under GPL-3.0.\n\nSource: https://github.com/%s/tree/%s\n\nBuild from the corresponding source, including submodules:\n\n```sh\ngit clone --recursive --branch "%s" https://github.com/%s.git\n```\n\nVerify the download with SHA256SUMS.txt.\n' "$tag" "$TARGET_REPO" "$GITHUB_SHA" "$tag" "$TARGET_REPO" > release-notes.txt
+          gh release create "$tag" "$file" SHA256SUMS.txt build-info.json LICENSE --repo "$TARGET_REPO" --target "$GITHUB_SHA" --latest="$is_latest" --title "FlClash $tag" --notes-file release-notes.txt
 
   promote-upstream:
     needs: windows
