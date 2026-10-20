@@ -2,6 +2,11 @@ name: FlClash Windows
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish this main build to the public update channel
+        type: boolean
+        default: false
   pull_request:
     branches: [main]
   push:
@@ -30,6 +35,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.99.0
       - name: Resolve dependencies
         run: flutter pub get
+      - name: Verify update delivery validation
+        run: python3 -m unittest discover -s tool/update-channel -p 'test_*.py'
       - name: Analyze
         run: flutter analyze --no-fatal-infos
       - name: Skip unused Go build hook in UI tests
@@ -70,10 +77,13 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-infos
       - name: Build
+        env:
+          UPDATE_REPOSITORY: ${{ vars.UPDATE_REPOSITORY }}
         run: |
           $updateArguments = @()
-          if ('${{ github.event.repository.private }}' -eq 'false') {
-            $updateArguments += '--dart-define=UPDATE_REPOSITORY=${{ github.repository }}'
+          if ($env:UPDATE_REPOSITORY) {
+            if ($env:UPDATE_REPOSITORY -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') { throw 'Invalid update repository' }
+            $updateArguments += "--dart-define=UPDATE_REPOSITORY=$env:UPDATE_REPOSITORY"
           }
           flutter build windows --release --build-number=${{ github.run_number }} @updateArguments
       - name: Include license
@@ -87,29 +97,70 @@ jobs:
 
   publish:
     needs: windows
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && (vars.RELEASE_ENABLED == 'true' || inputs.publish == true) && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
           name: FlClash-windows-amd64
           path: bundle
-      - name: Publish verified build
+      - name: Prepare verified build
         shell: bash
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          name="FlClash-$version-windows-amd64.zip"
+          (cd bundle && zip -qr "../$name" .)
+          python3 tool/update_channel.py prepare "$name" "$version" "$GITHUB_RUN_NUMBER" "$GITHUB_SHA"
+      - name: Deliver to public update repository
+        shell: bash
+        env:
+          UPDATE_REPOSITORY: ${{ vars.UPDATE_REPOSITORY }}
+          UPDATE_DEPLOY_KEY: ${{ secrets.UPDATE_DEPLOY_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          [[ "$UPDATE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]
+          test -n "$UPDATE_DEPLOY_KEY"
+          key="$RUNNER_TEMP/update-deploy-key"
+          trap 'rm -f "$key"' EXIT
+          umask 077
+          printf '%s\n' "$UPDATE_DEPLOY_KEY" > "$key"
+          gh api meta --jq '.ssh_keys[] | "github.com " + .' > "$RUNNER_TEMP/update-known-hosts"
+          export GIT_SSH_COMMAND="ssh -i '$key' -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile='$RUNNER_TEMP/update-known-hosts'"
+          git clone --depth 1 "git@github.com:$UPDATE_REPOSITORY.git" "$RUNNER_TEMP/update-channel"
+          cp delivery.json SHA256SUMS.txt FlClash-*-windows-amd64.zip "$RUNNER_TEMP/update-channel/"
+          cd "$RUNNER_TEMP/update-channel"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          branch="deliveries/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          git switch -c "$branch"
+          git add delivery.json SHA256SUMS.txt FlClash-*-windows-amd64.zip
+          git commit -m 'build: deliver verified FlClash update'
+          git push origin "HEAD:refs/heads/$branch"
+
+  promote-upstream:
+    needs: windows
+    if: startsWith(github.ref, 'refs/heads/upstream/') && github.event_name == 'workflow_dispatch' && vars.RELEASE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Advance main after successful checks and build
         env:
           GH_TOKEN: ${{ github.token }}
           TARGET_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          version=$(sed -n 's/^version: *\([^+]*\).*/\1/p' pubspec.yaml)
-          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
-          tag="build-v$version+$GITHUB_RUN_NUMBER"
-          if gh release view "$tag" --repo "$TARGET_REPO" >/dev/null 2>&1; then exit 0; fi
-          name="FlClash-$version-windows-amd64.zip"
-          (cd bundle && zip -qr "../$name" .)
-          sha256sum "$name" > SHA256SUMS.txt
-          printf 'FlClash %s\n\nWhite interface and realtime request history.\n' "$version" > release-notes.txt
-          gh release create "$tag" "$name" SHA256SUMS.txt --repo "$TARGET_REPO" --target "$GITHUB_SHA" --title "FlClash $version" --notes-file release-notes.txt
+          git fetch origin main
+          git merge-base --is-ancestor origin/main HEAD
+          git push origin HEAD:refs/heads/main
+          gh workflow run flclash-windows.yml --ref main --repo "$TARGET_REPO"
