@@ -115,6 +115,23 @@ class _TestServer {
           response.statusCode = HttpStatus.ok;
           response.add(stored);
         }
+      case 'PROPFIND':
+        response.statusCode = HttpStatus.multiStatus;
+        response.headers.contentType = ContentType('application', 'xml');
+        response.write('<d:multistatus xmlns:d="DAV:">');
+        final prefix = path.endsWith('/') ? path : '$path/';
+        for (final file in files.keys.where(
+          (name) =>
+              name.startsWith(prefix) &&
+              name.length > prefix.length &&
+              !name.substring(prefix.length).contains('/'),
+        )) {
+          final href = htmlEscape.convert(Uri(path: file).toString());
+          response.write(
+            '<d:response><d:href>$href</d:href><d:propstat><d:prop><d:resourcetype/></d:prop><d:status>HTTP/1.1 200 OK</d:status></d:propstat></d:response>',
+          );
+        }
+        response.write('</d:multistatus>');
       default:
         response.statusCode = HttpStatus.methodNotAllowed;
     }
@@ -261,6 +278,62 @@ void main() {
       expect(server.requests.map((item) => item.method), ['MKCOL', 'PUT']);
       expect(server.requests.last.path, '/$appName/backup.zip');
       expect(server.files['/$appName/backup.zip'], archive.readAsBytesSync());
+    });
+
+    test(
+      'versioned backups preserve legacy files and can restore a chosen version',
+      () async {
+        final client = buildClient();
+        server.files['/$appName/backup.zip'] = [9];
+        server.files['/$appName/unrelated.zip'] = [8];
+        await client.uploadVersion(writeArchive([1, 2, 3]).path);
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+        await client.uploadVersion(writeArchive([4, 5, 6]).path);
+        final backups = await client.listBackups();
+        expect(backups, hasLength(3));
+        expect(backups.last.name, 'backup.zip');
+        expect(backups.first.createdAt, isNotNull);
+        expect(server.files['/$appName/backup.zip'], [9]);
+        final restored = join(root.path, 'older-backup.zip');
+        await client.downloadVersion(restored, backups[1].name);
+        expect(File(restored).readAsBytesSync(), [1, 2, 3]);
+        expect(
+          server.requests.every((request) => request.method != 'DELETE'),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'missing backup directory is empty but authentication errors propagate',
+      () async {
+        server.responses.add((
+          method: 'PROPFIND',
+          status: HttpStatus.notFound,
+          headers: const {},
+        ));
+        expect(await buildClient().listBackups(), isEmpty);
+        server.responses.add((
+          method: 'PROPFIND',
+          status: HttpStatus.forbidden,
+          headers: const {},
+        ));
+        await expectLater(
+          buildClient().listBackups(),
+          throwsA(isA<DAVException>()),
+        );
+      },
+    );
+
+    test('selected version cannot escape its backup directory', () async {
+      await expectLater(
+        buildClient().downloadVersion(
+          join(root.path, 'target.zip'),
+          '../backup.zip',
+        ),
+        throwsFormatException,
+      );
+      expect(server.requests, isEmpty);
     });
 
     test('a base path prefixes every request', () async {

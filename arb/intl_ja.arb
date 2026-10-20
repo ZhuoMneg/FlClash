@@ -946,5 +946,8 @@
   "dmitProtocol": "DMIT 接続方式",
   "proxyExit": "Proxy 出口",
   "embyExit": "Emby 出口",
-  "selectProxyGroup": "プロキシグループを選択"
+  "selectProxyGroup": "プロキシグループを選択",
+  "nodeExclusion": "ノードを除外（名前の正規表現）",
+  "selectBackupVersion": "バックアップのバージョンを選択",
+  "noBackupFileFound": "バックアップが見つかりません"
 }

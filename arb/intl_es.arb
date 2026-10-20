@@ -946,5 +946,8 @@
   "dmitProtocol": "Protocolo DMIT",
   "proxyExit": "Salida Proxy",
   "embyExit": "Salida Emby",
-  "selectProxyGroup": "Elegir grupo de proxies"
+  "selectProxyGroup": "Elegir grupo de proxies",
+  "nodeExclusion": "Excluir nodos (expresión regular del nombre)",
+  "selectBackupVersion": "Seleccionar versión de copia de seguridad",
+  "noBackupFileFound": "No se encontraron copias de seguridad"
 }

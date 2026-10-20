@@ -1201,6 +1201,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Network type"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Next match"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
+      "No backups found",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("No data"),
     "noInfo": MessageLookupByLibrary.simpleMessage("No info"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -1214,6 +1217,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noSearchResults": MessageLookupByLibrary.simpleMessage(
       "No matching results",
+    ),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage(
+      "Exclude nodes (name regex)",
     ),
     "nodes": MessageLookupByLibrary.simpleMessage("Nodes"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
@@ -1618,6 +1624,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Key"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Select all"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "Select backup version",
+    ),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
       "Select proxy group",
     ),

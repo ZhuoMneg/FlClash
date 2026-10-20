@@ -1020,6 +1020,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("네트워크 유형"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("다음 결과"),
     "no": MessageLookupByLibrary.simpleMessage("아니요"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage("백업을 찾을 수 없습니다"),
     "noData": MessageLookupByLibrary.simpleMessage("데이터 없음"),
     "noInfo": MessageLookupByLibrary.simpleMessage("정보 없음"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage("다시 알리지 않음"),
@@ -1028,6 +1029,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "noResolve": MessageLookupByLibrary.simpleMessage("IP 확인 안 함"),
     "noResolveHostname": MessageLookupByLibrary.simpleMessage("호스트 이름 확인 안 함"),
     "noSearchResults": MessageLookupByLibrary.simpleMessage("일치하는 결과 없음"),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage("노드 제외 (이름 정규식)"),
     "nodes": MessageLookupByLibrary.simpleMessage("노드"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
       "이 외부 리소스는 텍스트 파일이 아닙니다",
@@ -1363,6 +1365,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("키"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("모두 선택"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage("백업 버전 선택"),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage("프록시 그룹 선택"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("규칙 세트를 선택하세요"),
     "selectSplitStrategy": MessageLookupByLibrary.simpleMessage("분할 전략을 선택하세요"),

@@ -1256,6 +1256,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Тип сети"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Следующее совпадение"),
     "no": MessageLookupByLibrary.simpleMessage("Нет"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
+      "Резервные копии не найдены",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Нет данных"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Нет информации"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -1269,6 +1272,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noSearchResults": MessageLookupByLibrary.simpleMessage(
       "Ничего не найдено",
+    ),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage(
+      "Исключение узлов (регулярное выражение имени)",
     ),
     "nodes": MessageLookupByLibrary.simpleMessage("Узлы"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
@@ -1695,6 +1701,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Ключ"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Выбрать всё"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "Выбрать версию резервной копии",
+    ),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
       "Выбрать группу прокси",
     ),

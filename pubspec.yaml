@@ -48,6 +48,7 @@ dependencies:
   ffi: ^2.2.0
 
   dio: ^5.11.1
+  xml: ^7.0.1
   win32: ^6.4.0
   code_forge:
     path: plugins/code_forge

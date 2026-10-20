@@ -1035,6 +1035,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("ネットワーク種別"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("次の一致"),
     "no": MessageLookupByLibrary.simpleMessage("いいえ"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage("バックアップが見つかりません"),
     "noData": MessageLookupByLibrary.simpleMessage("データがありません"),
     "noInfo": MessageLookupByLibrary.simpleMessage("情報がありません"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage("今後表示しない"),
@@ -1043,6 +1044,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "noResolve": MessageLookupByLibrary.simpleMessage("IPを解決しない"),
     "noResolveHostname": MessageLookupByLibrary.simpleMessage("ホスト名を解決しない"),
     "noSearchResults": MessageLookupByLibrary.simpleMessage("一致する結果はありません"),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage("ノードを除外（名前の正規表現）"),
     "nodes": MessageLookupByLibrary.simpleMessage("ノード"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
       "この外部リソースはテキストファイルではありません",
@@ -1390,6 +1392,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("キー"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("すべて選択"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "バックアップのバージョンを選択",
+    ),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage("プロキシグループを選択"),
     "selectRuleSet": MessageLookupByLibrary.simpleMessage("ルールセットを選択してください"),
     "selectSplitStrategy": MessageLookupByLibrary.simpleMessage(

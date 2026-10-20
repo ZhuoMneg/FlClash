@@ -29,6 +29,19 @@ class ToolsView extends ConsumerStatefulWidget {
 }
 
 class _ToolViewState extends ConsumerState<ToolsView> {
+  var _query = SearchQuery('');
+
+  Widget? _section(
+    String title,
+    List<({List<String> terms, Widget item})> entries,
+  ) {
+    final items = entries
+        .where((entry) => _query.matches(entry.terms))
+        .map((entry) => entry.item)
+        .toList();
+    return items.isEmpty ? null : generateSection(title: title, items: items);
+  }
+
   Widget _buildNavigationMenuItem(NavigationItem navigationItem) {
     return ListItem.open(
       leading: GlyphIcon(navigationItem.glyph),
@@ -38,32 +51,48 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     );
   }
 
-  Widget _getOtherList(bool enableDeveloperMode) {
-    return generateSection(
-      title: context.appLocalizations.other,
-      items: [
-        const _DisclaimerItem(),
-        if (enableDeveloperMode) const _DeveloperItem(),
-        const _InfoItem(),
-      ],
-    );
+  Widget? _getOtherList(bool enableDeveloperMode) {
+    final l = context.appLocalizations;
+    return _section(l.other, [
+      (terms: [l.disclaimer], item: const _DisclaimerItem()),
+      if (enableDeveloperMode)
+        (terms: [l.developerMode], item: const _DeveloperItem()),
+      (terms: [l.about, l.checkUpdate, 'FlClash'], item: const _InfoItem()),
+    ]);
   }
 
-  Widget _getSettingList() {
-    final appLocalizations = context.appLocalizations;
-    return generateSection(
-      title: appLocalizations.settings,
-      items: [
-        const _LocaleItem(),
-        const _ThemeItem(),
-        const _BackupItem(),
-        if (system.isDesktop) const _HotkeyItem(),
-        if (system.isAndroid) const _AccessItem(),
-        const _AdvancedConfigItem(),
-        const _CustomResourcesItem(),
-        const _GeneralItem(),
-      ],
-    );
+  Widget? _getSettingList() {
+    final l = context.appLocalizations;
+    return _section(l.settings, [
+      (terms: [l.language], item: const _LocaleItem()),
+      (
+        terms: [
+          l.theme,
+          l.themeMode,
+          l.liquidGlass,
+          l.fontFamily,
+          l.tabAnimation,
+        ],
+        item: const _ThemeItem(),
+      ),
+      (
+        terms: [l.backupAndRestore, l.backup, l.restore, 'WebDAV'],
+        item: const _BackupItem(),
+      ),
+      if (system.isDesktop)
+        (terms: [l.hotkeyManagement], item: const _HotkeyItem()),
+      if (system.isAndroid)
+        (terms: [l.accessControl], item: const _AccessItem()),
+      (
+        terms: [l.advancedConfig, 'DNS', l.network, l.rules, l.script],
+        item: const _AdvancedConfigItem(),
+      ),
+      (terms: [l.customProfileResources], item: const _CustomResourcesItem()),
+      (
+        terms: [l.general, l.systemProxy, l.tun, l.authentication, l.allowLan],
+        item: const _GeneralItem(),
+      ),
+    ]);
   }
 
   @override
@@ -71,39 +100,44 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     final developerMode = ref.watch(
       appSettingProvider.select((state) => state.developerMode),
     );
-    final items = [
+    final moreItems = ref.watch(moreToolsSelectorStateProvider).navigationItems;
+    final items = <Widget>[
       if (!widget.settingsOnly)
-        Consumer(
-          builder: (_, ref, _) {
-            final state = ref.watch(moreToolsSelectorStateProvider);
-            if (state.navigationItems.isEmpty) {
-              return Container();
-            }
-            return generateSection(
-              title: context.appLocalizations.more,
-              items: state.navigationItems.map(_buildNavigationMenuItem),
-            );
-          },
-        ),
+        ?_section(context.appLocalizations.more, [
+          for (final item in moreItems)
+            (terms: [item.label.label], item: _buildNavigationMenuItem(item)),
+        ]),
       if (widget.settingsOnly || !system.isDesktop) ...[
-        _getSettingList(),
-        _getOtherList(developerMode),
+        ?_getSettingList(),
+        ?_getOtherList(developerMode),
       ],
     ];
     return CommonScaffold(
       title: widget.settingsOnly
           ? context.appLocalizations.settings
           : context.appLocalizations.tools,
+      searchState: AppBarSearchState(
+        onSearch: (value) => setState(() => _query = SearchQuery(value)),
+      ),
       body: Builder(
-        builder: (context) => ListView.builder(
-          key: toolsStoreKey,
-          itemCount: items.length,
-          itemBuilder: (_, index) => items[index],
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: context.appBarInset,
-            bottom: 20 + BottomInsetScope.of(context),
+        builder: (context) => NullStatusSwitcher(
+          isEmpty: items.isEmpty,
+          isSearching: _query.isNotEmpty,
+          nullStatus: NullStatus(
+            label: context.appLocalizations.nullTip(
+              context.appLocalizations.settings,
+            ),
+          ),
+          child: ListView.builder(
+            key: toolsStoreKey,
+            itemCount: items.length,
+            itemBuilder: (_, index) => items[index],
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: context.appBarInset,
+              bottom: 20 + BottomInsetScope.of(context),
+            ),
           ),
         ),
       ),

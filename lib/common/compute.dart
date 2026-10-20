@@ -2,6 +2,42 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 
+Set<String> matchExcludedProxyNames(
+  ({String pattern, List<String> names}) input,
+) {
+  try {
+    final matcher = RegExp(input.pattern, caseSensitive: false);
+    return input.names.where(matcher.hasMatch).toSet();
+  } on FormatException {
+    return {};
+  }
+}
+
+List<Group> computeExcludeProxies({
+  required List<Group> groups,
+  required List<Group> allGroups,
+  required Set<String> excluded,
+  required Map<String, String> selectedMap,
+}) {
+  if (excluded.isEmpty) return groups;
+  final sources = {for (final group in allGroups) group.name: group};
+  return groups.map((group) {
+    final selected = (sources[group.name] ?? group).getCurrentSelectedName(
+      selectedMap[group.name] ?? '',
+    );
+    return group.copyWith(
+      all: group.all
+          .where(
+            (proxy) =>
+                !excluded.contains(proxy.name) ||
+                proxy.name == selected ||
+                sources.containsKey(proxy.name),
+          )
+          .toList(),
+    );
+  }).toList();
+}
+
 List<Group> computeSort({
   required List<Group> groups,
   required ProxiesSortType sortType,

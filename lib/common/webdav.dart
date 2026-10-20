@@ -4,6 +4,53 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:fl_clash/common/string.dart';
+import 'package:flutter/foundation.dart' show compute;
+import 'package:xml/xml.dart';
+
+List<String> parseDAVFileNames(String source) {
+  final document = XmlDocument.parse(source);
+  final names = <String>{};
+  for (final response in document.findAllElements(
+    'response',
+    namespaceUri: 'DAV:',
+  )) {
+    final props = response
+        .findElements('propstat', namespaceUri: 'DAV:')
+        .where(
+          (propstat) => RegExp(r'^HTTP/\S+ 200(?:\s|$)').hasMatch(
+            propstat
+                    .getElement('status', namespaceUri: 'DAV:')
+                    ?.innerText
+                    .trim() ??
+                '',
+          ),
+        )
+        .expand(
+          (propstat) => propstat.findElements('prop', namespaceUri: 'DAV:'),
+        )
+        .toList();
+    if (props.isEmpty ||
+        props.any(
+          (prop) => prop
+              .findAllElements('collection', namespaceUri: 'DAV:')
+              .isNotEmpty,
+        )) {
+      continue;
+    }
+    final href = response.getElement('href', namespaceUri: 'DAV:')?.innerText;
+    final uri = href == null ? null : Uri.tryParse(href);
+    if (uri == null || uri.pathSegments.isEmpty) continue;
+    final name = uri.pathSegments.last;
+    if (name.isNotEmpty &&
+        name != '.' &&
+        name != '..' &&
+        !name.contains('/') &&
+        !name.contains('\\')) {
+      names.add(name);
+    }
+  }
+  return names.toList();
+}
 
 final class DAVException implements Exception {
   final String method;
@@ -105,6 +152,23 @@ class DAVTransport {
     );
     final data = response.data;
     return data is List<int> ? Uint8List.fromList(data) : Uint8List(0);
+  }
+
+  Future<List<String>> listFiles(String path) async {
+    final response = await _send(
+      'PROPFIND',
+      path,
+      collection: true,
+      body: utf8.encode(
+        '<d:propfind xmlns:d="DAV:"><d:prop><d:resourcetype/></d:prop></d:propfind>',
+      ),
+      headers: const {
+        'Depth': '1',
+        Headers.contentTypeHeader: 'application/xml; charset=utf-8',
+      },
+      accept: const {207},
+    );
+    return compute(parseDAVFileNames, response.data as String);
   }
 
   Future<Response<dynamic>> _send(

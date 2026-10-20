@@ -946,5 +946,8 @@
   "dmitProtocol": "Протокол DMIT",
   "proxyExit": "Выход Proxy",
   "embyExit": "Выход Emby",
-  "selectProxyGroup": "Выбрать группу прокси"
+  "selectProxyGroup": "Выбрать группу прокси",
+  "nodeExclusion": "Исключение узлов (регулярное выражение имени)",
+  "selectBackupVersion": "Выбрать версию резервной копии",
+  "noBackupFileFound": "Резервные копии не найдены"
 }

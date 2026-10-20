@@ -7891,6 +7891,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Exclude nodes (name regex)`
+  String get nodeExclusion {
+    return Intl.message(
+      'Exclude nodes (name regex)',
+      name: 'nodeExclusion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select backup version`
+  String get selectBackupVersion {
+    return Intl.message(
+      'Select backup version',
+      name: 'selectBackupVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No backups found`
+  String get noBackupFileFound {
+    return Intl.message(
+      'No backups found',
+      name: 'noBackupFileFound',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

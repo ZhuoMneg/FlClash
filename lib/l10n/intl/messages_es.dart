@@ -1292,6 +1292,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Tipo de red"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Coincidencia siguiente"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
+      "No se encontraron copias de seguridad",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Sin datos"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Sin información"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -1305,6 +1308,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "noSearchResults": MessageLookupByLibrary.simpleMessage(
       "No hay resultados",
+    ),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage(
+      "Excluir nodos (expresión regular del nombre)",
     ),
     "nodes": MessageLookupByLibrary.simpleMessage("Nodos"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
@@ -1737,6 +1743,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Clave"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Seleccionar todo"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "Seleccionar versión de copia de seguridad",
+    ),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
       "Elegir grupo de proxies",
     ),

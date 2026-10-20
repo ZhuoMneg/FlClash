@@ -108,6 +108,25 @@ class ProxiesSetting extends ConsumerWidget {
             title: appLocalizations.filter,
             footer: appLocalizations.hideTimeoutProxiesDesc,
             items: [
+              ConfigTextItem(
+                title: (l) => l.nodeExclusion,
+                selector: proxiesStyleSettingProvider.select(
+                  (state) => state.nodeExcludeFilter,
+                ),
+                allowEmpty: true,
+                validator: (value, l) {
+                  try {
+                    RegExp(value ?? '');
+                    return null;
+                  } on FormatException catch (error) {
+                    return l.customIssueInvalidFilter(l.regex, error.message);
+                  }
+                },
+                normalize: (value) => value.trim(),
+                onChanged: _writer(
+                  (state, value) => state.copyWith(nodeExcludeFilter: value),
+                ),
+              ),
               ConfigToggleItem(
                 title: (l) => l.hideTimeoutProxies,
                 selector: proxiesStyleSettingProvider.select(

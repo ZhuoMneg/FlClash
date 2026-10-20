@@ -1293,6 +1293,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Type de réseau"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Résultat suivant"),
     "no": MessageLookupByLibrary.simpleMessage("Non"),
+    "noBackupFileFound": MessageLookupByLibrary.simpleMessage(
+      "Aucune sauvegarde trouvée",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Aucune donnée"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Aucune information"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
@@ -1305,6 +1308,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Ne pas résoudre le nom d’hôte",
     ),
     "noSearchResults": MessageLookupByLibrary.simpleMessage("Aucun résultat"),
+    "nodeExclusion": MessageLookupByLibrary.simpleMessage(
+      "Exclure des nœuds (expression régulière du nom)",
+    ),
     "nodes": MessageLookupByLibrary.simpleMessage("Nœuds"),
     "nonTextProviderFile": MessageLookupByLibrary.simpleMessage(
       "Cette ressource externe n’est pas un fichier texte",
@@ -1742,6 +1748,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "secretKey": MessageLookupByLibrary.simpleMessage("Clé"),
     "sectionsInEffect": m72,
     "selectAll": MessageLookupByLibrary.simpleMessage("Tout sélectionner"),
+    "selectBackupVersion": MessageLookupByLibrary.simpleMessage(
+      "Choisir une version de sauvegarde",
+    ),
     "selectProxyGroup": MessageLookupByLibrary.simpleMessage(
       "Choisir un groupe de proxys",
     ),

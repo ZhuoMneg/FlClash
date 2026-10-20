@@ -946,5 +946,8 @@
   "dmitProtocol": "DMIT 前置协议",
   "proxyExit": "Proxy 出口",
   "embyExit": "Emby 出口",
-  "selectProxyGroup": "选择策略组"
+  "selectProxyGroup": "选择策略组",
+  "nodeExclusion": "排除节点（名称正则）",
+  "selectBackupVersion": "选择备份版本",
+  "noBackupFileFound": "未找到备份"
 }

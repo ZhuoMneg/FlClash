@@ -946,5 +946,8 @@
   "dmitProtocol": "DMIT 연결 프로토콜",
   "proxyExit": "Proxy 출구",
   "embyExit": "Emby 출구",
-  "selectProxyGroup": "프록시 그룹 선택"
+  "selectProxyGroup": "프록시 그룹 선택",
+  "nodeExclusion": "노드 제외 (이름 정규식)",
+  "selectBackupVersion": "백업 버전 선택",
+  "noBackupFileFound": "백업을 찾을 수 없습니다"
 }

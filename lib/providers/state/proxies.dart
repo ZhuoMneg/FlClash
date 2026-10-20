@@ -69,7 +69,40 @@ DelayMap delaysAtLastTestBatch(Ref ref) {
 
 @riverpod
 GroupsState visibleGroupsState(Ref ref) {
-  return _hideTimeoutProxies(ref, ref.watch(currentGroupsStateProvider));
+  return _hideTimeoutProxies(ref, ref.watch(nodeFilteredGroupsStateProvider));
+}
+
+@riverpod
+Future<Set<String>> excludedProxyNames(Ref ref) async {
+  final pattern = ref
+      .watch(
+        proxiesStyleSettingProvider.select((state) => state.nodeExcludeFilter),
+      )
+      .trim();
+  if (pattern.isEmpty) return {};
+  final names = ref
+      .watch(groupsProvider)
+      .expand((group) => group.all)
+      .map((proxy) => proxy.name)
+      .toSet()
+      .toList();
+  return compute(matchExcludedProxyNames, (pattern: pattern, names: names));
+}
+
+@riverpod
+GroupsState nodeFilteredGroupsState(Ref ref) {
+  final groups = ref.watch(currentGroupsStateProvider);
+  final excluded =
+      ref.watch(excludedProxyNamesProvider).asData?.value ?? const <String>{};
+  if (excluded.isEmpty) return groups;
+  return groups.copyWith(
+    value: computeExcludeProxies(
+      groups: groups.value,
+      allGroups: ref.watch(groupsProvider),
+      excluded: excluded,
+      selectedMap: ref.watch(selectedMapProvider),
+    ),
+  );
 }
 
 GroupsState _hideTimeoutProxies(Ref ref, GroupsState groups) {
@@ -98,7 +131,7 @@ GroupsState filterGroupsState(Ref ref, String query) {
   if (searchQuery.isEmpty) {
     return ref.watch(visibleGroupsStateProvider);
   }
-  final currentGroups = ref.watch(currentGroupsStateProvider);
+  final currentGroups = ref.watch(nodeFilteredGroupsStateProvider);
   final matches = <Proxy, bool>{};
   final groups = currentGroups.value
       .map((group) {

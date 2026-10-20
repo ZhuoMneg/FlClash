@@ -28,6 +28,40 @@ Dio _dioWith(_ScriptedAdapter adapter) => Dio()..httpClientAdapter = adapter;
 
 void main() {
   test(
+    'PROPFIND parser handles DAV namespaces and rejects collections or unsuccessful properties',
+    () {
+      const source = '''<multistatus xmlns="DAV:">
+      <response><href>/FlClash/backup.zip</href><propstat><prop><resourcetype/></prop><status>HTTP/1.1 200 OK</status></propstat></response>
+      <response><href>/FlClash/folder.zip/</href><propstat><prop><resourcetype><collection/></resourcetype></prop><status>HTTP/1.1 200 OK</status></propstat></response>
+      <response><href>/FlClash/failed.zip</href><propstat><prop><resourcetype/></prop><status>HTTP/1.1 403 Forbidden</status></propstat></response>
+      <response><href>/FlClash/%2e%2e%2fbackup.zip</href><propstat><prop><resourcetype/></prop><status>HTTP/1.1 200 OK</status></propstat></response>
+    </multistatus>''';
+      expect(parseDAVFileNames(source), ['backup.zip']);
+    },
+  );
+
+  test(
+    'listing uses authenticated depth-one PROPFIND without adding a second transport',
+    () async {
+      final adapter = _ScriptedAdapter(
+        (_) => ResponseBody.fromString('<d:multistatus xmlns:d="DAV:"/>', 207),
+      );
+      final transport = DAVTransport(
+        uri: 'https://dav.example.com/remote',
+        user: 'alice',
+        password: 'secret',
+        dio: _dioWith(adapter),
+      );
+      expect(await transport.listFiles('/FlClash'), isEmpty);
+      final request = adapter.requests.single;
+      expect(request.method, 'PROPFIND');
+      expect(request.uri.path, '/remote/FlClash/');
+      expect(request.headers['Depth'], '1');
+      expect(request.headers['authorization'], startsWith('Basic '));
+    },
+  );
+
+  test(
     'redirect to a different origin drops the Authorization header',
     () async {
       var call = 0;

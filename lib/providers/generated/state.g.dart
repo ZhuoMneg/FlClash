@@ -1888,7 +1888,89 @@ final class VisibleGroupsStateProvider
 }
 
 String _$visibleGroupsStateHash() =>
-    r'b9f560285e114ebb98625daeb3fe418926e2e9c2';
+    r'5eaccdc8114d6ab0e481d50f063bb94a9fea924d';
+
+@ProviderFor(excludedProxyNames)
+final excludedProxyNamesProvider = ExcludedProxyNamesProvider._();
+
+final class ExcludedProxyNamesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<Set<String>>,
+          Set<String>,
+          FutureOr<Set<String>>
+        >
+    with $FutureModifier<Set<String>>, $FutureProvider<Set<String>> {
+  ExcludedProxyNamesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'excludedProxyNamesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$excludedProxyNamesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<Set<String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<Set<String>> create(Ref ref) {
+    return excludedProxyNames(ref);
+  }
+}
+
+String _$excludedProxyNamesHash() =>
+    r'77b7bef7d0927d5affc2822912c8d439bfd2bfa4';
+
+@ProviderFor(nodeFilteredGroupsState)
+final nodeFilteredGroupsStateProvider = NodeFilteredGroupsStateProvider._();
+
+final class NodeFilteredGroupsStateProvider
+    extends $FunctionalProvider<GroupsState, GroupsState, GroupsState>
+    with $Provider<GroupsState> {
+  NodeFilteredGroupsStateProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'nodeFilteredGroupsStateProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$nodeFilteredGroupsStateHash();
+
+  @$internal
+  @override
+  $ProviderElement<GroupsState> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  GroupsState create(Ref ref) {
+    return nodeFilteredGroupsState(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(GroupsState value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<GroupsState>(value),
+    );
+  }
+}
+
+String _$nodeFilteredGroupsStateHash() =>
+    r'0be136273683becb6d842dbc5bee194833121c8f';
 
 /// Searches before hiding, so a group whose matches all timed out keeps them,
 /// and with them its delay test, instead of dropping out of the results.
@@ -1955,7 +2037,7 @@ final class FilterGroupsStateProvider
   }
 }
 
-String _$filterGroupsStateHash() => r'd27c043b7647ce7f6182f2e5d4a880d987d2d5af';
+String _$filterGroupsStateHash() => r'4c2b62b0269c000c06cc4378a6599cd049f8f2ab';
 
 /// Searches before hiding, so a group whose matches all timed out keeps them,
 /// and with them its delay test, instead of dropping out of the results.
