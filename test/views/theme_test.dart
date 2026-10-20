@@ -274,20 +274,28 @@ void main() {
     });
   });
 
-  testWidgets('liquid glass is unavailable even with saved glass settings', (
-    tester,
-  ) async {
-    container
-        .read(themeSettingProvider.notifier)
-        .update((state) => state.copyWith(liquidGlass: LiquidGlassMode.ultra));
-    await pumpThemeView(tester);
-    expect(find.text('Liquid Glass'), findsNothing);
-    expect(
-      tester
-          .widgetList<MiniScreen>(find.byType(MiniScreen))
-          .every((screen) => !screen.liquidGlass),
-      isTrue,
-    );
+  group('liquid glass', () {
+    testWidgets('is off until a tier is chosen, and switches back', (
+      tester,
+    ) async {
+      await pumpThemeView(tester);
+      final group = find.ancestor(
+        of: find.text('Liquid Glass').first,
+        matching: find.byType(PreviewChoiceGroup<LiquidGlassMode>),
+      );
+      Finder choice(String label) =>
+          find.descendant(of: group, matching: find.text(label)).last;
+
+      expect(readTheme().liquidGlass, LiquidGlassMode.none);
+
+      await tester.tap(choice('Standard'));
+      await tester.pumpAndSettle();
+      expect(readTheme().liquidGlass, LiquidGlassMode.standard);
+
+      await tester.tap(choice('None'));
+      await tester.pumpAndSettle();
+      expect(readTheme().liquidGlass, LiquidGlassMode.none);
+    });
   });
 
   group('pure black', () {

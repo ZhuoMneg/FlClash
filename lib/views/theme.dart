@@ -36,6 +36,8 @@ class ThemeView extends StatelessWidget {
           SizedBox(height: 16),
           _TabAnimationItem(),
           SizedBox(height: 16),
+          _LiquidGlassItem(),
+          SizedBox(height: 16),
           _SidebarBlurItem(),
           _FontFamilyItem(),
           SizedBox(height: 16),
@@ -56,7 +58,7 @@ class _ThemeModeItem extends ConsumerWidget {
       themeSettingProvider.select((state) => state.themeMode),
     );
     final floatingBar = ref.watch(_floatingBarProvider);
-    const liquidGlass = false;
+    final liquidGlass = ref.watch(_liquidGlassProvider);
     final light = MiniScreen(
       colorScheme: ref.watch(genColorSchemeProvider(Brightness.light)),
       floatingBar: floatingBar,
@@ -571,6 +573,10 @@ final _floatingBarProvider = appSettingProvider.select(
   (state) => state.floatingNavigationBar,
 );
 
+final _liquidGlassProvider = themeSettingProvider.select(
+  (state) => state.liquidGlass != LiquidGlassMode.none,
+);
+
 class _PureBlackItem extends ConsumerWidget {
   const _PureBlackItem();
 
@@ -581,7 +587,7 @@ class _PureBlackItem extends ConsumerWidget {
       themeSettingProvider.select((state) => state.pureBlack),
     );
     final floatingBar = ref.watch(_floatingBarProvider);
-    const liquidGlass = false;
+    final liquidGlass = ref.watch(_liquidGlassProvider);
     Widget preview(bool pureBlack) => MiniScreenThumb(
       screen: MiniScreen(
         colorScheme: ref.watch(
@@ -625,7 +631,7 @@ class _NavigationBarItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appLocalizations = context.appLocalizations;
     final floatingBar = ref.watch(_floatingBarProvider);
-    const liquidGlass = false;
+    final liquidGlass = ref.watch(_liquidGlassProvider);
     final colorScheme = context.colorScheme;
     return PreviewChoiceGroup<bool>(
       info: Info(
@@ -672,7 +678,7 @@ class _TabAnimationItem extends ConsumerWidget {
       appSettingProvider.select((state) => state.tabAnimation),
     );
     final floatingBar = ref.watch(_floatingBarProvider);
-    const liquidGlass = false;
+    final liquidGlass = ref.watch(_liquidGlassProvider);
     final colorScheme = context.colorScheme;
     Widget switching(TabAnimation tabAnimation) => MiniScreenThumb(
       screen: MiniScreen(
@@ -704,6 +710,58 @@ class _TabAnimationItem extends ConsumerWidget {
         ref
             .read(appSettingProvider.notifier)
             .update((state) => state.copyWith(tabAnimation: value));
+      },
+    );
+  }
+}
+
+class _LiquidGlassItem extends ConsumerWidget {
+  const _LiquidGlassItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appLocalizations = context.appLocalizations;
+    final mode = ref.watch(
+      themeSettingProvider.select((state) => state.liquidGlass),
+    );
+    final colorScheme = context.colorScheme;
+    // Floating either way, as a docked bar stays a fill, over the list page,
+    // whose rows run on under the bar where glass shows them.
+    Widget preview(bool liquidGlass) => MiniScreenThumb(
+      screen: MiniScreen(
+        colorScheme: colorScheme,
+        floatingBar: true,
+        liquidGlass: liquidGlass,
+        selected: 1,
+      ),
+    );
+    return PreviewChoiceGroup<LiquidGlassMode>(
+      info: Info(
+        label: appLocalizations.liquidGlass,
+        glyph: AppGlyphs.liquidGlass,
+      ),
+      value: mode,
+      choices: [
+        PreviewChoice(
+          value: LiquidGlassMode.none,
+          label: appLocalizations.none,
+          pictogram: preview(false),
+        ),
+        PreviewChoice(
+          value: LiquidGlassMode.standard,
+          label: appLocalizations.standard,
+          pictogram: preview(true),
+        ),
+        PreviewChoice(
+          value: LiquidGlassMode.ultra,
+          label: appLocalizations.ultra,
+          pictogram: preview(true),
+        ),
+      ],
+      onChanged: (value) {
+        ref
+            .read(themeSettingProvider.notifier)
+            .update((state) => state.copyWith(liquidGlass: value));
       },
     );
   }
@@ -1105,7 +1163,7 @@ class _CustomColorPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final floatingBar = ref.watch(_floatingBarProvider);
-    const liquidGlass = false;
+    final liquidGlass = ref.watch(_liquidGlassProvider);
     final level = context.raisedSurfaceLevel;
     Widget screen(Brightness brightness) => ExcludeSemantics(
       child: SizedBox.fromSize(

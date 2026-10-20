@@ -287,6 +287,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       return;
     }
     final tabAnimation = ref.read(appSettingProvider).tabAnimation;
+    final isMobile = ref.read(isMobileViewProvider);
     final slide = ++_slide;
     final page = _pageController.hasClients
         ? _pageController.page?.round() ?? index
@@ -296,7 +297,7 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
       setState(() => _order = null);
       _pageController.jumpToPage(current);
     }
-    if (ignoreAnimateTo) {
+    if (!isMobile || ignoreAnimateTo) {
       _pageController.jumpToPage(index);
       return;
     }

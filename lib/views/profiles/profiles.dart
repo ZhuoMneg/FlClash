@@ -24,7 +24,7 @@ double get _profileItemHeight {
   return measure.textHeight(AppTextStyle.headline) +
       _infoGap +
       measure.textHeight(AppTextStyle.footnote) +
-      2 * (listRowVerticalPadding + 8);
+      2 * listRowVerticalPadding;
 }
 
 class ProfilesView extends ConsumerStatefulWidget {

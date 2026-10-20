@@ -236,7 +236,7 @@ class _SidebarOverlay extends StatelessWidget {
 
 class _SidebarColors {
   _SidebarColors(ColorScheme scheme)
-    : selectedFill = scheme.primary.withValues(alpha: 0.08),
+    : selectedFill = scheme.onSurface.withValues(alpha: 0.08),
       label = scheme.onSurface,
       icon = scheme.onSurfaceVariant,
       indicator = scheme.primary,
