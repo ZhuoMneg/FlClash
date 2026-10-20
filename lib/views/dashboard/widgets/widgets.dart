@@ -7,5 +7,6 @@ export 'network_takeover.dart';
 export 'outbound_mode.dart';
 export 'profiles.dart';
 export 'proxy_groups.dart';
+export 'recent_requests.dart';
 export 'service_status.dart';
 export 'traffic.dart';

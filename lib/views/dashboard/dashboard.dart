@@ -17,8 +17,6 @@ import 'widget_registry.dart';
 import 'widgets/core_status_button.dart';
 import 'widgets/widgets.dart';
 
-// Narrower columns leave the service grid's cells too tight for a status, so
-// the grid takes the memory card's column instead.
 const _memoryColumnMin = 290.0;
 
 const _maxColumnWidth = 440.0;
@@ -203,7 +201,7 @@ class _DesktopDashboard extends StatelessWidget {
                 ),
                 sized(
                   middleHeight,
-                  row(const [(1, ServiceStatusCard()), (1, MemoryInfo())]),
+                  row(const [(1, RecentRequestsCard()), (1, MemoryInfo())]),
                 ),
                 sized(summaryHeight, summaries),
               ],
@@ -229,10 +227,10 @@ class _DesktopDashboard extends StatelessWidget {
               (1, const IntranetIpCard()),
               (1, const ProfilesCard()),
               if (column >= _memoryColumnMin * scale) ...[
-                (1, const ServiceStatusCard()),
+                (1, const RecentRequestsCard()),
                 (1, const MemoryInfo()),
               ] else
-                (2, const ServiceStatusCard()),
+                (2, const RecentRequestsCard()),
             ]),
           ),
         ];

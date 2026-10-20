@@ -91,11 +91,12 @@ class Migration {
 
   /// One-off setting changes for upgrades, apart from [currentVersion], which
   /// backups carry and an older app refuses when it is newer than its own.
-  static const upgradeVersion = 2;
+  static const upgradeVersion = 3;
 
   static const Map<int, Config Function(Config config)> _upgrades = {
     1: _resetThemeColors,
     2: _keepGlassLook,
+    3: _showRecentRequests,
   };
 
   Future<Config> run() async {
@@ -208,6 +209,17 @@ Config _keepGlassLook(Config config) =>
         ),
       )
     : config;
+
+Config _showRecentRequests(Config config) => config.copyWith(
+  appSettingProps: config.appSettingProps.copyWith(
+    dashboardWidgets: {
+      for (final widget in config.appSettingProps.dashboardWidgets)
+        widget == DashboardWidget.serviceStatus
+            ? DashboardWidget.recentRequests
+            : widget,
+    }.toList(),
+  ),
+);
 
 bool _isV0(Map<String, Object?>? configMap) =>
     configMap?['proxiesStyle'] != null;

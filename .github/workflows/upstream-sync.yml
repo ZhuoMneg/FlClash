@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
   actions: write
   issues: write
 
@@ -43,7 +42,8 @@ jobs:
           if git merge --no-edit "$tag"; then
             git push origin "$branch"
             gh workflow run flclash-windows.yml --ref "$branch" --repo "$TARGET_REPO"
-            gh pr create --repo "$TARGET_REPO" --base '${{ github.event.repository.default_branch }}' --head "$branch" --title "Update FlClash to $tag" --body 'Includes the upstream stable release. Preserve the white interface and request-history navigation. Merge after the Windows build and interface checks pass.'
+            printf 'Upstream %s merged into candidate branch %s.\n\nSource: https://github.com/%s/tree/%s\nBuilds: https://github.com/%s/actions/workflows/flclash-windows.yml\n\nReview the checked build before updating main.\n' "$tag" "$branch" "$TARGET_REPO" "$branch" "$TARGET_REPO" > /tmp/update-body.txt
+            gh issue create --repo "$TARGET_REPO" --title "FlClash update candidate: $tag" --body-file /tmp/update-body.txt
           else
             conflicts=$(git diff --name-only --diff-filter=U)
             git merge --abort

@@ -258,6 +258,53 @@ void main() {
         expect(await upgrade('standard', 2), LiquidGlassMode.standard);
       });
 
+      test(
+        'replaces the service card once and preserves other settings',
+        () async {
+          final configMap = _createConfigMap();
+          configMap['currentProfileId'] = 7;
+          (configMap['appSettingProps']!
+              as Map<String, Object?>)['dashboardWidgets'] = [
+            'currentOutbound',
+            'serviceStatus',
+            'profiles',
+          ];
+          final store = _FakeMigrationStore(
+            configMap: configMap,
+            version: Migration.currentVersion,
+            upgradeVersion: 2,
+          );
+          final config = await Migration(store: store).run();
+          expect(config.currentProfileId, 7);
+          expect(config.appSettingProps.dashboardWidgets, [
+            DashboardWidget.currentOutbound,
+            DashboardWidget.recentRequests,
+            DashboardWidget.profiles,
+          ]);
+          final later = _FakeMigrationStore(
+            configMap: jsonDecode(
+              jsonEncode(
+                config.copyWith.appSettingProps(
+                  dashboardWidgets: [
+                    DashboardWidget.currentOutbound,
+                    DashboardWidget.serviceStatus,
+                  ],
+                ),
+              ),
+            ),
+            version: Migration.currentVersion,
+            upgradeVersion: store.upgradeVersion,
+          );
+          expect(
+            (await Migration(
+              store: later,
+            ).run()).appSettingProps.dashboardWidgets,
+            contains(DashboardWidget.serviceStatus),
+          );
+          expect(later.events, ['getConfigMap', 'getVersion']);
+        },
+      );
+
       test('a new install only records it', () async {
         final store = _FakeMigrationStore(
           configMap: null,

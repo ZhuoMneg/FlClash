@@ -106,7 +106,7 @@ void main() {
     final tun = tester.getRect(find.byType(NetworkTakeoverTile).last);
     final intranet = rectOf(tester, IntranetIpCard);
     final profile = rectOf(tester, ProfilesCard);
-    final service = rectOf(tester, ServiceStatusCard);
+    final service = rectOf(tester, RecentRequestsCard);
     final table = rectOf(tester, ConnectionsTableCard);
     final groups = rectOf(tester, ProxyGroupsCard);
 
@@ -171,7 +171,7 @@ void main() {
     await pumpDashboard(tester, const Size(1440, 900));
 
     final upload = rectOf(tester, SpeedCard);
-    final service = rectOf(tester, ServiceStatusCard);
+    final service = rectOf(tester, RecentRequestsCard);
     final memory = rectOf(tester, MemoryInfo);
     expect(service.width, closeTo(upload.width, 0.01));
     expect(memory.top, service.top);
@@ -360,7 +360,7 @@ void main() {
     expect(intranet.top, tun.bottom + gap);
     expect(profile.top, intranet.top);
     expect(profile.left, closeTo(intranet.right + gap, 0.01));
-    final service = rectOf(tester, ServiceStatusCard);
+    final service = rectOf(tester, RecentRequestsCard);
     expect(service.width, closeTo(upload.width, 0.01));
     expect(rectOf(tester, MemoryInfo).top, service.top);
     expect(find.byType(OutboundModeCard), findsNothing);
