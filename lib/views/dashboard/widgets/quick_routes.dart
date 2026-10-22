@@ -87,7 +87,6 @@ class QuickRoutesCard extends ConsumerWidget {
           else
             Expanded(
               child: ListView.separated(
-                primary: false,
                 padding: EdgeInsets.zero,
                 itemCount: rows.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 4),
