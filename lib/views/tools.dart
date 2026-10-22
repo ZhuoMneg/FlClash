@@ -8,7 +8,13 @@ import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/access.dart';
 import 'package:fl_clash/views/backup_and_restore.dart';
 import 'package:fl_clash/views/config/general.dart';
+import 'package:fl_clash/views/config/dns.dart';
+import 'package:fl_clash/views/config/network.dart';
+import 'package:fl_clash/views/config/rules.dart';
+import 'package:fl_clash/views/config/scripts.dart';
 import 'package:fl_clash/views/hotkey.dart';
+import 'package:fl_clash/views/settings/navigation_settings.dart';
+import 'package:fl_clash/views/settings/search_destination.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -63,8 +69,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
 
   Widget? _getSettingList() {
     final l = context.appLocalizations;
+    if (_query.isNotEmpty) return _searchSettings();
     return _section(l.settings, [
       (terms: [l.language], item: const _LocaleItem()),
+      (
+        terms: [l.appearanceNavigation],
+        item: ListItem.open(
+          leading: const GlyphIcon(AppGlyphs.customize),
+          title: Text(l.appearanceNavigation),
+          widget: const NavigationSettingsView(),
+        ),
+      ),
       (
         terms: [
           l.theme,
@@ -93,6 +108,136 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         item: const _GeneralItem(),
       ),
     ]);
+  }
+
+  Widget? _searchSettings() {
+    final l = context.appLocalizations;
+    final items = <Widget>[];
+    void add(
+      String id,
+      String title,
+      List<String> path,
+      Widget page, {
+      String? target,
+      List<String> terms = const [],
+    }) {
+      if (!_query.matches([title, ...path, ...terms])) return;
+      items.add(
+        ListItem.open(
+          key: ValueKey('setting-result-$id'),
+          title: Text(title),
+          subtitle: Text(path.join(' › ')),
+          widget: SettingSearchDestination(
+            target: target ?? title,
+            child: page,
+          ),
+        ),
+      );
+    }
+
+    if (_query.matches([l.language])) items.add(const _LocaleItem());
+    add(
+      'appearance',
+      l.appearanceNavigation,
+      [l.settings],
+      const NavigationSettingsView(),
+      target: l.uiDensity,
+    );
+    add(
+      'density',
+      l.uiDensity,
+      [l.settings, l.appearanceNavigation],
+      const NavigationSettingsView(),
+      terms: [l.compact, l.comfortable],
+    );
+    if (system.isDesktop) {
+      add('sidebar', l.pinnedSidebarTools, [
+        l.settings,
+        l.appearanceNavigation,
+      ], const NavigationSettingsView());
+    }
+    for (final (id, title) in [
+      ('theme-mode', l.themeMode),
+      ('glass', l.liquidGlass),
+      ('font', l.fontFamily),
+      ('animation', l.tabAnimation),
+      ('text-scale', l.textScale),
+      ('theme-color', l.themeColor),
+    ]) {
+      add(id, title, [l.settings, l.theme], const ThemeView());
+    }
+    add(
+      'webdav',
+      'WebDAV',
+      [l.settings, l.backupAndRestore, l.remote],
+      const BackupAndRestore(),
+      target: l.remote,
+      terms: [l.backup, l.restore],
+    );
+    add('restore-strategy', l.restoreStrategy, [
+      l.settings,
+      l.backupAndRestore,
+      l.options,
+    ], const BackupAndRestore());
+    if (system.isDesktop) {
+      add('hotkeys', l.hotkeyManagement, [l.settings], const HotKeyView());
+    }
+    if (system.isAndroid) {
+      add('access', l.accessControl, [l.settings], const AccessView());
+    }
+    add('dns', 'DNS', [l.settings, l.advancedConfig], const DnsView());
+    add(
+      'rules',
+      l.addedRules,
+      [l.settings, l.advancedConfig],
+      const AddedRulesView(),
+      terms: [l.rules],
+    );
+    add('scripts', l.script, [
+      l.settings,
+      l.advancedConfig,
+    ], const ScriptsView());
+    final network = BaseScaffold(
+      title: l.network,
+      body: const NetworkListView(),
+    );
+    for (final (id, title) in [
+      ('system-proxy', l.systemProxy),
+      ('tun', system.isAndroid ? 'VPN' : l.tun),
+      ('tun-stack', l.stackMode),
+      ('bypass', l.bypassDomain),
+    ]) {
+      add(id, title, [l.settings, l.advancedConfig, l.network], network);
+    }
+    for (final (id, title) in [
+      if (system.isDesktop) ...[
+        ('auto-launch', l.autoLaunch),
+        ('silent-launch', l.silentLaunch),
+      ],
+      ('auto-run', l.autoRun),
+      ('minimize', l.minimizeOnExit),
+      ('certificate', l.checkCertificate),
+      ('auto-update', l.autoCheckUpdate),
+      ('user-agent', l.userAgent),
+      ('port', l.port),
+      ('allow-lan', l.allowLan),
+      ('controller', l.externalController),
+      ('authentication', l.authentication),
+      ('test-url', l.testUrl),
+      ('close-connections', l.autoCloseConnections),
+      ('log-level', l.logLevel),
+      ('logs', l.logcat),
+      ('hosts', 'Hosts'),
+      ('ipv6', 'IPv6'),
+    ]) {
+      add(id, title, [l.settings, l.general], const GeneralView());
+    }
+    add('custom-resources', l.customProfileResources, [
+      l.settings,
+    ], const CustomResourcesView());
+    return items.isEmpty
+        ? null
+        : generateSection(title: l.settings, items: items);
   }
 
   @override

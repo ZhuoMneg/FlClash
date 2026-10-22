@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:fl_clash/common/common.dart';
@@ -9,10 +10,14 @@ import 'package:flutter/foundation.dart';
 typedef DAVClientFactory = DAVClient Function(DAVProps props);
 
 class DAVBackup {
-  const DAVBackup({required this.name, this.createdAt});
+  const DAVBackup({required this.name, this.createdAt, this.note = ''});
 
   final String name;
   final DateTime? createdAt;
+  final String note;
+
+  DAVBackup withNote(String value) =>
+      DAVBackup(name: name, createdAt: createdAt, note: value);
 }
 
 class DAVClient {
@@ -104,7 +109,16 @@ class DAVClient {
       if (error.statusCode == 404) return [];
       rethrow;
     }
+    final available = names.toSet();
     final backups = names.map(_backupOf).nonNulls.toList();
+    for (var start = 0; start < backups.length; start += 4) {
+      final end = (start + 4).clamp(0, backups.length);
+      final withNotes = await Future.wait([
+        for (var index = start; index < end; index++)
+          _readNote(backups[index], available),
+      ]);
+      backups.setRange(start, end, withNotes);
+    }
     backups.sort((a, b) {
       final stamp = (b.createdAt?.microsecondsSinceEpoch ?? -1).compareTo(
         a.createdAt?.microsecondsSinceEpoch ?? -1,
@@ -115,11 +129,60 @@ class DAVClient {
   }
 
   Future<void> downloadVersion(String localPath, String name) async {
+    _validateBackupName(name);
+    final bytes = await _transport.get('$root/$name');
+    await io.File(localPath).safeWriteAsBytes(bytes);
+  }
+
+  String _noteFile(String name) => '$name.note.json';
+
+  void _validateBackupName(String name) {
     if (_backupOf(name) == null) {
       throw const FormatException('Invalid backup file name');
     }
-    final bytes = await _transport.get('$root/$name');
-    await io.File(localPath).safeWriteAsBytes(bytes);
+  }
+
+  Future<DAVBackup> _readNote(DAVBackup backup, Set<String> available) async {
+    if (!available.contains(_noteFile(backup.name))) return backup;
+    try {
+      final bytes = await _transport.get('$root/${_noteFile(backup.name)}');
+      final metadata = jsonDecode(utf8.decode(bytes));
+      if (metadata is Map && metadata['note'] is String) {
+        return backup.withNote(metadata['note'] as String);
+      }
+    } catch (error) {
+      commonPrint.log(
+        'Backup note unavailable: $error',
+        logLevel: LogLevel.warning,
+      );
+    }
+    return backup;
+  }
+
+  Future<void> saveNote(String name, String note) async {
+    _validateBackupName(name);
+    final path = '$root/${_noteFile(name)}';
+    if (note.trim().isEmpty) {
+      await _transport.delete(path);
+    } else {
+      await _transport.put(
+        path,
+        utf8.encode(jsonEncode({'version': 1, 'note': note.trim()})),
+      );
+    }
+  }
+
+  Future<void> deleteVersion(String name) async {
+    _validateBackupName(name);
+    await _transport.delete('$root/$name');
+    try {
+      await _transport.delete('$root/${_noteFile(name)}');
+    } catch (error) {
+      commonPrint.log(
+        'Backup note cleanup failed: $error',
+        logLevel: LogLevel.warning,
+      );
+    }
   }
 }
 

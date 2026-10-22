@@ -42,6 +42,7 @@ void main() {
     List<Group>? groups,
     Set<String> unfoldSet = const {'G0', 'G1', 'G2'},
     ValueListenable<Brightness>? brightness,
+    double textScale = 1,
   }) async {
     tester.view.physicalSize = const Size(900, 700);
     tester.view.devicePixelRatio = 1;
@@ -66,6 +67,7 @@ void main() {
     );
     addTearDown(container.dispose);
     globalState.container = container;
+    container.listen(appSettingProvider, (_, _) {});
     container.read(groupsProvider.notifier).value = groups;
     await tester.pumpWidget(
       UncontrolledProviderScope(
@@ -73,12 +75,16 @@ void main() {
         child: TestApp(
           homeBuilder: (child) => Scaffold(
             body: Builder(
-              builder: (context) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(padding: const EdgeInsets.only(top: 64)),
-                child: child,
-              ),
+              builder: (context) {
+                globalState.measure = Measure.of(context, textScale);
+                return MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                    padding: const EdgeInsets.only(top: 64),
+                    textScaler: TextScaler.linear(textScale),
+                  ),
+                  child: child,
+                );
+              },
             ),
           ),
           child: brightness == null
@@ -135,6 +141,58 @@ void main() {
               )
               .decoration
           as ShapeDecoration;
+
+  testWidgets(
+    'compact density fits more nodes without shrinking their text or tap area',
+    (tester) async {
+      await pumpList(tester, groups: [_group('G0', 80)], unfoldSet: {'G0'});
+      int visibleCount() => find.byType(ProxyCard).evaluate().where((element) {
+        final box = element.findRenderObject()! as RenderBox;
+        final top = box.localToGlobal(Offset.zero).dy;
+        return top >= 0 && top + box.size.height <= 700;
+      }).length;
+      final comfortable = visibleCount();
+      final card = find.byKey(const ValueKey('G0.G0-0')).first;
+      final oldHeight = tester.getSize(card).height;
+      final name = find
+          .byWidgetPredicate(
+            (widget) => widget is EmojiText && widget.text == 'G0-0',
+          )
+          .first;
+      final oldStyle = tester.widget<EmojiText>(name).style;
+      container
+          .read(appSettingProvider.notifier)
+          .update((state) => state.copyWith(compactUi: true));
+      await tester.pumpAndSettle();
+      expect(visibleCount(), greaterThan(comfortable));
+      expect(
+        tester.getSize(card).height,
+        allOf(greaterThanOrEqualTo(48), lessThan(oldHeight)),
+      );
+      expect(tester.widget<EmojiText>(name).style, oldStyle);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('compact cards retain room for enlarged system text', (
+    tester,
+  ) async {
+    await pumpList(
+      tester,
+      groups: [_group('G0', 20)],
+      unfoldSet: {'G0'},
+      textScale: 1.8,
+    );
+    container
+        .read(appSettingProvider.notifier)
+        .update((state) => state.copyWith(compactUi: true));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSize(find.byKey(const ValueKey('G0.G0-0')).first).height,
+      greaterThanOrEqualTo(48),
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('scroll to selected lands the row under the pinned header', (
     tester,

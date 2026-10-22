@@ -2,7 +2,8 @@ part of '../state.dart';
 
 @riverpod
 NavigationItemsState navigationItemsState(Ref ref) {
-  final openLogs = ref.watch(appSettingProvider).openLogs;
+  final settings = ref.watch(appSettingProvider);
+  final openLogs = settings.openLogs;
   final hasProfiles = ref.watch(
     profilesProvider.select((state) => state.isNotEmpty),
   );
@@ -11,13 +12,42 @@ NavigationItemsState navigationItemsState(Ref ref) {
   );
   final isInit = ref.watch(initProvider);
   return NavigationItemsState(
-    value:
-        navigationPort?.getItems(
-          openLogs: openLogs,
-          hasProxies: !isInit ? hasProfiles : hasProxies,
-        ) ??
-        const [],
+    value: [
+      for (final item
+          in navigationPort?.getItems(
+                openLogs: openLogs,
+                hasProxies: !isInit ? hasProfiles : hasProxies,
+              ) ??
+              <NavigationItem>[])
+        if (const {
+              PageLabel.connections,
+              PageLabel.dns,
+              PageLabel.logs,
+            }.contains(item.label) &&
+            settings.pinnedTools.contains(item.label.name))
+          item.copyWith(
+            modes: {...item.modes, NavigationItemMode.desktop}.toList(),
+          )
+        else
+          item,
+    ],
   );
+}
+
+List<NavigationItem> orderedSidebarItems(
+  List<NavigationItem> items,
+  List<String> order,
+) {
+  final byName = {for (final item in items) item.label.name: item};
+  return [
+    for (final name in order.toSet())
+      if (name != PageLabel.settings.name && byName.containsKey(name))
+        byName.remove(name)!,
+    for (final item in byName.values)
+      if (item.label != PageLabel.settings) item,
+    for (final item in items)
+      if (item.label == PageLabel.settings) item,
+  ];
 }
 
 @riverpod
@@ -28,10 +58,13 @@ NavigationItemsState currentNavigationItemsState(Ref ref) {
     true => NavigationItemMode.mobile,
     false => NavigationItemMode.desktop,
   };
+  final items = navigationItemsState.value
+      .where((element) => element.modes.contains(navigationItemMode))
+      .toList();
   return NavigationItemsState(
-    value: navigationItemsState.value
-        .where((element) => element.modes.contains(navigationItemMode))
-        .toList(),
+    value: navigationItemMode == NavigationItemMode.desktop
+        ? orderedSidebarItems(items, ref.watch(appSettingProvider).sidebarOrder)
+        : items,
   );
 }
 

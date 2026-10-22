@@ -17,7 +17,12 @@ class BackupAction extends _$BackupAction {
     });
   }
 
-  Future<bool> restore(RestoreOption option, BackupFetch fetch) {
+  Future<bool> restore(
+    RestoreOption option,
+    BackupFetch fetch, {
+    RestoreStrategy? strategy,
+    bool keepWebDAV = false,
+  }) {
     return _withWorkDir((workDir) async {
       final archivePath = await fetch(join(workDir, 'download.zip'));
       if (archivePath == null) {
@@ -37,7 +42,13 @@ class BackupAction extends _$BackupAction {
             currentAppLocalizations.backupFromNewerVersion,
         });
       }
-      await applyRestore(data, option, stagingDirPath: stagingDirPath);
+      await applyRestore(
+        data,
+        option,
+        stagingDirPath: stagingDirPath,
+        strategy: strategy,
+        keepWebDAV: keepWebDAV,
+      );
       return true;
     });
   }
@@ -91,14 +102,16 @@ class BackupAction extends _$BackupAction {
     MigrationData data,
     RestoreOption option, {
     String? stagingDirPath,
+    RestoreStrategy? strategy,
+    bool keepWebDAV = false,
   }) async {
     final configMap = data.configMap;
     final config = option == RestoreOption.onlyProfiles || configMap == null
         ? null
         : Config.fromJson(configMap);
-    final isOverride =
-        ref.read(appSettingProvider).restoreStrategy ==
-        RestoreStrategy.override;
+    final effectiveStrategy =
+        strategy ?? ref.read(appSettingProvider).restoreStrategy;
+    final isOverride = effectiveStrategy == RestoreStrategy.override;
     final previousProviders = await database.clashProvidersDao.query().get();
     final putBack = stagingDirPath == null
         ? null
@@ -122,6 +135,11 @@ class BackupAction extends _$BackupAction {
     await _clearReplacedProviderCaches(previousProviders);
     await _clearOutdatedCompiledRuleSets(data.clashProviders);
     if (config == null) {
+      ref
+          .read(appSettingProvider.notifier)
+          .update(
+            (state) => state.copyWith(restoreStrategy: effectiveStrategy),
+          );
       return;
     }
     // A desktop backup carries no package lists; the apps picked here stay.
@@ -131,7 +149,12 @@ class BackupAction extends _$BackupAction {
     writeConfig(
       ref,
       config.copyWith(
-        davProps: config.davProps ?? ref.read(davSettingProvider),
+        davProps: keepWebDAV
+            ? ref.read(davSettingProvider)
+            : config.davProps ?? ref.read(davSettingProvider),
+        appSettingProps: config.appSettingProps.copyWith(
+          restoreStrategy: effectiveStrategy,
+        ),
         vpnProps: config.vpnProps.copyWith(
           accessControlProps: accessControlProps,
         ),

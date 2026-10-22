@@ -7921,6 +7921,536 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Matching mode`
+  String get nodeExclusionMode {
+    return Intl.message(
+      'Matching mode',
+      name: 'nodeExclusionMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plain text`
+  String get nodeFilterPlainText {
+    return Intl.message(
+      'Plain text',
+      name: 'nodeFilterPlainText',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Matching ignores case. The active node and policy group entries stay visible. Clear the filter to show all nodes.`
+  String get nodeExclusionHelp {
+    return Intl.message(
+      'Matching ignores case. The active node and policy group entries stay visible. Clear the filter to show all nodes.',
+      name: 'nodeExclusionHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Example: remaining (matches this text anywhere in a name)`
+  String get nodeFilterPlainExample {
+    return Intl.message(
+      'Example: remaining (matches this text anywhere in a name)',
+      name: 'nodeFilterPlainExample',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Example: remaining|expire (matches either word)`
+  String get nodeFilterRegexExample {
+    return Intl.message(
+      'Example: remaining|expire (matches either word)',
+      name: 'nodeFilterRegexExample',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Matched nodes: {count}`
+  String nodeFilterMatches(Object count) {
+    return Intl.message(
+      'Matched nodes: $count',
+      name: 'nodeFilterMatches',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `No matching nodes`
+  String get nodeFilterNoMatches {
+    return Intl.message(
+      'No matching nodes',
+      name: 'nodeFilterNoMatches',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Legacy backup`
+  String get backupLegacy {
+    return Intl.message(
+      'Legacy backup',
+      name: 'backupLegacy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Latest`
+  String get backupLatest {
+    return Intl.message('Latest', name: 'backupLatest', desc: '', args: []);
+  }
+
+  /// `Backup note`
+  String get backupNote {
+    return Intl.message('Backup note', name: 'backupNote', desc: '', args: []);
+  }
+
+  /// `Delete backup {label}? This cannot be undone.`
+  String backupDeleteConfirm(Object label) {
+    return Intl.message(
+      'Delete backup $label? This cannot be undone.',
+      name: 'backupDeleteConfirm',
+      desc: '',
+      args: [label],
+    );
+  }
+
+  /// `Right-click or press and hold a backup for details, notes, or deletion.`
+  String get backupHistoryHelp {
+    return Intl.message(
+      'Right-click or press and hold a backup for details, notes, or deletion.',
+      name: 'backupHistoryHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Replace existing profiles and rules with this backup.`
+  String get backupRestoreOverrideHelp {
+    return Intl.message(
+      'Replace existing profiles and rules with this backup.',
+      name: 'backupRestoreOverrideHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Merge profiles and rules, keeping entries missing from the backup.`
+  String get backupRestoreMergeHelp {
+    return Intl.message(
+      'Merge profiles and rules, keeping entries missing from the backup.',
+      name: 'backupRestoreMergeHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore scope`
+  String get backupRestoreScope {
+    return Intl.message(
+      'Restore scope',
+      name: 'backupRestoreScope',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep current WebDAV account`
+  String get backupKeepWebDAV {
+    return Intl.message(
+      'Keep current WebDAV account',
+      name: 'backupKeepWebDAV',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep the current account and backup filename when restoring all data.`
+  String get backupKeepWebDAVHelp {
+    return Intl.message(
+      'Keep the current account and backup filename when restoring all data.',
+      name: 'backupKeepWebDAVHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WebDAV settings changed. Reopen backup history.`
+  String get backupAccountChanged {
+    return Intl.message(
+      'WebDAV settings changed. Reopen backup history.',
+      name: 'backupAccountChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No shortcuts. Use Edit to add one.`
+  String get quickRoutesEmpty {
+    return Intl.message(
+      'No shortcuts. Use Edit to add one.',
+      name: 'quickRoutesEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic group detection`
+  String get quickRouteAutomatic {
+    return Intl.message(
+      'Automatic group detection',
+      name: 'quickRouteAutomatic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Favorites`
+  String get quickRouteFavorites {
+    return Intl.message(
+      'Favorites',
+      name: 'quickRouteFavorites',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recently used`
+  String get quickRouteRecent {
+    return Intl.message(
+      'Recently used',
+      name: 'quickRouteRecent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to favorites`
+  String get quickRouteFavorite {
+    return Intl.message(
+      'Add to favorites',
+      name: 'quickRouteFavorite',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove from favorites`
+  String get quickRouteUnfavorite {
+    return Intl.message(
+      'Remove from favorites',
+      name: 'quickRouteUnfavorite',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Layout and navigation`
+  String get appearanceNavigation {
+    return Intl.message(
+      'Layout and navigation',
+      name: 'appearanceNavigation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Interface density`
+  String get uiDensity {
+    return Intl.message(
+      'Interface density',
+      name: 'uiDensity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compact proxy cards show more nodes without reducing text size.`
+  String get uiDensityDescription {
+    return Intl.message(
+      'Compact proxy cards show more nodes without reducing text size.',
+      name: 'uiDensityDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Comfortable`
+  String get comfortable {
+    return Intl.message('Comfortable', name: 'comfortable', desc: '', args: []);
+  }
+
+  /// `Pinned sidebar tools`
+  String get pinnedSidebarTools {
+    return Intl.message(
+      'Pinned sidebar tools',
+      name: 'pinnedSidebarTools',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sidebar order`
+  String get sidebarOrder {
+    return Intl.message(
+      'Sidebar order',
+      name: 'sidebarOrder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Move up`
+  String get moveUp {
+    return Intl.message('Move up', name: 'moveUp', desc: '', args: []);
+  }
+
+  /// `Move down`
+  String get moveDown {
+    return Intl.message('Move down', name: 'moveDown', desc: '', args: []);
+  }
+
+  /// `Saved changes apply automatically`
+  String get routingAutoApply {
+    return Intl.message(
+      'Saved changes apply automatically',
+      name: 'routingAutoApply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting to apply changes…`
+  String get routingPending {
+    return Intl.message(
+      'Waiting to apply changes…',
+      name: 'routingPending',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Applying changes…`
+  String get routingApplying {
+    return Intl.message(
+      'Applying changes…',
+      name: 'routingApplying',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Applied to the current profile`
+  String get routingApplied {
+    return Intl.message(
+      'Applied to the current profile',
+      name: 'routingApplied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply failed. Try again.`
+  String get routingApplyFailed {
+    return Intl.message(
+      'Apply failed. Try again.',
+      name: 'routingApplyFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Apply routing changes`
+  String get routingApply {
+    return Intl.message(
+      'Apply routing changes',
+      name: 'routingApply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get requestFilterAll {
+    return Intl.message('All', name: 'requestFilterAll', desc: '', args: []);
+  }
+
+  /// `Rejected`
+  String get requestRejected {
+    return Intl.message(
+      'Rejected',
+      name: 'requestRejected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause following`
+  String get requestPauseFollow {
+    return Intl.message(
+      'Pause following',
+      name: 'requestPauseFollow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume following`
+  String get requestResumeFollow {
+    return Intl.message(
+      'Resume following',
+      name: 'requestResumeFollow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create rule from this domain`
+  String get requestCreateRule {
+    return Intl.message(
+      'Create rule from this domain',
+      name: 'requestCreateRule',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This profile uses a script. Switch to the standard extension to add domain rules.`
+  String get requestRuleNeedsStandard {
+    return Intl.message(
+      'This profile uses a script. Switch to the standard extension to add domain rules.',
+      name: 'requestRuleNeedsStandard',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The active profile or route changed. Open the action again.`
+  String get requestProfileChanged {
+    return Intl.message(
+      'The active profile or route changed. Open the action again.',
+      name: 'requestProfileChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add this rule at the beginning of {profile} and apply it?\n{rule}`
+  String requestRuleConfirm(Object profile, Object rule) {
+    return Intl.message(
+      'Add this rule at the beginning of $profile and apply it?\n$rule',
+      name: 'requestRuleConfirm',
+      desc: '',
+      args: [profile, rule],
+    );
+  }
+
+  /// `Rule saved and applied.`
+  String get requestRuleApplied {
+    return Intl.message(
+      'Rule saved and applied.',
+      name: 'requestRuleApplied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This rule already exists in the profile.`
+  String get requestRuleDuplicate {
+    return Intl.message(
+      'This rule already exists in the profile.',
+      name: 'requestRuleDuplicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The rule was saved, but applying failed. Retry from Routing.`
+  String get requestRuleApplyFailed {
+    return Intl.message(
+      'The rule was saved, but applying failed. Retry from Routing.',
+      name: 'requestRuleApplyFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check with a new HTTPS request`
+  String get requestCheckRoute {
+    return Intl.message(
+      'Check with a new HTTPS request',
+      name: 'requestCheckRoute',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send a new HTTPS request to {url} through the current routing configuration? This does not reproduce the original process or protocol.`
+  String requestCheckRouteConfirm(Object url) {
+    return Intl.message(
+      'Send a new HTTPS request to $url through the current routing configuration? This does not reproduce the original process or protocol.',
+      name: 'requestCheckRouteConfirm',
+      desc: '',
+      args: [url],
+    );
+  }
+
+  /// `The HTTPS check failed or the core did not respond. The recorded request is unchanged.`
+  String get requestRouteCheckFailed {
+    return Intl.message(
+      'The HTTPS check failed or the core did not respond. The recorded request is unchanged.',
+      name: 'requestRouteCheckFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New request: actual result`
+  String get requestActualRoute {
+    return Intl.message(
+      'New request: actual result',
+      name: 'requestActualRoute',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This is an actual HTTPS request, not a prediction or a replay of the original process. Redirects show the final URL and route.`
+  String get requestActualRouteNote {
+    return Intl.message(
+      'This is an actual HTTPS request, not a prediction or a replay of the original process. Redirects show the final URL and route.',
+      name: 'requestActualRouteNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recorded route of this request`
+  String get requestRecordedRoute {
+    return Intl.message(
+      'Recorded route of this request',
+      name: 'requestRecordedRoute',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Exact domain matches only this host. Domain suffix also includes subdomains. The confirmed rule is inserted first.`
+  String get requestRulePriorityNote {
+    return Intl.message(
+      'Exact domain matches only this host. Domain suffix also includes subdomains. The confirmed rule is inserted first.',
+      name: 'requestRulePriorityNote',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -14,6 +14,20 @@ Map<String, dynamic> _$FilterToJson(_Filter instance) => <String, dynamic>{
   'regex': instance.regex,
 };
 
+_QuickRouteShortcut _$QuickRouteShortcutFromJson(Map<String, dynamic> json) =>
+    _QuickRouteShortcut(
+      id: json['id'] as String,
+      label: json['label'] as String? ?? '',
+      groupName: json['groupName'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$QuickRouteShortcutToJson(_QuickRouteShortcut instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'label': instance.label,
+      'groupName': instance.groupName,
+    };
+
 _AppSettingProps _$AppSettingPropsFromJson(
   Map<String, dynamic> json,
 ) => _AppSettingProps(
@@ -26,6 +40,43 @@ _AppSettingProps _$AppSettingPropsFromJson(
         (k, e) => MapEntry(k, e as String),
       ) ??
       const {},
+  profileQuickRoutes:
+      (json['profileQuickRoutes'] as Map<String, dynamic>?)?.map(
+        (k, e) => MapEntry(
+          k,
+          (e as List<dynamic>)
+              .map(
+                (e) => QuickRouteShortcut.fromJson(e as Map<String, dynamic>),
+              )
+              .toList(),
+        ),
+      ) ??
+      const {},
+  quickRouteFavorites:
+      (json['quickRouteFavorites'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const {},
+  quickRouteRecents:
+      (json['quickRouteRecents'] as Map<String, dynamic>?)?.map(
+        (k, e) =>
+            MapEntry(k, (e as List<dynamic>).map((e) => e as String).toList()),
+      ) ??
+      const {},
+  desktopDashboardCustomized:
+      json['desktopDashboardCustomized'] as bool? ?? false,
+  compactUi: json['compactUi'] as bool? ?? false,
+  pinnedTools:
+      (json['pinnedTools'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
+  sidebarOrder:
+      (json['sidebarOrder'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      const [],
   onlyStatisticsProxy: json['onlyStatisticsProxy'] as bool? ?? false,
   showNotificationStopAction:
       json['showNotificationStopAction'] as bool? ?? true,
@@ -99,6 +150,13 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
           .map((e) => _$DashboardWidgetEnumMap[e]!)
           .toList(),
       'dashboardQuickGroups': instance.dashboardQuickGroups,
+      'profileQuickRoutes': instance.profileQuickRoutes,
+      'quickRouteFavorites': instance.quickRouteFavorites,
+      'quickRouteRecents': instance.quickRouteRecents,
+      'desktopDashboardCustomized': instance.desktopDashboardCustomized,
+      'compactUi': instance.compactUi,
+      'pinnedTools': instance.pinnedTools,
+      'sidebarOrder': instance.sidebarOrder,
       'onlyStatisticsProxy': instance.onlyStatisticsProxy,
       'showNotificationStopAction': instance.showNotificationStopAction,
       'autoLaunch': instance.autoLaunch,
@@ -305,6 +363,7 @@ _ProxiesStyleProps _$ProxiesStylePropsFromJson(Map<String, dynamic> json) =>
           : proxyCardTypeSafeFromJson(json['cardType']),
       hideTimeoutProxies: json['hideTimeoutProxies'] as bool? ?? false,
       nodeExcludeFilter: json['nodeExcludeFilter'] as String? ?? '',
+      nodeExcludePlainText: json['nodeExcludePlainText'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProxiesStylePropsToJson(_ProxiesStyleProps instance) =>
@@ -316,6 +375,7 @@ Map<String, dynamic> _$ProxiesStylePropsToJson(_ProxiesStyleProps instance) =>
       'cardType': _$ProxyCardTypeEnumMap[instance.cardType]!,
       'hideTimeoutProxies': instance.hideTimeoutProxies,
       'nodeExcludeFilter': instance.nodeExcludeFilter,
+      'nodeExcludePlainText': instance.nodeExcludePlainText,
     };
 
 const _$ProxiesTypeEnumMap = {ProxiesType.tab: 'tab', ProxiesType.list: 'list'};

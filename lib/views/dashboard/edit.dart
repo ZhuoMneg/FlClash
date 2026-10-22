@@ -100,6 +100,9 @@ class _DashboardEditorState extends ConsumerState<DashboardEditor>
         .read(appSettingProvider.notifier)
         .update(
           (state) => state.copyWith(
+            desktopDashboardCustomized:
+                state.desktopDashboardCustomized ||
+                desktopPlatforms.contains(widget.platform),
             dashboardWidgets: _keepingOtherPlatforms(
               state.dashboardWidgets,
               shown,

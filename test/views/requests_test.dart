@@ -123,6 +123,58 @@ void main() {
     await teardownView(tester);
   });
 
+  testWidgets(
+    'common disposition filters compose with search and can be reset',
+    (tester) async {
+      seedRequests([
+        _tracker(id: 'a', host: 'direct.test', chains: const ['DIRECT']),
+        _tracker(id: 'b', host: 'blocked.test', chains: const ['REJECT-DROP']),
+        _tracker(id: 'c', host: 'proxy.test'),
+      ]);
+      await pumpRequests(tester);
+      await tester.tap(find.widgetWithText(FilterChip, 'Direct'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('direct.test'), findsWidgets);
+      expect(find.textContaining('blocked.test'), findsNothing);
+      await tester.tap(find.widgetWithText(FilterChip, 'Rejected'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('blocked.test'), findsWidgets);
+      expect(find.textContaining('direct.test'), findsNothing);
+      await tester.enterText(find.byType(TextField), 'no-match');
+      await tester.pumpAndSettle();
+      expect(find.textContaining('blocked.test'), findsNothing);
+      await tester.enterText(find.byType(TextField), '');
+      await tester.tap(find.text('Reset'));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('proxy.test'), findsWidgets);
+      await teardownView(tester);
+    },
+  );
+
+  testWidgets(
+    'the visible follow control remains paused until explicitly resumed',
+    (tester) async {
+      seedRequests([for (var i = 0; i < 60; i++) _tracker(id: '$i')]);
+      await pumpRequests(tester);
+      await tester.tap(find.byKey(const ValueKey('requests-follow-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.text('Resume following'), findsOneWidget);
+      expect(
+        tester.widget<ScrollToEndBox>(find.byType(ScrollToEndBox)).enable,
+        isFalse,
+      );
+      addRequest(_tracker(id: 'latest', host: 'latest.test'));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('Resume following'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('requests-follow-toggle')));
+      await tester.pumpAndSettle();
+      expect(find.text('Pause following'), findsOneWidget);
+      expect(find.textContaining('latest.test'), findsWidgets);
+      await teardownView(tester);
+    },
+  );
+
   testWidgets('search is ready on arrival and filters recent requests', (
     tester,
   ) async {

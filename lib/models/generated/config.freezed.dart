@@ -287,9 +287,285 @@ as String,
 
 
 /// @nodoc
+mixin _$QuickRouteShortcut {
+
+ String get id; String get label; String get groupName;
+/// Create a copy of QuickRouteShortcut
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$QuickRouteShortcutCopyWith<QuickRouteShortcut> get copyWith => _$QuickRouteShortcutCopyWithImpl<QuickRouteShortcut>(this as QuickRouteShortcut, _$identity);
+
+  /// Serializes this QuickRouteShortcut to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as QuickRouteShortcut;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is QuickRouteShortcut&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.label, _this.label) || other.label == _this.label)&&(identical(other.groupName, _this.groupName) || other.groupName == _this.groupName));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as QuickRouteShortcut;
+  return Object.hash(runtimeType,_this.id,_this.label,_this.groupName);
+}
+
+@override
+String toString() {
+  final _this = this as QuickRouteShortcut;
+  return 'QuickRouteShortcut(id: ${_this.id}, label: ${_this.label}, groupName: ${_this.groupName})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $QuickRouteShortcutCopyWith<$Res>  {
+  factory $QuickRouteShortcutCopyWith(QuickRouteShortcut value, $Res Function(QuickRouteShortcut) _then) = _$QuickRouteShortcutCopyWithImpl;
+@useResult
+$Res call({
+ String id, String label, String groupName
+});
+
+
+
+
+}
+/// @nodoc
+class _$QuickRouteShortcutCopyWithImpl<$Res>
+    implements $QuickRouteShortcutCopyWith<$Res> {
+  _$QuickRouteShortcutCopyWithImpl(this._self, this._then);
+
+  final QuickRouteShortcut _self;
+  final $Res Function(QuickRouteShortcut) _then;
+
+/// Create a copy of QuickRouteShortcut
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? groupName = null,}) {
+  return _then(QuickRouteShortcut(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,groupName: null == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [QuickRouteShortcut].
+extension QuickRouteShortcutPatterns on QuickRouteShortcut {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _QuickRouteShortcut value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _QuickRouteShortcut() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _QuickRouteShortcut value)  $default,){
+final _that = this;
+switch (_that) {
+case _QuickRouteShortcut():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _QuickRouteShortcut value)?  $default,){
+final _that = this;
+switch (_that) {
+case _QuickRouteShortcut() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String label,  String groupName)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _QuickRouteShortcut() when $default != null:
+return $default(_that.id,_that.label,_that.groupName);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String label,  String groupName)  $default,) {final _that = this;
+switch (_that) {
+case _QuickRouteShortcut():
+return $default(_that.id,_that.label,_that.groupName);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String label,  String groupName)?  $default,) {final _that = this;
+switch (_that) {
+case _QuickRouteShortcut() when $default != null:
+return $default(_that.id,_that.label,_that.groupName);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _QuickRouteShortcut implements QuickRouteShortcut {
+  const _QuickRouteShortcut({required this.id, this.label = '', this.groupName = ''});
+  factory _QuickRouteShortcut.fromJson(Map<String, dynamic> json) => _$QuickRouteShortcutFromJson(json);
+
+@override final  String id;
+@override@JsonKey() final  String label;
+@override@JsonKey() final  String groupName;
+
+/// Create a copy of QuickRouteShortcut
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$QuickRouteShortcutCopyWith<_QuickRouteShortcut> get copyWith => __$QuickRouteShortcutCopyWithImpl<_QuickRouteShortcut>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$QuickRouteShortcutToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _QuickRouteShortcut&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.groupName, groupName) || other.groupName == groupName));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,id,label,groupName);
+}
+
+@override
+String toString() {
+    return 'QuickRouteShortcut(id: $id, label: $label, groupName: $groupName)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$QuickRouteShortcutCopyWith<$Res> implements $QuickRouteShortcutCopyWith<$Res> {
+  factory _$QuickRouteShortcutCopyWith(_QuickRouteShortcut value, $Res Function(_QuickRouteShortcut) _then) = __$QuickRouteShortcutCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, String label, String groupName
+});
+
+
+
+
+}
+/// @nodoc
+class __$QuickRouteShortcutCopyWithImpl<$Res>
+    implements _$QuickRouteShortcutCopyWith<$Res> {
+  __$QuickRouteShortcutCopyWithImpl(this._self, this._then);
+
+  final _QuickRouteShortcut _self;
+  final $Res Function(_QuickRouteShortcut) _then;
+
+/// Create a copy of QuickRouteShortcut
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? groupName = null,}) {
+  return _then(_QuickRouteShortcut(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
+as String,groupName: null == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$AppSettingProps {
 
- String? get locale;@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> get dashboardWidgets; Map<String, String> get dashboardQuickGroups; bool get onlyStatisticsProxy; bool get showNotificationStopAction; bool get autoLaunch; bool get silentLaunch; bool get autoRun; bool get openLogs; bool get closeConnections; String get testUrl;@JsonKey(readValue: _readTabAnimation) TabAnimation get tabAnimation; bool get floatingNavigationBar; bool get autoCheckUpdate;@JsonKey(readValue: _readSidebarExpanded) bool get sidebarExpanded; int get acceptedDisclaimerVersion; bool get minimizeOnExit; bool get hidden; bool get developerMode; RestoreStrategy get restoreStrategy; bool get showTrayTitle; bool get checkCertificate;@JsonKey(readValue: _readUserAgents) List<String> get userAgents; List<Filter> get filters; bool get hideIp; bool get editorLineWrap; EditorFontSize get editorFontSize; List<String> get serviceOrder; List<String> get disabledServices; Map<String, Map<String, double>> get tableColumnWidths;
+ String? get locale;@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> get dashboardWidgets; Map<String, String> get dashboardQuickGroups; Map<String, List<QuickRouteShortcut>> get profileQuickRoutes; Map<String, List<String>> get quickRouteFavorites; Map<String, List<String>> get quickRouteRecents; bool get desktopDashboardCustomized; bool get compactUi; List<String> get pinnedTools; List<String> get sidebarOrder; bool get onlyStatisticsProxy; bool get showNotificationStopAction; bool get autoLaunch; bool get silentLaunch; bool get autoRun; bool get openLogs; bool get closeConnections; String get testUrl;@JsonKey(readValue: _readTabAnimation) TabAnimation get tabAnimation; bool get floatingNavigationBar; bool get autoCheckUpdate;@JsonKey(readValue: _readSidebarExpanded) bool get sidebarExpanded; int get acceptedDisclaimerVersion; bool get minimizeOnExit; bool get hidden; bool get developerMode; RestoreStrategy get restoreStrategy; bool get showTrayTitle; bool get checkCertificate;@JsonKey(readValue: _readUserAgents) List<String> get userAgents; List<Filter> get filters; bool get hideIp; bool get editorLineWrap; EditorFontSize get editorFontSize; List<String> get serviceOrder; List<String> get disabledServices; Map<String, Map<String, double>> get tableColumnWidths;
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -303,20 +579,20 @@ $AppSettingPropsCopyWith<AppSettingProps> get copyWith => _$AppSettingPropsCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as AppSettingProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingProps&&(identical(other.locale, _this.locale) || other.locale == _this.locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _this.dashboardWidgets)&&const DeepCollectionEquality().equals(other.dashboardQuickGroups, _this.dashboardQuickGroups)&&(identical(other.onlyStatisticsProxy, _this.onlyStatisticsProxy) || other.onlyStatisticsProxy == _this.onlyStatisticsProxy)&&(identical(other.showNotificationStopAction, _this.showNotificationStopAction) || other.showNotificationStopAction == _this.showNotificationStopAction)&&(identical(other.autoLaunch, _this.autoLaunch) || other.autoLaunch == _this.autoLaunch)&&(identical(other.silentLaunch, _this.silentLaunch) || other.silentLaunch == _this.silentLaunch)&&(identical(other.autoRun, _this.autoRun) || other.autoRun == _this.autoRun)&&(identical(other.openLogs, _this.openLogs) || other.openLogs == _this.openLogs)&&(identical(other.closeConnections, _this.closeConnections) || other.closeConnections == _this.closeConnections)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.tabAnimation, _this.tabAnimation) || other.tabAnimation == _this.tabAnimation)&&(identical(other.floatingNavigationBar, _this.floatingNavigationBar) || other.floatingNavigationBar == _this.floatingNavigationBar)&&(identical(other.autoCheckUpdate, _this.autoCheckUpdate) || other.autoCheckUpdate == _this.autoCheckUpdate)&&(identical(other.sidebarExpanded, _this.sidebarExpanded) || other.sidebarExpanded == _this.sidebarExpanded)&&(identical(other.acceptedDisclaimerVersion, _this.acceptedDisclaimerVersion) || other.acceptedDisclaimerVersion == _this.acceptedDisclaimerVersion)&&(identical(other.minimizeOnExit, _this.minimizeOnExit) || other.minimizeOnExit == _this.minimizeOnExit)&&(identical(other.hidden, _this.hidden) || other.hidden == _this.hidden)&&(identical(other.developerMode, _this.developerMode) || other.developerMode == _this.developerMode)&&(identical(other.restoreStrategy, _this.restoreStrategy) || other.restoreStrategy == _this.restoreStrategy)&&(identical(other.showTrayTitle, _this.showTrayTitle) || other.showTrayTitle == _this.showTrayTitle)&&(identical(other.checkCertificate, _this.checkCertificate) || other.checkCertificate == _this.checkCertificate)&&const DeepCollectionEquality().equals(other.userAgents, _this.userAgents)&&const DeepCollectionEquality().equals(other.filters, _this.filters)&&(identical(other.hideIp, _this.hideIp) || other.hideIp == _this.hideIp)&&(identical(other.editorLineWrap, _this.editorLineWrap) || other.editorLineWrap == _this.editorLineWrap)&&(identical(other.editorFontSize, _this.editorFontSize) || other.editorFontSize == _this.editorFontSize)&&const DeepCollectionEquality().equals(other.serviceOrder, _this.serviceOrder)&&const DeepCollectionEquality().equals(other.disabledServices, _this.disabledServices)&&const DeepCollectionEquality().equals(other.tableColumnWidths, _this.tableColumnWidths));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AppSettingProps&&(identical(other.locale, _this.locale) || other.locale == _this.locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _this.dashboardWidgets)&&const DeepCollectionEquality().equals(other.dashboardQuickGroups, _this.dashboardQuickGroups)&&const DeepCollectionEquality().equals(other.profileQuickRoutes, _this.profileQuickRoutes)&&const DeepCollectionEquality().equals(other.quickRouteFavorites, _this.quickRouteFavorites)&&const DeepCollectionEquality().equals(other.quickRouteRecents, _this.quickRouteRecents)&&(identical(other.desktopDashboardCustomized, _this.desktopDashboardCustomized) || other.desktopDashboardCustomized == _this.desktopDashboardCustomized)&&(identical(other.compactUi, _this.compactUi) || other.compactUi == _this.compactUi)&&const DeepCollectionEquality().equals(other.pinnedTools, _this.pinnedTools)&&const DeepCollectionEquality().equals(other.sidebarOrder, _this.sidebarOrder)&&(identical(other.onlyStatisticsProxy, _this.onlyStatisticsProxy) || other.onlyStatisticsProxy == _this.onlyStatisticsProxy)&&(identical(other.showNotificationStopAction, _this.showNotificationStopAction) || other.showNotificationStopAction == _this.showNotificationStopAction)&&(identical(other.autoLaunch, _this.autoLaunch) || other.autoLaunch == _this.autoLaunch)&&(identical(other.silentLaunch, _this.silentLaunch) || other.silentLaunch == _this.silentLaunch)&&(identical(other.autoRun, _this.autoRun) || other.autoRun == _this.autoRun)&&(identical(other.openLogs, _this.openLogs) || other.openLogs == _this.openLogs)&&(identical(other.closeConnections, _this.closeConnections) || other.closeConnections == _this.closeConnections)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.tabAnimation, _this.tabAnimation) || other.tabAnimation == _this.tabAnimation)&&(identical(other.floatingNavigationBar, _this.floatingNavigationBar) || other.floatingNavigationBar == _this.floatingNavigationBar)&&(identical(other.autoCheckUpdate, _this.autoCheckUpdate) || other.autoCheckUpdate == _this.autoCheckUpdate)&&(identical(other.sidebarExpanded, _this.sidebarExpanded) || other.sidebarExpanded == _this.sidebarExpanded)&&(identical(other.acceptedDisclaimerVersion, _this.acceptedDisclaimerVersion) || other.acceptedDisclaimerVersion == _this.acceptedDisclaimerVersion)&&(identical(other.minimizeOnExit, _this.minimizeOnExit) || other.minimizeOnExit == _this.minimizeOnExit)&&(identical(other.hidden, _this.hidden) || other.hidden == _this.hidden)&&(identical(other.developerMode, _this.developerMode) || other.developerMode == _this.developerMode)&&(identical(other.restoreStrategy, _this.restoreStrategy) || other.restoreStrategy == _this.restoreStrategy)&&(identical(other.showTrayTitle, _this.showTrayTitle) || other.showTrayTitle == _this.showTrayTitle)&&(identical(other.checkCertificate, _this.checkCertificate) || other.checkCertificate == _this.checkCertificate)&&const DeepCollectionEquality().equals(other.userAgents, _this.userAgents)&&const DeepCollectionEquality().equals(other.filters, _this.filters)&&(identical(other.hideIp, _this.hideIp) || other.hideIp == _this.hideIp)&&(identical(other.editorLineWrap, _this.editorLineWrap) || other.editorLineWrap == _this.editorLineWrap)&&(identical(other.editorFontSize, _this.editorFontSize) || other.editorFontSize == _this.editorFontSize)&&const DeepCollectionEquality().equals(other.serviceOrder, _this.serviceOrder)&&const DeepCollectionEquality().equals(other.disabledServices, _this.disabledServices)&&const DeepCollectionEquality().equals(other.tableColumnWidths, _this.tableColumnWidths));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as AppSettingProps;
-  return Object.hashAll([runtimeType,_this.locale,const DeepCollectionEquality().hash(_this.dashboardWidgets),const DeepCollectionEquality().hash(_this.dashboardQuickGroups),_this.onlyStatisticsProxy,_this.showNotificationStopAction,_this.autoLaunch,_this.silentLaunch,_this.autoRun,_this.openLogs,_this.closeConnections,_this.testUrl,_this.tabAnimation,_this.floatingNavigationBar,_this.autoCheckUpdate,_this.sidebarExpanded,_this.acceptedDisclaimerVersion,_this.minimizeOnExit,_this.hidden,_this.developerMode,_this.restoreStrategy,_this.showTrayTitle,_this.checkCertificate,const DeepCollectionEquality().hash(_this.userAgents),const DeepCollectionEquality().hash(_this.filters),_this.hideIp,_this.editorLineWrap,_this.editorFontSize,const DeepCollectionEquality().hash(_this.serviceOrder),const DeepCollectionEquality().hash(_this.disabledServices),const DeepCollectionEquality().hash(_this.tableColumnWidths)]);
+  return Object.hashAll([runtimeType,_this.locale,const DeepCollectionEquality().hash(_this.dashboardWidgets),const DeepCollectionEquality().hash(_this.dashboardQuickGroups),const DeepCollectionEquality().hash(_this.profileQuickRoutes),const DeepCollectionEquality().hash(_this.quickRouteFavorites),const DeepCollectionEquality().hash(_this.quickRouteRecents),_this.desktopDashboardCustomized,_this.compactUi,const DeepCollectionEquality().hash(_this.pinnedTools),const DeepCollectionEquality().hash(_this.sidebarOrder),_this.onlyStatisticsProxy,_this.showNotificationStopAction,_this.autoLaunch,_this.silentLaunch,_this.autoRun,_this.openLogs,_this.closeConnections,_this.testUrl,_this.tabAnimation,_this.floatingNavigationBar,_this.autoCheckUpdate,_this.sidebarExpanded,_this.acceptedDisclaimerVersion,_this.minimizeOnExit,_this.hidden,_this.developerMode,_this.restoreStrategy,_this.showTrayTitle,_this.checkCertificate,const DeepCollectionEquality().hash(_this.userAgents),const DeepCollectionEquality().hash(_this.filters),_this.hideIp,_this.editorLineWrap,_this.editorFontSize,const DeepCollectionEquality().hash(_this.serviceOrder),const DeepCollectionEquality().hash(_this.disabledServices),const DeepCollectionEquality().hash(_this.tableColumnWidths)]);
 }
 
 @override
 String toString() {
   final _this = this as AppSettingProps;
-  return 'AppSettingProps(locale: ${_this.locale}, dashboardWidgets: ${_this.dashboardWidgets}, dashboardQuickGroups: ${_this.dashboardQuickGroups}, onlyStatisticsProxy: ${_this.onlyStatisticsProxy}, showNotificationStopAction: ${_this.showNotificationStopAction}, autoLaunch: ${_this.autoLaunch}, silentLaunch: ${_this.silentLaunch}, autoRun: ${_this.autoRun}, openLogs: ${_this.openLogs}, closeConnections: ${_this.closeConnections}, testUrl: ${_this.testUrl}, tabAnimation: ${_this.tabAnimation}, floatingNavigationBar: ${_this.floatingNavigationBar}, autoCheckUpdate: ${_this.autoCheckUpdate}, sidebarExpanded: ${_this.sidebarExpanded}, acceptedDisclaimerVersion: ${_this.acceptedDisclaimerVersion}, minimizeOnExit: ${_this.minimizeOnExit}, hidden: ${_this.hidden}, developerMode: ${_this.developerMode}, restoreStrategy: ${_this.restoreStrategy}, showTrayTitle: ${_this.showTrayTitle}, checkCertificate: ${_this.checkCertificate}, userAgents: ${_this.userAgents}, filters: ${_this.filters}, hideIp: ${_this.hideIp}, editorLineWrap: ${_this.editorLineWrap}, editorFontSize: ${_this.editorFontSize}, serviceOrder: ${_this.serviceOrder}, disabledServices: ${_this.disabledServices}, tableColumnWidths: ${_this.tableColumnWidths})';
+  return 'AppSettingProps(locale: ${_this.locale}, dashboardWidgets: ${_this.dashboardWidgets}, dashboardQuickGroups: ${_this.dashboardQuickGroups}, profileQuickRoutes: ${_this.profileQuickRoutes}, quickRouteFavorites: ${_this.quickRouteFavorites}, quickRouteRecents: ${_this.quickRouteRecents}, desktopDashboardCustomized: ${_this.desktopDashboardCustomized}, compactUi: ${_this.compactUi}, pinnedTools: ${_this.pinnedTools}, sidebarOrder: ${_this.sidebarOrder}, onlyStatisticsProxy: ${_this.onlyStatisticsProxy}, showNotificationStopAction: ${_this.showNotificationStopAction}, autoLaunch: ${_this.autoLaunch}, silentLaunch: ${_this.silentLaunch}, autoRun: ${_this.autoRun}, openLogs: ${_this.openLogs}, closeConnections: ${_this.closeConnections}, testUrl: ${_this.testUrl}, tabAnimation: ${_this.tabAnimation}, floatingNavigationBar: ${_this.floatingNavigationBar}, autoCheckUpdate: ${_this.autoCheckUpdate}, sidebarExpanded: ${_this.sidebarExpanded}, acceptedDisclaimerVersion: ${_this.acceptedDisclaimerVersion}, minimizeOnExit: ${_this.minimizeOnExit}, hidden: ${_this.hidden}, developerMode: ${_this.developerMode}, restoreStrategy: ${_this.restoreStrategy}, showTrayTitle: ${_this.showTrayTitle}, checkCertificate: ${_this.checkCertificate}, userAgents: ${_this.userAgents}, filters: ${_this.filters}, hideIp: ${_this.hideIp}, editorLineWrap: ${_this.editorLineWrap}, editorFontSize: ${_this.editorFontSize}, serviceOrder: ${_this.serviceOrder}, disabledServices: ${_this.disabledServices}, tableColumnWidths: ${_this.tableColumnWidths})';
 }
 
 
@@ -327,7 +603,7 @@ abstract mixin class $AppSettingPropsCopyWith<$Res>  {
   factory $AppSettingPropsCopyWith(AppSettingProps value, $Res Function(AppSettingProps) _then) = _$AppSettingPropsCopyWithImpl;
 @useResult
 $Res call({
- String? locale,@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> dashboardWidgets, Map<String, String> dashboardQuickGroups, bool onlyStatisticsProxy, bool showNotificationStopAction, bool autoLaunch, bool silentLaunch, bool autoRun, bool openLogs, bool closeConnections, String testUrl,@JsonKey(readValue: _readTabAnimation) TabAnimation tabAnimation, bool floatingNavigationBar, bool autoCheckUpdate,@JsonKey(readValue: _readSidebarExpanded) bool sidebarExpanded, int acceptedDisclaimerVersion, bool minimizeOnExit, bool hidden, bool developerMode, RestoreStrategy restoreStrategy, bool showTrayTitle, bool checkCertificate,@JsonKey(readValue: _readUserAgents) List<String> userAgents, List<Filter> filters, bool hideIp, bool editorLineWrap, EditorFontSize editorFontSize, List<String> serviceOrder, List<String> disabledServices, Map<String, Map<String, double>> tableColumnWidths
+ String? locale,@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> dashboardWidgets, Map<String, String> dashboardQuickGroups, Map<String, List<QuickRouteShortcut>> profileQuickRoutes, Map<String, List<String>> quickRouteFavorites, Map<String, List<String>> quickRouteRecents, bool desktopDashboardCustomized, bool compactUi, List<String> pinnedTools, List<String> sidebarOrder, bool onlyStatisticsProxy, bool showNotificationStopAction, bool autoLaunch, bool silentLaunch, bool autoRun, bool openLogs, bool closeConnections, String testUrl,@JsonKey(readValue: _readTabAnimation) TabAnimation tabAnimation, bool floatingNavigationBar, bool autoCheckUpdate,@JsonKey(readValue: _readSidebarExpanded) bool sidebarExpanded, int acceptedDisclaimerVersion, bool minimizeOnExit, bool hidden, bool developerMode, RestoreStrategy restoreStrategy, bool showTrayTitle, bool checkCertificate,@JsonKey(readValue: _readUserAgents) List<String> userAgents, List<Filter> filters, bool hideIp, bool editorLineWrap, EditorFontSize editorFontSize, List<String> serviceOrder, List<String> disabledServices, Map<String, Map<String, double>> tableColumnWidths
 });
 
 
@@ -344,12 +620,19 @@ class _$AppSettingPropsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? dashboardQuickGroups = null,Object? onlyStatisticsProxy = null,Object? showNotificationStopAction = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? testUrl = null,Object? tabAnimation = null,Object? floatingNavigationBar = null,Object? autoCheckUpdate = null,Object? sidebarExpanded = null,Object? acceptedDisclaimerVersion = null,Object? minimizeOnExit = null,Object? hidden = null,Object? developerMode = null,Object? restoreStrategy = null,Object? showTrayTitle = null,Object? checkCertificate = null,Object? userAgents = null,Object? filters = null,Object? hideIp = null,Object? editorLineWrap = null,Object? editorFontSize = null,Object? serviceOrder = null,Object? disabledServices = null,Object? tableColumnWidths = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? dashboardQuickGroups = null,Object? profileQuickRoutes = null,Object? quickRouteFavorites = null,Object? quickRouteRecents = null,Object? desktopDashboardCustomized = null,Object? compactUi = null,Object? pinnedTools = null,Object? sidebarOrder = null,Object? onlyStatisticsProxy = null,Object? showNotificationStopAction = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? testUrl = null,Object? tabAnimation = null,Object? floatingNavigationBar = null,Object? autoCheckUpdate = null,Object? sidebarExpanded = null,Object? acceptedDisclaimerVersion = null,Object? minimizeOnExit = null,Object? hidden = null,Object? developerMode = null,Object? restoreStrategy = null,Object? showTrayTitle = null,Object? checkCertificate = null,Object? userAgents = null,Object? filters = null,Object? hideIp = null,Object? editorLineWrap = null,Object? editorFontSize = null,Object? serviceOrder = null,Object? disabledServices = null,Object? tableColumnWidths = null,}) {
   return _then(AppSettingProps(
 locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
 as String?,dashboardWidgets: null == dashboardWidgets ? _self.dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
 as List<DashboardWidget>,dashboardQuickGroups: null == dashboardQuickGroups ? _self.dashboardQuickGroups : dashboardQuickGroups // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,onlyStatisticsProxy: null == onlyStatisticsProxy ? _self.onlyStatisticsProxy : onlyStatisticsProxy // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,profileQuickRoutes: null == profileQuickRoutes ? _self.profileQuickRoutes : profileQuickRoutes // ignore: cast_nullable_to_non_nullable
+as Map<String, List<QuickRouteShortcut>>,quickRouteFavorites: null == quickRouteFavorites ? _self.quickRouteFavorites : quickRouteFavorites // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,quickRouteRecents: null == quickRouteRecents ? _self.quickRouteRecents : quickRouteRecents // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,desktopDashboardCustomized: null == desktopDashboardCustomized ? _self.desktopDashboardCustomized : desktopDashboardCustomized // ignore: cast_nullable_to_non_nullable
+as bool,compactUi: null == compactUi ? _self.compactUi : compactUi // ignore: cast_nullable_to_non_nullable
+as bool,pinnedTools: null == pinnedTools ? _self.pinnedTools : pinnedTools // ignore: cast_nullable_to_non_nullable
+as List<String>,sidebarOrder: null == sidebarOrder ? _self.sidebarOrder : sidebarOrder // ignore: cast_nullable_to_non_nullable
+as List<String>,onlyStatisticsProxy: null == onlyStatisticsProxy ? _self.onlyStatisticsProxy : onlyStatisticsProxy // ignore: cast_nullable_to_non_nullable
 as bool,showNotificationStopAction: null == showNotificationStopAction ? _self.showNotificationStopAction : showNotificationStopAction // ignore: cast_nullable_to_non_nullable
 as bool,autoLaunch: null == autoLaunch ? _self.autoLaunch : autoLaunch // ignore: cast_nullable_to_non_nullable
 as bool,silentLaunch: null == silentLaunch ? _self.silentLaunch : silentLaunch // ignore: cast_nullable_to_non_nullable
@@ -461,10 +744,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  Map<String, List<QuickRouteShortcut>> profileQuickRoutes,  Map<String, List<String>> quickRouteFavorites,  Map<String, List<String>> quickRouteRecents,  bool desktopDashboardCustomized,  bool compactUi,  List<String> pinnedTools,  List<String> sidebarOrder,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AppSettingProps() when $default != null:
-return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.profileQuickRoutes,_that.quickRouteFavorites,_that.quickRouteRecents,_that.desktopDashboardCustomized,_that.compactUi,_that.pinnedTools,_that.sidebarOrder,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
   return orElse();
 
 }
@@ -482,10 +765,10 @@ return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  Map<String, List<QuickRouteShortcut>> profileQuickRoutes,  Map<String, List<String>> quickRouteFavorites,  Map<String, List<String>> quickRouteRecents,  bool desktopDashboardCustomized,  bool compactUi,  List<String> pinnedTools,  List<String> sidebarOrder,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingProps():
-return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.profileQuickRoutes,_that.quickRouteFavorites,_that.quickRouteRecents,_that.desktopDashboardCustomized,_that.compactUi,_that.pinnedTools,_that.sidebarOrder,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -502,10 +785,10 @@ return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets,  Map<String, String> dashboardQuickGroups,  Map<String, List<QuickRouteShortcut>> profileQuickRoutes,  Map<String, List<String>> quickRouteFavorites,  Map<String, List<String>> quickRouteRecents,  bool desktopDashboardCustomized,  bool compactUi,  List<String> pinnedTools,  List<String> sidebarOrder,  bool onlyStatisticsProxy,  bool showNotificationStopAction,  bool autoLaunch,  bool silentLaunch,  bool autoRun,  bool openLogs,  bool closeConnections,  String testUrl, @JsonKey(readValue: _readTabAnimation)  TabAnimation tabAnimation,  bool floatingNavigationBar,  bool autoCheckUpdate, @JsonKey(readValue: _readSidebarExpanded)  bool sidebarExpanded,  int acceptedDisclaimerVersion,  bool minimizeOnExit,  bool hidden,  bool developerMode,  RestoreStrategy restoreStrategy,  bool showTrayTitle,  bool checkCertificate, @JsonKey(readValue: _readUserAgents)  List<String> userAgents,  List<Filter> filters,  bool hideIp,  bool editorLineWrap,  EditorFontSize editorFontSize,  List<String> serviceOrder,  List<String> disabledServices,  Map<String, Map<String, double>> tableColumnWidths)?  $default,) {final _that = this;
 switch (_that) {
 case _AppSettingProps() when $default != null:
-return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
+return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_that.profileQuickRoutes,_that.quickRouteFavorites,_that.quickRouteRecents,_that.desktopDashboardCustomized,_that.compactUi,_that.pinnedTools,_that.sidebarOrder,_that.onlyStatisticsProxy,_that.showNotificationStopAction,_that.autoLaunch,_that.silentLaunch,_that.autoRun,_that.openLogs,_that.closeConnections,_that.testUrl,_that.tabAnimation,_that.floatingNavigationBar,_that.autoCheckUpdate,_that.sidebarExpanded,_that.acceptedDisclaimerVersion,_that.minimizeOnExit,_that.hidden,_that.developerMode,_that.restoreStrategy,_that.showTrayTitle,_that.checkCertificate,_that.userAgents,_that.filters,_that.hideIp,_that.editorLineWrap,_that.editorFontSize,_that.serviceOrder,_that.disabledServices,_that.tableColumnWidths);case _:
   return null;
 
 }
@@ -517,7 +800,7 @@ return $default(_that.locale,_that.dashboardWidgets,_that.dashboardQuickGroups,_
 @JsonSerializable()
 
 class _AppSettingProps implements AppSettingProps {
-  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets,  Map<String, String> dashboardQuickGroups = const {}, this.onlyStatisticsProxy = false, this.showNotificationStopAction = true, this.autoLaunch = false, this.silentLaunch = false, this.autoRun = false, this.openLogs = false, this.closeConnections = true, this.testUrl = defaultTestUrl, @JsonKey(readValue: _readTabAnimation) this.tabAnimation = TabAnimation.slide, this.floatingNavigationBar = true, this.autoCheckUpdate = true, @JsonKey(readValue: _readSidebarExpanded) this.sidebarExpanded = true, this.acceptedDisclaimerVersion = 0, this.minimizeOnExit = true, this.hidden = false, this.developerMode = false, this.restoreStrategy = RestoreStrategy.compatible, this.showTrayTitle = true, this.checkCertificate = true, @JsonKey(readValue: _readUserAgents)  List<String> userAgents = defaultUserAgents,  List<Filter> filters = defaultFilters, this.hideIp = false, this.editorLineWrap = false, this.editorFontSize = EditorFontSize.standard,  List<String> serviceOrder = const [],  List<String> disabledServices = const [],  Map<String, Map<String, double>> tableColumnWidths = const {}}): _dashboardWidgets = dashboardWidgets,_dashboardQuickGroups = dashboardQuickGroups,_userAgents = userAgents,_filters = filters,_serviceOrder = serviceOrder,_disabledServices = disabledServices,_tableColumnWidths = tableColumnWidths;
+  const _AppSettingProps({this.locale, @JsonKey(fromJson: dashboardWidgetsFromJson)  List<DashboardWidget> dashboardWidgets = defaultDashboardWidgets,  Map<String, String> dashboardQuickGroups = const {},  Map<String, List<QuickRouteShortcut>> profileQuickRoutes = const {},  Map<String, List<String>> quickRouteFavorites = const {},  Map<String, List<String>> quickRouteRecents = const {}, this.desktopDashboardCustomized = false, this.compactUi = false,  List<String> pinnedTools = const [],  List<String> sidebarOrder = const [], this.onlyStatisticsProxy = false, this.showNotificationStopAction = true, this.autoLaunch = false, this.silentLaunch = false, this.autoRun = false, this.openLogs = false, this.closeConnections = true, this.testUrl = defaultTestUrl, @JsonKey(readValue: _readTabAnimation) this.tabAnimation = TabAnimation.slide, this.floatingNavigationBar = true, this.autoCheckUpdate = true, @JsonKey(readValue: _readSidebarExpanded) this.sidebarExpanded = true, this.acceptedDisclaimerVersion = 0, this.minimizeOnExit = true, this.hidden = false, this.developerMode = false, this.restoreStrategy = RestoreStrategy.compatible, this.showTrayTitle = true, this.checkCertificate = true, @JsonKey(readValue: _readUserAgents)  List<String> userAgents = defaultUserAgents,  List<Filter> filters = defaultFilters, this.hideIp = false, this.editorLineWrap = false, this.editorFontSize = EditorFontSize.standard,  List<String> serviceOrder = const [],  List<String> disabledServices = const [],  Map<String, Map<String, double>> tableColumnWidths = const {}}): _dashboardWidgets = dashboardWidgets,_dashboardQuickGroups = dashboardQuickGroups,_profileQuickRoutes = profileQuickRoutes,_quickRouteFavorites = quickRouteFavorites,_quickRouteRecents = quickRouteRecents,_pinnedTools = pinnedTools,_sidebarOrder = sidebarOrder,_userAgents = userAgents,_filters = filters,_serviceOrder = serviceOrder,_disabledServices = disabledServices,_tableColumnWidths = tableColumnWidths;
   factory _AppSettingProps.fromJson(Map<String, dynamic> json) => _$AppSettingPropsFromJson(json);
 
 @override final  String? locale;
@@ -533,6 +816,43 @@ class _AppSettingProps implements AppSettingProps {
   if (_dashboardQuickGroups is EqualUnmodifiableMapView) return _dashboardQuickGroups;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_dashboardQuickGroups);
+}
+
+ final  Map<String, List<QuickRouteShortcut>> _profileQuickRoutes;
+@override@JsonKey() Map<String, List<QuickRouteShortcut>> get profileQuickRoutes {
+  if (_profileQuickRoutes is EqualUnmodifiableMapView) return _profileQuickRoutes;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_profileQuickRoutes);
+}
+
+ final  Map<String, List<String>> _quickRouteFavorites;
+@override@JsonKey() Map<String, List<String>> get quickRouteFavorites {
+  if (_quickRouteFavorites is EqualUnmodifiableMapView) return _quickRouteFavorites;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_quickRouteFavorites);
+}
+
+ final  Map<String, List<String>> _quickRouteRecents;
+@override@JsonKey() Map<String, List<String>> get quickRouteRecents {
+  if (_quickRouteRecents is EqualUnmodifiableMapView) return _quickRouteRecents;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableMapView(_quickRouteRecents);
+}
+
+@override@JsonKey() final  bool desktopDashboardCustomized;
+@override@JsonKey() final  bool compactUi;
+ final  List<String> _pinnedTools;
+@override@JsonKey() List<String> get pinnedTools {
+  if (_pinnedTools is EqualUnmodifiableListView) return _pinnedTools;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_pinnedTools);
+}
+
+ final  List<String> _sidebarOrder;
+@override@JsonKey() List<String> get sidebarOrder {
+  if (_sidebarOrder is EqualUnmodifiableListView) return _sidebarOrder;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sidebarOrder);
 }
 
 @override@JsonKey() final  bool onlyStatisticsProxy;
@@ -606,18 +926,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingProps&&(identical(other.locale, locale) || other.locale == locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _dashboardWidgets)&&const DeepCollectionEquality().equals(other.dashboardQuickGroups, _dashboardQuickGroups)&&(identical(other.onlyStatisticsProxy, onlyStatisticsProxy) || other.onlyStatisticsProxy == onlyStatisticsProxy)&&(identical(other.showNotificationStopAction, showNotificationStopAction) || other.showNotificationStopAction == showNotificationStopAction)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.silentLaunch, silentLaunch) || other.silentLaunch == silentLaunch)&&(identical(other.autoRun, autoRun) || other.autoRun == autoRun)&&(identical(other.openLogs, openLogs) || other.openLogs == openLogs)&&(identical(other.closeConnections, closeConnections) || other.closeConnections == closeConnections)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.tabAnimation, tabAnimation) || other.tabAnimation == tabAnimation)&&(identical(other.floatingNavigationBar, floatingNavigationBar) || other.floatingNavigationBar == floatingNavigationBar)&&(identical(other.autoCheckUpdate, autoCheckUpdate) || other.autoCheckUpdate == autoCheckUpdate)&&(identical(other.sidebarExpanded, sidebarExpanded) || other.sidebarExpanded == sidebarExpanded)&&(identical(other.acceptedDisclaimerVersion, acceptedDisclaimerVersion) || other.acceptedDisclaimerVersion == acceptedDisclaimerVersion)&&(identical(other.minimizeOnExit, minimizeOnExit) || other.minimizeOnExit == minimizeOnExit)&&(identical(other.hidden, hidden) || other.hidden == hidden)&&(identical(other.developerMode, developerMode) || other.developerMode == developerMode)&&(identical(other.restoreStrategy, restoreStrategy) || other.restoreStrategy == restoreStrategy)&&(identical(other.showTrayTitle, showTrayTitle) || other.showTrayTitle == showTrayTitle)&&(identical(other.checkCertificate, checkCertificate) || other.checkCertificate == checkCertificate)&&const DeepCollectionEquality().equals(other.userAgents, _userAgents)&&const DeepCollectionEquality().equals(other.filters, _filters)&&(identical(other.hideIp, hideIp) || other.hideIp == hideIp)&&(identical(other.editorLineWrap, editorLineWrap) || other.editorLineWrap == editorLineWrap)&&(identical(other.editorFontSize, editorFontSize) || other.editorFontSize == editorFontSize)&&const DeepCollectionEquality().equals(other.serviceOrder, _serviceOrder)&&const DeepCollectionEquality().equals(other.disabledServices, _disabledServices)&&const DeepCollectionEquality().equals(other.tableColumnWidths, _tableColumnWidths));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppSettingProps&&(identical(other.locale, locale) || other.locale == locale)&&const DeepCollectionEquality().equals(other.dashboardWidgets, _dashboardWidgets)&&const DeepCollectionEquality().equals(other.dashboardQuickGroups, _dashboardQuickGroups)&&const DeepCollectionEquality().equals(other.profileQuickRoutes, _profileQuickRoutes)&&const DeepCollectionEquality().equals(other.quickRouteFavorites, _quickRouteFavorites)&&const DeepCollectionEquality().equals(other.quickRouteRecents, _quickRouteRecents)&&(identical(other.desktopDashboardCustomized, desktopDashboardCustomized) || other.desktopDashboardCustomized == desktopDashboardCustomized)&&(identical(other.compactUi, compactUi) || other.compactUi == compactUi)&&const DeepCollectionEquality().equals(other.pinnedTools, _pinnedTools)&&const DeepCollectionEquality().equals(other.sidebarOrder, _sidebarOrder)&&(identical(other.onlyStatisticsProxy, onlyStatisticsProxy) || other.onlyStatisticsProxy == onlyStatisticsProxy)&&(identical(other.showNotificationStopAction, showNotificationStopAction) || other.showNotificationStopAction == showNotificationStopAction)&&(identical(other.autoLaunch, autoLaunch) || other.autoLaunch == autoLaunch)&&(identical(other.silentLaunch, silentLaunch) || other.silentLaunch == silentLaunch)&&(identical(other.autoRun, autoRun) || other.autoRun == autoRun)&&(identical(other.openLogs, openLogs) || other.openLogs == openLogs)&&(identical(other.closeConnections, closeConnections) || other.closeConnections == closeConnections)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.tabAnimation, tabAnimation) || other.tabAnimation == tabAnimation)&&(identical(other.floatingNavigationBar, floatingNavigationBar) || other.floatingNavigationBar == floatingNavigationBar)&&(identical(other.autoCheckUpdate, autoCheckUpdate) || other.autoCheckUpdate == autoCheckUpdate)&&(identical(other.sidebarExpanded, sidebarExpanded) || other.sidebarExpanded == sidebarExpanded)&&(identical(other.acceptedDisclaimerVersion, acceptedDisclaimerVersion) || other.acceptedDisclaimerVersion == acceptedDisclaimerVersion)&&(identical(other.minimizeOnExit, minimizeOnExit) || other.minimizeOnExit == minimizeOnExit)&&(identical(other.hidden, hidden) || other.hidden == hidden)&&(identical(other.developerMode, developerMode) || other.developerMode == developerMode)&&(identical(other.restoreStrategy, restoreStrategy) || other.restoreStrategy == restoreStrategy)&&(identical(other.showTrayTitle, showTrayTitle) || other.showTrayTitle == showTrayTitle)&&(identical(other.checkCertificate, checkCertificate) || other.checkCertificate == checkCertificate)&&const DeepCollectionEquality().equals(other.userAgents, _userAgents)&&const DeepCollectionEquality().equals(other.filters, _filters)&&(identical(other.hideIp, hideIp) || other.hideIp == hideIp)&&(identical(other.editorLineWrap, editorLineWrap) || other.editorLineWrap == editorLineWrap)&&(identical(other.editorFontSize, editorFontSize) || other.editorFontSize == editorFontSize)&&const DeepCollectionEquality().equals(other.serviceOrder, _serviceOrder)&&const DeepCollectionEquality().equals(other.disabledServices, _disabledServices)&&const DeepCollectionEquality().equals(other.tableColumnWidths, _tableColumnWidths));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hashAll([runtimeType,locale,const DeepCollectionEquality().hash(_dashboardWidgets),const DeepCollectionEquality().hash(_dashboardQuickGroups),onlyStatisticsProxy,showNotificationStopAction,autoLaunch,silentLaunch,autoRun,openLogs,closeConnections,testUrl,tabAnimation,floatingNavigationBar,autoCheckUpdate,sidebarExpanded,acceptedDisclaimerVersion,minimizeOnExit,hidden,developerMode,restoreStrategy,showTrayTitle,checkCertificate,const DeepCollectionEquality().hash(_userAgents),const DeepCollectionEquality().hash(_filters),hideIp,editorLineWrap,editorFontSize,const DeepCollectionEquality().hash(_serviceOrder),const DeepCollectionEquality().hash(_disabledServices),const DeepCollectionEquality().hash(_tableColumnWidths)]);
+    return Object.hashAll([runtimeType,locale,const DeepCollectionEquality().hash(_dashboardWidgets),const DeepCollectionEquality().hash(_dashboardQuickGroups),const DeepCollectionEquality().hash(_profileQuickRoutes),const DeepCollectionEquality().hash(_quickRouteFavorites),const DeepCollectionEquality().hash(_quickRouteRecents),desktopDashboardCustomized,compactUi,const DeepCollectionEquality().hash(_pinnedTools),const DeepCollectionEquality().hash(_sidebarOrder),onlyStatisticsProxy,showNotificationStopAction,autoLaunch,silentLaunch,autoRun,openLogs,closeConnections,testUrl,tabAnimation,floatingNavigationBar,autoCheckUpdate,sidebarExpanded,acceptedDisclaimerVersion,minimizeOnExit,hidden,developerMode,restoreStrategy,showTrayTitle,checkCertificate,const DeepCollectionEquality().hash(_userAgents),const DeepCollectionEquality().hash(_filters),hideIp,editorLineWrap,editorFontSize,const DeepCollectionEquality().hash(_serviceOrder),const DeepCollectionEquality().hash(_disabledServices),const DeepCollectionEquality().hash(_tableColumnWidths)]);
 }
 
 @override
 String toString() {
-    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, dashboardQuickGroups: $dashboardQuickGroups, onlyStatisticsProxy: $onlyStatisticsProxy, showNotificationStopAction: $showNotificationStopAction, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, testUrl: $testUrl, tabAnimation: $tabAnimation, floatingNavigationBar: $floatingNavigationBar, autoCheckUpdate: $autoCheckUpdate, sidebarExpanded: $sidebarExpanded, acceptedDisclaimerVersion: $acceptedDisclaimerVersion, minimizeOnExit: $minimizeOnExit, hidden: $hidden, developerMode: $developerMode, restoreStrategy: $restoreStrategy, showTrayTitle: $showTrayTitle, checkCertificate: $checkCertificate, userAgents: $userAgents, filters: $filters, hideIp: $hideIp, editorLineWrap: $editorLineWrap, editorFontSize: $editorFontSize, serviceOrder: $serviceOrder, disabledServices: $disabledServices, tableColumnWidths: $tableColumnWidths)';
+    return 'AppSettingProps(locale: $locale, dashboardWidgets: $dashboardWidgets, dashboardQuickGroups: $dashboardQuickGroups, profileQuickRoutes: $profileQuickRoutes, quickRouteFavorites: $quickRouteFavorites, quickRouteRecents: $quickRouteRecents, desktopDashboardCustomized: $desktopDashboardCustomized, compactUi: $compactUi, pinnedTools: $pinnedTools, sidebarOrder: $sidebarOrder, onlyStatisticsProxy: $onlyStatisticsProxy, showNotificationStopAction: $showNotificationStopAction, autoLaunch: $autoLaunch, silentLaunch: $silentLaunch, autoRun: $autoRun, openLogs: $openLogs, closeConnections: $closeConnections, testUrl: $testUrl, tabAnimation: $tabAnimation, floatingNavigationBar: $floatingNavigationBar, autoCheckUpdate: $autoCheckUpdate, sidebarExpanded: $sidebarExpanded, acceptedDisclaimerVersion: $acceptedDisclaimerVersion, minimizeOnExit: $minimizeOnExit, hidden: $hidden, developerMode: $developerMode, restoreStrategy: $restoreStrategy, showTrayTitle: $showTrayTitle, checkCertificate: $checkCertificate, userAgents: $userAgents, filters: $filters, hideIp: $hideIp, editorLineWrap: $editorLineWrap, editorFontSize: $editorFontSize, serviceOrder: $serviceOrder, disabledServices: $disabledServices, tableColumnWidths: $tableColumnWidths)';
 }
 
 
@@ -628,7 +948,7 @@ abstract mixin class _$AppSettingPropsCopyWith<$Res> implements $AppSettingProps
   factory _$AppSettingPropsCopyWith(_AppSettingProps value, $Res Function(_AppSettingProps) _then) = __$AppSettingPropsCopyWithImpl;
 @override @useResult
 $Res call({
- String? locale,@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> dashboardWidgets, Map<String, String> dashboardQuickGroups, bool onlyStatisticsProxy, bool showNotificationStopAction, bool autoLaunch, bool silentLaunch, bool autoRun, bool openLogs, bool closeConnections, String testUrl,@JsonKey(readValue: _readTabAnimation) TabAnimation tabAnimation, bool floatingNavigationBar, bool autoCheckUpdate,@JsonKey(readValue: _readSidebarExpanded) bool sidebarExpanded, int acceptedDisclaimerVersion, bool minimizeOnExit, bool hidden, bool developerMode, RestoreStrategy restoreStrategy, bool showTrayTitle, bool checkCertificate,@JsonKey(readValue: _readUserAgents) List<String> userAgents, List<Filter> filters, bool hideIp, bool editorLineWrap, EditorFontSize editorFontSize, List<String> serviceOrder, List<String> disabledServices, Map<String, Map<String, double>> tableColumnWidths
+ String? locale,@JsonKey(fromJson: dashboardWidgetsFromJson) List<DashboardWidget> dashboardWidgets, Map<String, String> dashboardQuickGroups, Map<String, List<QuickRouteShortcut>> profileQuickRoutes, Map<String, List<String>> quickRouteFavorites, Map<String, List<String>> quickRouteRecents, bool desktopDashboardCustomized, bool compactUi, List<String> pinnedTools, List<String> sidebarOrder, bool onlyStatisticsProxy, bool showNotificationStopAction, bool autoLaunch, bool silentLaunch, bool autoRun, bool openLogs, bool closeConnections, String testUrl,@JsonKey(readValue: _readTabAnimation) TabAnimation tabAnimation, bool floatingNavigationBar, bool autoCheckUpdate,@JsonKey(readValue: _readSidebarExpanded) bool sidebarExpanded, int acceptedDisclaimerVersion, bool minimizeOnExit, bool hidden, bool developerMode, RestoreStrategy restoreStrategy, bool showTrayTitle, bool checkCertificate,@JsonKey(readValue: _readUserAgents) List<String> userAgents, List<Filter> filters, bool hideIp, bool editorLineWrap, EditorFontSize editorFontSize, List<String> serviceOrder, List<String> disabledServices, Map<String, Map<String, double>> tableColumnWidths
 });
 
 
@@ -645,12 +965,19 @@ class __$AppSettingPropsCopyWithImpl<$Res>
 
 /// Create a copy of AppSettingProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? dashboardQuickGroups = null,Object? onlyStatisticsProxy = null,Object? showNotificationStopAction = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? testUrl = null,Object? tabAnimation = null,Object? floatingNavigationBar = null,Object? autoCheckUpdate = null,Object? sidebarExpanded = null,Object? acceptedDisclaimerVersion = null,Object? minimizeOnExit = null,Object? hidden = null,Object? developerMode = null,Object? restoreStrategy = null,Object? showTrayTitle = null,Object? checkCertificate = null,Object? userAgents = null,Object? filters = null,Object? hideIp = null,Object? editorLineWrap = null,Object? editorFontSize = null,Object? serviceOrder = null,Object? disabledServices = null,Object? tableColumnWidths = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? locale = freezed,Object? dashboardWidgets = null,Object? dashboardQuickGroups = null,Object? profileQuickRoutes = null,Object? quickRouteFavorites = null,Object? quickRouteRecents = null,Object? desktopDashboardCustomized = null,Object? compactUi = null,Object? pinnedTools = null,Object? sidebarOrder = null,Object? onlyStatisticsProxy = null,Object? showNotificationStopAction = null,Object? autoLaunch = null,Object? silentLaunch = null,Object? autoRun = null,Object? openLogs = null,Object? closeConnections = null,Object? testUrl = null,Object? tabAnimation = null,Object? floatingNavigationBar = null,Object? autoCheckUpdate = null,Object? sidebarExpanded = null,Object? acceptedDisclaimerVersion = null,Object? minimizeOnExit = null,Object? hidden = null,Object? developerMode = null,Object? restoreStrategy = null,Object? showTrayTitle = null,Object? checkCertificate = null,Object? userAgents = null,Object? filters = null,Object? hideIp = null,Object? editorLineWrap = null,Object? editorFontSize = null,Object? serviceOrder = null,Object? disabledServices = null,Object? tableColumnWidths = null,}) {
   return _then(_AppSettingProps(
 locale: freezed == locale ? _self.locale : locale // ignore: cast_nullable_to_non_nullable
 as String?,dashboardWidgets: null == dashboardWidgets ? _self._dashboardWidgets : dashboardWidgets // ignore: cast_nullable_to_non_nullable
 as List<DashboardWidget>,dashboardQuickGroups: null == dashboardQuickGroups ? _self._dashboardQuickGroups : dashboardQuickGroups // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,onlyStatisticsProxy: null == onlyStatisticsProxy ? _self.onlyStatisticsProxy : onlyStatisticsProxy // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,profileQuickRoutes: null == profileQuickRoutes ? _self._profileQuickRoutes : profileQuickRoutes // ignore: cast_nullable_to_non_nullable
+as Map<String, List<QuickRouteShortcut>>,quickRouteFavorites: null == quickRouteFavorites ? _self._quickRouteFavorites : quickRouteFavorites // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,quickRouteRecents: null == quickRouteRecents ? _self._quickRouteRecents : quickRouteRecents // ignore: cast_nullable_to_non_nullable
+as Map<String, List<String>>,desktopDashboardCustomized: null == desktopDashboardCustomized ? _self.desktopDashboardCustomized : desktopDashboardCustomized // ignore: cast_nullable_to_non_nullable
+as bool,compactUi: null == compactUi ? _self.compactUi : compactUi // ignore: cast_nullable_to_non_nullable
+as bool,pinnedTools: null == pinnedTools ? _self._pinnedTools : pinnedTools // ignore: cast_nullable_to_non_nullable
+as List<String>,sidebarOrder: null == sidebarOrder ? _self._sidebarOrder : sidebarOrder // ignore: cast_nullable_to_non_nullable
+as List<String>,onlyStatisticsProxy: null == onlyStatisticsProxy ? _self.onlyStatisticsProxy : onlyStatisticsProxy // ignore: cast_nullable_to_non_nullable
 as bool,showNotificationStopAction: null == showNotificationStopAction ? _self.showNotificationStopAction : showNotificationStopAction // ignore: cast_nullable_to_non_nullable
 as bool,autoLaunch: null == autoLaunch ? _self.autoLaunch : autoLaunch // ignore: cast_nullable_to_non_nullable
 as bool,silentLaunch: null == silentLaunch ? _self.silentLaunch : silentLaunch // ignore: cast_nullable_to_non_nullable
@@ -2158,7 +2485,7 @@ $AuthenticationPropsCopyWith<$Res> get authentication {
 /// @nodoc
 mixin _$ProxiesStyleProps {
 
- ProxiesType get type; ProxiesSortType get sortType; ProxiesLayout get layout;@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle get iconStyle;@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType get cardType; bool get hideTimeoutProxies; String get nodeExcludeFilter;
+ ProxiesType get type; ProxiesSortType get sortType; ProxiesLayout get layout;@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle get iconStyle;@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType get cardType; bool get hideTimeoutProxies; String get nodeExcludeFilter; bool get nodeExcludePlainText;
 /// Create a copy of ProxiesStyleProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2172,20 +2499,20 @@ $ProxiesStylePropsCopyWith<ProxiesStyleProps> get copyWith => _$ProxiesStyleProp
 @override
 bool operator ==(Object other) {
   final _this = this as ProxiesStyleProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxiesStyleProps&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.sortType, _this.sortType) || other.sortType == _this.sortType)&&(identical(other.layout, _this.layout) || other.layout == _this.layout)&&(identical(other.iconStyle, _this.iconStyle) || other.iconStyle == _this.iconStyle)&&(identical(other.cardType, _this.cardType) || other.cardType == _this.cardType)&&(identical(other.hideTimeoutProxies, _this.hideTimeoutProxies) || other.hideTimeoutProxies == _this.hideTimeoutProxies)&&(identical(other.nodeExcludeFilter, _this.nodeExcludeFilter) || other.nodeExcludeFilter == _this.nodeExcludeFilter));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProxiesStyleProps&&(identical(other.type, _this.type) || other.type == _this.type)&&(identical(other.sortType, _this.sortType) || other.sortType == _this.sortType)&&(identical(other.layout, _this.layout) || other.layout == _this.layout)&&(identical(other.iconStyle, _this.iconStyle) || other.iconStyle == _this.iconStyle)&&(identical(other.cardType, _this.cardType) || other.cardType == _this.cardType)&&(identical(other.hideTimeoutProxies, _this.hideTimeoutProxies) || other.hideTimeoutProxies == _this.hideTimeoutProxies)&&(identical(other.nodeExcludeFilter, _this.nodeExcludeFilter) || other.nodeExcludeFilter == _this.nodeExcludeFilter)&&(identical(other.nodeExcludePlainText, _this.nodeExcludePlainText) || other.nodeExcludePlainText == _this.nodeExcludePlainText));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as ProxiesStyleProps;
-  return Object.hash(runtimeType,_this.type,_this.sortType,_this.layout,_this.iconStyle,_this.cardType,_this.hideTimeoutProxies,_this.nodeExcludeFilter);
+  return Object.hash(runtimeType,_this.type,_this.sortType,_this.layout,_this.iconStyle,_this.cardType,_this.hideTimeoutProxies,_this.nodeExcludeFilter,_this.nodeExcludePlainText);
 }
 
 @override
 String toString() {
   final _this = this as ProxiesStyleProps;
-  return 'ProxiesStyleProps(type: ${_this.type}, sortType: ${_this.sortType}, layout: ${_this.layout}, iconStyle: ${_this.iconStyle}, cardType: ${_this.cardType}, hideTimeoutProxies: ${_this.hideTimeoutProxies}, nodeExcludeFilter: ${_this.nodeExcludeFilter})';
+  return 'ProxiesStyleProps(type: ${_this.type}, sortType: ${_this.sortType}, layout: ${_this.layout}, iconStyle: ${_this.iconStyle}, cardType: ${_this.cardType}, hideTimeoutProxies: ${_this.hideTimeoutProxies}, nodeExcludeFilter: ${_this.nodeExcludeFilter}, nodeExcludePlainText: ${_this.nodeExcludePlainText})';
 }
 
 
@@ -2196,7 +2523,7 @@ abstract mixin class $ProxiesStylePropsCopyWith<$Res>  {
   factory $ProxiesStylePropsCopyWith(ProxiesStyleProps value, $Res Function(ProxiesStyleProps) _then) = _$ProxiesStylePropsCopyWithImpl;
 @useResult
 $Res call({
- ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout,@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle iconStyle,@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType cardType, bool hideTimeoutProxies, String nodeExcludeFilter
+ ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout,@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle iconStyle,@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType cardType, bool hideTimeoutProxies, String nodeExcludeFilter, bool nodeExcludePlainText
 });
 
 
@@ -2213,7 +2540,7 @@ class _$ProxiesStylePropsCopyWithImpl<$Res>
 
 /// Create a copy of ProxiesStyleProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? sortType = null,Object? layout = null,Object? iconStyle = null,Object? cardType = null,Object? hideTimeoutProxies = null,Object? nodeExcludeFilter = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? sortType = null,Object? layout = null,Object? iconStyle = null,Object? cardType = null,Object? hideTimeoutProxies = null,Object? nodeExcludeFilter = null,Object? nodeExcludePlainText = null,}) {
   return _then(ProxiesStyleProps(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ProxiesType,sortType: null == sortType ? _self.sortType : sortType // ignore: cast_nullable_to_non_nullable
@@ -2222,7 +2549,8 @@ as ProxiesLayout,iconStyle: null == iconStyle ? _self.iconStyle : iconStyle // i
 as ProxiesIconStyle,cardType: null == cardType ? _self.cardType : cardType // ignore: cast_nullable_to_non_nullable
 as ProxyCardType,hideTimeoutProxies: null == hideTimeoutProxies ? _self.hideTimeoutProxies : hideTimeoutProxies // ignore: cast_nullable_to_non_nullable
 as bool,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
-as String,
+as String,nodeExcludePlainText: null == nodeExcludePlainText ? _self.nodeExcludePlainText : nodeExcludePlainText // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -2307,10 +2635,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter,  bool nodeExcludePlainText)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProxiesStyleProps() when $default != null:
-return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter);case _:
+return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter,_that.nodeExcludePlainText);case _:
   return orElse();
 
 }
@@ -2328,10 +2656,10 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter,  bool nodeExcludePlainText)  $default,) {final _that = this;
 switch (_that) {
 case _ProxiesStyleProps():
-return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter);case _:
+return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter,_that.nodeExcludePlainText);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2348,10 +2676,10 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProxiesType type,  ProxiesSortType sortType,  ProxiesLayout layout, @JsonKey(fromJson: proxiesIconStyleSafeFromJson)  ProxiesIconStyle iconStyle, @JsonKey(fromJson: proxyCardTypeSafeFromJson)  ProxyCardType cardType,  bool hideTimeoutProxies,  String nodeExcludeFilter,  bool nodeExcludePlainText)?  $default,) {final _that = this;
 switch (_that) {
 case _ProxiesStyleProps() when $default != null:
-return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter);case _:
+return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.cardType,_that.hideTimeoutProxies,_that.nodeExcludeFilter,_that.nodeExcludePlainText);case _:
   return null;
 
 }
@@ -2363,7 +2691,7 @@ return $default(_that.type,_that.sortType,_that.layout,_that.iconStyle,_that.car
 @JsonSerializable()
 
 class _ProxiesStyleProps implements ProxiesStyleProps {
-  const _ProxiesStyleProps({this.type = ProxiesType.list, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, @JsonKey(fromJson: proxiesIconStyleSafeFromJson) this.iconStyle = ProxiesIconStyle.filled, @JsonKey(fromJson: proxyCardTypeSafeFromJson) this.cardType = ProxyCardType.standard, this.hideTimeoutProxies = false, this.nodeExcludeFilter = ''});
+  const _ProxiesStyleProps({this.type = ProxiesType.list, this.sortType = ProxiesSortType.none, this.layout = ProxiesLayout.standard, @JsonKey(fromJson: proxiesIconStyleSafeFromJson) this.iconStyle = ProxiesIconStyle.filled, @JsonKey(fromJson: proxyCardTypeSafeFromJson) this.cardType = ProxyCardType.standard, this.hideTimeoutProxies = false, this.nodeExcludeFilter = '', this.nodeExcludePlainText = false});
   factory _ProxiesStyleProps.fromJson(Map<String, dynamic> json) => _$ProxiesStylePropsFromJson(json);
 
 @override@JsonKey() final  ProxiesType type;
@@ -2373,6 +2701,7 @@ class _ProxiesStyleProps implements ProxiesStyleProps {
 @override@JsonKey(fromJson: proxyCardTypeSafeFromJson) final  ProxyCardType cardType;
 @override@JsonKey() final  bool hideTimeoutProxies;
 @override@JsonKey() final  String nodeExcludeFilter;
+@override@JsonKey() final  bool nodeExcludePlainText;
 
 /// Create a copy of ProxiesStyleProps
 /// with the given fields replaced by the non-null parameter values.
@@ -2387,18 +2716,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxiesStyleProps&&(identical(other.type, type) || other.type == type)&&(identical(other.sortType, sortType) || other.sortType == sortType)&&(identical(other.layout, layout) || other.layout == layout)&&(identical(other.iconStyle, iconStyle) || other.iconStyle == iconStyle)&&(identical(other.cardType, cardType) || other.cardType == cardType)&&(identical(other.hideTimeoutProxies, hideTimeoutProxies) || other.hideTimeoutProxies == hideTimeoutProxies)&&(identical(other.nodeExcludeFilter, nodeExcludeFilter) || other.nodeExcludeFilter == nodeExcludeFilter));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProxiesStyleProps&&(identical(other.type, type) || other.type == type)&&(identical(other.sortType, sortType) || other.sortType == sortType)&&(identical(other.layout, layout) || other.layout == layout)&&(identical(other.iconStyle, iconStyle) || other.iconStyle == iconStyle)&&(identical(other.cardType, cardType) || other.cardType == cardType)&&(identical(other.hideTimeoutProxies, hideTimeoutProxies) || other.hideTimeoutProxies == hideTimeoutProxies)&&(identical(other.nodeExcludeFilter, nodeExcludeFilter) || other.nodeExcludeFilter == nodeExcludeFilter)&&(identical(other.nodeExcludePlainText, nodeExcludePlainText) || other.nodeExcludePlainText == nodeExcludePlainText));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,type,sortType,layout,iconStyle,cardType,hideTimeoutProxies,nodeExcludeFilter);
+    return Object.hash(runtimeType,type,sortType,layout,iconStyle,cardType,hideTimeoutProxies,nodeExcludeFilter,nodeExcludePlainText);
 }
 
 @override
 String toString() {
-    return 'ProxiesStyleProps(type: $type, sortType: $sortType, layout: $layout, iconStyle: $iconStyle, cardType: $cardType, hideTimeoutProxies: $hideTimeoutProxies, nodeExcludeFilter: $nodeExcludeFilter)';
+    return 'ProxiesStyleProps(type: $type, sortType: $sortType, layout: $layout, iconStyle: $iconStyle, cardType: $cardType, hideTimeoutProxies: $hideTimeoutProxies, nodeExcludeFilter: $nodeExcludeFilter, nodeExcludePlainText: $nodeExcludePlainText)';
 }
 
 
@@ -2409,7 +2738,7 @@ abstract mixin class _$ProxiesStylePropsCopyWith<$Res> implements $ProxiesStyleP
   factory _$ProxiesStylePropsCopyWith(_ProxiesStyleProps value, $Res Function(_ProxiesStyleProps) _then) = __$ProxiesStylePropsCopyWithImpl;
 @override @useResult
 $Res call({
- ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout,@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle iconStyle,@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType cardType, bool hideTimeoutProxies, String nodeExcludeFilter
+ ProxiesType type, ProxiesSortType sortType, ProxiesLayout layout,@JsonKey(fromJson: proxiesIconStyleSafeFromJson) ProxiesIconStyle iconStyle,@JsonKey(fromJson: proxyCardTypeSafeFromJson) ProxyCardType cardType, bool hideTimeoutProxies, String nodeExcludeFilter, bool nodeExcludePlainText
 });
 
 
@@ -2426,7 +2755,7 @@ class __$ProxiesStylePropsCopyWithImpl<$Res>
 
 /// Create a copy of ProxiesStyleProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? sortType = null,Object? layout = null,Object? iconStyle = null,Object? cardType = null,Object? hideTimeoutProxies = null,Object? nodeExcludeFilter = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? sortType = null,Object? layout = null,Object? iconStyle = null,Object? cardType = null,Object? hideTimeoutProxies = null,Object? nodeExcludeFilter = null,Object? nodeExcludePlainText = null,}) {
   return _then(_ProxiesStyleProps(
 type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as ProxiesType,sortType: null == sortType ? _self.sortType : sortType // ignore: cast_nullable_to_non_nullable
@@ -2435,7 +2764,8 @@ as ProxiesLayout,iconStyle: null == iconStyle ? _self.iconStyle : iconStyle // i
 as ProxiesIconStyle,cardType: null == cardType ? _self.cardType : cardType // ignore: cast_nullable_to_non_nullable
 as ProxyCardType,hideTimeoutProxies: null == hideTimeoutProxies ? _self.hideTimeoutProxies : hideTimeoutProxies // ignore: cast_nullable_to_non_nullable
 as bool,nodeExcludeFilter: null == nodeExcludeFilter ? _self.nodeExcludeFilter : nodeExcludeFilter // ignore: cast_nullable_to_non_nullable
-as String,
+as String,nodeExcludePlainText: null == nodeExcludePlainText ? _self.nodeExcludePlainText : nodeExcludePlainText // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

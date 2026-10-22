@@ -115,6 +115,10 @@ class _TestServer {
           response.statusCode = HttpStatus.ok;
           response.add(stored);
         }
+      case 'DELETE':
+        response.statusCode = files.remove(path) == null
+            ? HttpStatus.notFound
+            : HttpStatus.noContent;
       case 'PROPFIND':
         response.statusCode = HttpStatus.multiStatus;
         response.headers.contentType = ContentType('application', 'xml');
@@ -322,6 +326,67 @@ void main() {
           buildClient().listBackups(),
           throwsA(isA<DAVException>()),
         );
+      },
+    );
+
+    test(
+      'notes round trip through sidecars without altering old archives',
+      () async {
+        final client = buildClient();
+        server.files['/$appName/backup.zip'] = [9];
+        await client.uploadVersion(writeArchive([1, 2, 3]).path);
+        final latest = (await client.listBackups()).first;
+        await client.saveNote(latest.name, 'Before travel');
+
+        final refreshed = await buildClient().listBackups();
+        expect(refreshed.first.note, 'Before travel');
+        expect(refreshed.last.name, 'backup.zip');
+        expect(refreshed.last.note, isEmpty);
+        expect(server.files['/$appName/${latest.name}'], [1, 2, 3]);
+        expect(server.files['/$appName/backup.zip'], [9]);
+
+        await client.saveNote(latest.name, '');
+        expect((await client.listBackups()).first.note, isEmpty);
+        expect(server.files.containsKey('/$appName/${latest.name}'), isTrue);
+      },
+    );
+
+    test(
+      'invalid optional notes do not hide a restorable legacy backup',
+      () async {
+        server.files['/$appName/backup.zip'] = [9];
+        server.files['/$appName/backup.zip.note.json'] = utf8.encode(
+          'invalid JSON',
+        );
+        final backups = await buildClient().listBackups();
+        expect(backups.single.name, 'backup.zip');
+        expect(backups.single.note, isEmpty);
+      },
+    );
+
+    test(
+      'manual deletion removes only the chosen archive and its note',
+      () async {
+        final client = buildClient();
+        server.files['/$appName/backup.zip'] = [9];
+        await client.uploadVersion(writeArchive([1]).path);
+        final latest = (await client.listBackups()).first;
+        await client.saveNote(latest.name, 'Disposable');
+        await client.deleteVersion(latest.name);
+        expect((await client.listBackups()).single.name, 'backup.zip');
+        expect(
+          server.files.containsKey('/$appName/${latest.name}.note.json'),
+          isFalse,
+        );
+        await expectLater(
+          client.deleteVersion('../backup.zip'),
+          throwsFormatException,
+        );
+        await expectLater(
+          client.saveNote('../backup.zip', 'unsafe'),
+          throwsFormatException,
+        );
+        expect(server.files['/$appName/backup.zip'], [9]);
       },
     );
 

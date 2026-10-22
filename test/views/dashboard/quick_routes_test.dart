@@ -45,6 +45,7 @@ void main() {
         profilesProvider.overrideWith(
           () => TestProfiles([
             const Profile(id: 1, autoUpdateDuration: Duration.zero),
+            const Profile(id: 2, autoUpdateDuration: Duration.zero),
           ]),
         ),
         currentProfileIdProvider.overrideWithBuild((_, _) => 1),
@@ -62,6 +63,11 @@ void main() {
   tearDown(() => container.dispose());
 
   Future<void> pumpCard(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    container.read(viewSizeProvider.notifier).value = const Size(1200, 1000);
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -72,7 +78,7 @@ void main() {
               scale: 1,
               child: SizedBox(
                 width: 380,
-                height: 152,
+                height: 208,
                 child: QuickRoutesCard(),
               ),
             ),
@@ -118,10 +124,18 @@ void main() {
     await pumpCard(tester);
     await tester.tap(find.text('DMIT protocol'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Proxy group').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Transport type'));
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
     expect(
-      container.read(appSettingProvider).dashboardQuickGroups['dmit'],
+      container
+          .read(appSettingProvider)
+          .profileQuickRoutes['1']!
+          .singleWhere((route) => route.id == 'dmit')
+          .groupName,
       'Transport type',
     );
     expect(find.text('VLESS Reality'), findsOneWidget);
@@ -164,14 +178,68 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Proxy exit').last);
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Proxy group').last);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Secondary'));
     await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Save'));
+    await tester.pumpAndSettle();
     expect(
-      container.read(appSettingProvider).dashboardQuickGroups['proxy'],
+      container
+          .read(appSettingProvider)
+          .profileQuickRoutes['1']!
+          .singleWhere((route) => route.id == 'proxy')
+          .groupName,
       'Secondary',
     );
+    Navigator.of(tester.element(find.text('Proxy exit').last)).pop();
+    await tester.pumpAndSettle();
     expect(find.text('Other-A'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await close(tester);
   });
+
+  testWidgets(
+    'favorite and recent choices are saved only for the active profile',
+    (tester) async {
+      await pumpCard(tester);
+      await tester.tap(find.text('Proxy exit'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Add to favorites').last);
+      await tester.pumpAndSettle();
+      expect(
+        container.read(appSettingProvider).quickRouteFavorites['1:🌐 Proxy'],
+        ['Proxy-B'],
+      );
+      await tester.tap(find.text('Proxy-B'));
+      await tester.pumpAndSettle();
+      expect(
+        container.read(appSettingProvider).quickRouteRecents['1:🌐 Proxy'],
+        ['Proxy-B'],
+      );
+      expect(
+        container.read(appSettingProvider).quickRouteFavorites['2:🌐 Proxy'],
+        isNull,
+      );
+      await close(tester);
+    },
+  );
+
+  testWidgets(
+    'a picker opened for another profile cannot change its replacement',
+    (tester) async {
+      await pumpCard(tester);
+      await tester.tap(find.text('Proxy exit'));
+      await tester.pumpAndSettle();
+      final picker = tester.widget<SelectionSheet<String>>(
+        find.byType(SelectionSheet<String>),
+      );
+      container.read(currentProfileIdProvider.notifier).value = 2;
+      picker.onSelected('Proxy-B');
+      await tester.pump();
+      expect(action.calls, isEmpty);
+      expect(container.read(appSettingProvider).quickRouteRecents, isEmpty);
+      await close(tester);
+    },
+  );
 }

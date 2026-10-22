@@ -5,8 +5,41 @@ import 'package:fl_clash/models/models.dart';
 Set<String> matchExcludedProxyNames(
   ({String pattern, List<String> names}) input,
 ) {
+  return matchProxyNameFilter((
+    pattern: input.pattern,
+    names: input.names,
+    plainText: false,
+  ));
+}
+
+class ProxyFilterNames {
+  ProxyFilterNames(Iterable<Group> groups)
+    : names = groups
+          .expand((group) => group.all)
+          .map((proxy) => proxy.name)
+          .toSet();
+
+  final Set<String> names;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ProxyFilterNames &&
+      names.length == other.names.length &&
+      names.containsAll(other.names);
+
+  @override
+  int get hashCode => Object.hashAllUnordered(names);
+}
+
+Set<String> matchProxyNameFilter(
+  ({String pattern, List<String> names, bool plainText}) input,
+) {
+  if (input.pattern.isEmpty) return {};
   try {
-    final matcher = RegExp(input.pattern, caseSensitive: false);
+    final matcher = RegExp(
+      input.plainText ? RegExp.escape(input.pattern) : input.pattern,
+      caseSensitive: false,
+    );
     return input.names.where(matcher.hasMatch).toSet();
   } on FormatException {
     return {};

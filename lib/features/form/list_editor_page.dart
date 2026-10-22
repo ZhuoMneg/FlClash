@@ -18,6 +18,9 @@ typedef ListEditorItemBuilder<T> =
 
 class ListEditorPage<T, K> extends ConsumerStatefulWidget {
   final String title;
+  final Widget? titleWidget;
+  final List<IconButtonData> iconActions;
+  final Widget? header;
   final List<T>? Function(WidgetRef ref) itemsOf;
   final ListEditorItemBuilder<T> itemBuilder;
   final void Function(int oldIndex, int newIndex) onReorder;
@@ -34,6 +37,9 @@ class ListEditorPage<T, K> extends ConsumerStatefulWidget {
   const ListEditorPage({
     super.key,
     required this.title,
+    this.titleWidget,
+    this.iconActions = const [],
+    this.header,
     required this.itemsOf,
     required this.itemBuilder,
     required this.onReorder,
@@ -201,6 +207,8 @@ class _ListEditorPageState<T, K> extends ConsumerState<ListEditorPage<T, K>> {
           !isSelecting &&
           (loadedItems?.length ?? 0) > 1,
       title: widget.title,
+      titleWidget: widget.titleWidget,
+      iconActions: widget.iconActions,
       searchState: widget.searchFieldsOf != null
           ? AppBarSearchState(onSearch: _handleSearch)
           : null,
@@ -213,36 +221,52 @@ class _ListEditorPageState<T, K> extends ConsumerState<ListEditorPage<T, K>> {
           ),
       ],
       selectionActions: isSelecting ? selectionActions : const [],
-      body: NullStatusSwitcher(
-        isLoading: loadedItems == null,
-        isEmpty: items.isEmpty,
-        isSearching: isSearching,
-        nullStatus: NullStatus(label: widget.emptyLabel),
-        child: Builder(
-          builder: (context) {
-            final rowAt = _rowsOf(
-              context,
-              items,
-              selected,
-              reorderable: !isSearching,
-            );
-            return CommonScrollBar(
-              controller: _scrollController,
-              child: _ArrivalScroll(
-                builder: (cacheExtent) => isSearching
-                    ? _buildSearchResults(context, items, rowAt, cacheExtent)
-                    : _buildReorderableList(context, items, rowAt, cacheExtent),
-              ),
-            );
-          },
-        ),
-      ),
+      body: widget.header == null
+          ? _buildBody(loadedItems, items, isSearching, selected)
+          : Column(
+              children: [
+                AppBarClearance(child: widget.header!),
+                Expanded(
+                  child: _buildBody(loadedItems, items, isSearching, selected),
+                ),
+              ],
+            ),
     );
   }
 
+  Widget _buildBody(
+    List<T>? loadedItems,
+    List<T> items,
+    bool isSearching,
+    Set<K> selected,
+  ) => NullStatusSwitcher(
+    isLoading: loadedItems == null,
+    isEmpty: items.isEmpty,
+    isSearching: isSearching,
+    nullStatus: NullStatus(label: widget.emptyLabel),
+    child: Builder(
+      builder: (context) {
+        final rowAt = _rowsOf(
+          context,
+          items,
+          selected,
+          reorderable: !isSearching,
+        );
+        return CommonScrollBar(
+          controller: _scrollController,
+          child: _ArrivalScroll(
+            builder: (cacheExtent) => isSearching
+                ? _buildSearchResults(context, items, rowAt, cacheExtent)
+                : _buildReorderableList(context, items, rowAt, cacheExtent),
+          ),
+        );
+      },
+    ),
+  );
+
   EdgeInsets _listPadding(BuildContext context) => EdgeInsets.fromLTRB(
     16,
-    context.contentTopPadding,
+    widget.header == null ? context.contentTopPadding : 8,
     16,
     24 + BottomInsetScope.of(context),
   );

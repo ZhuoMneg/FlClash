@@ -60,7 +60,10 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
   GroupOffsets _getGroupOffsets() {
     final state = ref.read(proxiesListStateProvider);
     final offsets = <double>[];
-    final rowExtent = getRowExtent(state.proxyCardType);
+    final rowExtent = getRowExtent(
+      state.proxyCardType,
+      compact: ref.read(appSettingProvider).compactUi,
+    );
     final columnOffsets = List.filled(_groupColumns, 0.0);
     for (final (index, group) in state.groups.indexed) {
       final column = index % _groupColumns;
@@ -150,7 +153,10 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
       proxies: proxies,
       selectedProxyName: ref.read(selectedProxyNameProvider(groupName)),
       columns: _columns,
-      rowExtent: getRowExtent(cardType),
+      rowExtent: getRowExtent(
+        cardType,
+        compact: ref.read(appSettingProvider).compactUi,
+      ),
     );
     if (rowOffset == null) {
       return;
@@ -160,6 +166,7 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(appSettingProvider.select((state) => state.compactUi));
     final appLocalizations = context.appLocalizations;
     return Consumer(
       builder: (_, ref, _) {
@@ -314,6 +321,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
     with SingleTickerProviderStateMixin {
   Widget? _rows;
   double _rowExtent = 0;
+  bool _compact = false;
   late final _controller = AnimationController(
     vsync: this,
     value: ref.read(unfoldSetProvider).contains(widget.group.name) ? 1 : 0,
@@ -362,7 +370,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
         .map<Widget>(
           (proxy) => Flexible(
             child: SizedBox(
-              height: getItemHeight(cardType),
+              height: getItemHeight(cardType, compact: _compact),
               child: ProxyCard(
                 testUrl: group.testUrl,
                 type: cardType,
@@ -445,6 +453,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
 
   @override
   Widget build(BuildContext context) {
+    _compact = ref.watch(appSettingProvider.select((state) => state.compactUi));
     final groupName = widget.group.name;
     final isExpand = ref.watch(
       unfoldSetProvider.select((state) => state.contains(groupName)),
@@ -452,7 +461,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
     final unfolded = _controller.isCompleted;
     Widget? rows;
     if (!_controller.isDismissed && widget.group.all.isNotEmpty) {
-      final extent = getRowExtent(widget.cardType);
+      final extent = getRowExtent(widget.cardType, compact: _compact);
       final decoration = ShapeDecoration(
         color: context.raisedSurfaceLevel.colorOf(context.colorScheme),
         shape: AppShape.vertical(
@@ -521,7 +530,10 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
         listHeaderHeight +
         (_controller.isDismissed
             ? 0.0
-            : _rowsExtent(rowCount, getRowExtent(widget.cardType)));
+            : _rowsExtent(
+                rowCount,
+                getRowExtent(widget.cardType, compact: _compact),
+              ));
     (double, double, double, Color)? headerState;
     Widget? header;
     return SliverLayoutBuilder(

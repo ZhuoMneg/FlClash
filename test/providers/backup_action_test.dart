@@ -334,6 +334,61 @@ void main() {
   });
 
   group('applyRestore writes the settings providers', () {
+    test(
+      'full restore can retain the current DAV account and chosen strategy',
+      () async {
+        final source = buildContainer();
+        source.read(davSettingProvider.notifier).value = const DAVProps(
+          uri: 'https://old-dav.example',
+          user: 'old',
+          fileName: 'old.zip',
+        );
+        final configMap = configMapOf(source);
+        final target = buildContainer();
+        const current = DAVProps(
+          uri: 'https://current-dav.example',
+          user: 'current',
+          fileName: 'current.zip',
+        );
+        target.read(davSettingProvider.notifier).value = current;
+
+        await actionOf(target).applyRestore(
+          MigrationData(configMap: configMap),
+          RestoreOption.all,
+          strategy: RestoreStrategy.override,
+          keepWebDAV: true,
+        );
+        expect(target.read(davSettingProvider), current);
+        expect(
+          target.read(appSettingProvider).restoreStrategy,
+          RestoreStrategy.override,
+        );
+      },
+    );
+
+    test(
+      'the per-restore strategy takes precedence over the stored default',
+      () async {
+        final container = buildContainer();
+        await testDatabase.profilesDao.putAll([
+          _profile(9, 'Pre-existing').toCompanion(0),
+        ]);
+        await actionOf(container).applyRestore(
+          MigrationData(profiles: [_profile(1, 'Restored')]),
+          RestoreOption.onlyProfiles,
+          strategy: RestoreStrategy.override,
+        );
+        expect(
+          (await testDatabase.profilesDao.query().get()).map((item) => item.id),
+          [1],
+        );
+        expect(
+          container.read(appSettingProvider).restoreStrategy,
+          RestoreStrategy.override,
+        );
+      },
+    );
+
     test('restores every settings provider the config carries', () async {
       final source = buildContainer();
       source

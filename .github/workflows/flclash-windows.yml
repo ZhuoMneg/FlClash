@@ -53,6 +53,8 @@ jobs:
         run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
       - name: Verify added utilities
         run: flutter test test/common/node_exclusion_test.dart test/providers/node_exclusion_test.dart test/common/compute_test.dart test/common/webdav_test.dart test/common/dav_client_test.dart test/views/settings_search_test.dart test/views/backup_versions_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart --concurrency 2
+      - name: Verify routing and usability workflows
+        run: flutter test test/views/routing_test.dart test/features/connection test/views/navigation_settings_test.dart test/views/restore_confirmation_test.dart test/views/dashboard/quick_route_helpers_test.dart test/views/dashboard/custom_layout_test.dart --concurrency 2
       - name: Verify settings destinations
         run: flutter test test/widgets/views_smoke_test.dart --name 'settings opens|settings renders its default state'
 

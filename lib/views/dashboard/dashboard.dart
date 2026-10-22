@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
@@ -45,15 +46,14 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   @override
   Widget build(BuildContext context) {
     final platform = widget.platform ?? SupportPlatform.currentPlatform;
-    final viewSize = ref.watch(viewSizeProvider);
-    final sideWidth = ref.watch(sideWidthProvider);
     final scale = math.max(1.0, MediaQuery.textScalerOf(context).scale(1));
-    final size = Size(viewSize.width - sideWidth, viewSize.height) / scale;
-    final editable = !DashboardDensity.of(size).isDesktop;
-    if (!editable) {
-      _editing = false;
-    }
     final editing = _editing;
+    final customized = ref.watch(
+      appSettingProvider.select((state) => state.desktopDashboardCustomized),
+    );
+    final compactUi = ref.watch(
+      appSettingProvider.select((state) => state.compactUi),
+    );
     final gap = cardSpacingOf(context, ref.watch(viewModeProvider));
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
@@ -71,27 +71,55 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             )
           : null,
       iconActions: [
-        if (editable && !editing)
+        if (!editing)
           IconButtonData(
             glyph: AppGlyphs.edit,
             tooltip: appLocalizations.editDashboard,
             onPressed: () => _setEditing(true),
           ),
       ],
+      menuItems: [
+        CommonPopupMenuItem(
+          glyph: AppGlyphs.reset,
+          label: appLocalizations.reset,
+          onPressed: () {
+            ref
+                .read(appSettingProvider.notifier)
+                .update(
+                  (state) => state.copyWith(
+                    dashboardWidgets: defaultDashboardWidgets,
+                    desktopDashboardCustomized: false,
+                  ),
+                );
+            _setEditing(false);
+          },
+        ),
+      ],
       // The providers learn a resize a frame late, too late for the cards.
       body: LayoutBuilder(
         builder: (context, constraints) {
           final room = constraints.biggest / scale;
-          final layout = DashboardDensity.of(room);
+          final automatic = DashboardDensity.of(room);
+          final layout = editing
+              ? DashboardDensity.mobile
+              : compactUi && automatic.isDesktop
+              ? DashboardDensity.compact
+              : automatic;
           return DashboardDensityScope(
             density: layout,
             scale: scale,
             child: layout.isDesktop
-                ? _DesktopDashboard(
-                    platform: platform,
-                    columns: dashboardColumnsOf(room.width),
-                    gap: gap,
-                  )
+                ? customized
+                      ? _CustomDesktopDashboard(
+                          platform: platform,
+                          columns: dashboardColumnsOf(room.width),
+                          gap: gap,
+                        )
+                      : _DesktopDashboard(
+                          platform: platform,
+                          columns: dashboardColumnsOf(room.width),
+                          gap: gap,
+                        )
                 : _MobileDashboard(
                     platform: platform,
                     gap: gap,
@@ -352,4 +380,83 @@ class _MobileDashboard extends ConsumerWidget {
       ],
     );
   }
+}
+
+class _CustomDesktopDashboard extends ConsumerWidget {
+  const _CustomDesktopDashboard({
+    required this.platform,
+    required this.columns,
+    required this.gap,
+  });
+
+  final SupportPlatform platform;
+  final int columns;
+  final double gap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scale = DashboardDensityScope.scaleOf(context);
+    final saved = ref.watch(
+      dashboardStateProvider.select((state) => state.dashboardWidgets),
+    );
+    final cards = [
+      for (final card in saved)
+        if (card.platforms.contains(platform)) card,
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final available = constraints.maxWidth - 32 - gap * (columns - 1);
+        final unit = available / columns;
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: gap,
+            runSpacing: gap,
+            children: [
+              for (final card in cards)
+                SizedBox(
+                  key: ValueKey('desktop-${card.name}'),
+                  width: unit * _span(card) + gap * (_span(card) - 1),
+                  height: _height(card) * scale,
+                  child: RepaintBoundary(
+                    child: card == DashboardWidget.networkSpeed
+                        ? Row(
+                            spacing: gap,
+                            children: const [
+                              Expanded(
+                                child: SpeedCard(
+                                  direction: TrafficDirection.upload,
+                                ),
+                              ),
+                              Expanded(
+                                child: SpeedCard(
+                                  direction: TrafficDirection.download,
+                                ),
+                              ),
+                            ],
+                          )
+                        : card.card,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  int _span(DashboardWidget card) => switch (card) {
+    DashboardWidget.currentOutbound ||
+    DashboardWidget.networkSpeed ||
+    DashboardWidget.proxyGroups ||
+    DashboardWidget.connectionStats => 2,
+    _ => 1,
+  };
+
+  double _height(DashboardWidget card) => switch (card) {
+    DashboardWidget.currentOutbound || DashboardWidget.networkSpeed => 224,
+    DashboardWidget.proxyGroups => 320,
+    DashboardWidget.outboundMode || DashboardWidget.vpnButton => 144,
+    _ => 224,
+  };
 }

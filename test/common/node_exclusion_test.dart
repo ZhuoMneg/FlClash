@@ -4,6 +4,40 @@ import 'package:fl_clash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('plain text matches regex punctuation literally and ignores case', () {
+    expect(
+      matchProxyNameFilter((
+        pattern: '[Info]',
+        names: ['[INFO] remaining', 'Tokyo', 'Info plain'],
+        plainText: true,
+      )),
+      {'[INFO] remaining'},
+    );
+    expect(
+      matchProxyNameFilter((pattern: '', names: ['Tokyo'], plainText: true)),
+      isEmpty,
+    );
+  });
+
+  test('filter names ignore selection, ordering and duplicate memberships', () {
+    const group = Group(
+      name: 'Proxy',
+      type: GroupType.Selector,
+      now: 'Tokyo',
+      all: [
+        Proxy(name: 'Tokyo', type: 'ss'),
+        Proxy(name: 'Paris', type: 'ss'),
+      ],
+    );
+    expect(
+      ProxyFilterNames([group]),
+      ProxyFilterNames([
+        group.copyWith(now: 'Paris', all: group.all.reversed.toList()),
+        group,
+      ]),
+    );
+  });
+
   test('node-name regex handles Unicode and ignores case', () {
     expect(
       matchExcludedProxyNames((

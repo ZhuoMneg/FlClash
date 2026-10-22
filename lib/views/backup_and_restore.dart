@@ -15,7 +15,12 @@ import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/widgets/config_item.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'package:path/path.dart' show basename;
+
+import 'backup_history.dart';
+import 'restore_confirmation.dart';
+
+export 'backup_history.dart' show BackupVersionsSheet;
 
 class BackupAndRestore extends ConsumerStatefulWidget {
   const BackupAndRestore({super.key});
@@ -81,19 +86,30 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
     );
   }
 
-  Future<void> _restore(RestoreOption option, BackupFetch fetch) {
+  Future<void> _restore(RestoreSelection selection, BackupFetch fetch) {
     final appLocalizations = context.appLocalizations;
     return _run(
       title: appLocalizations.restore,
       successMessage: appLocalizations.restoreSuccess,
-      task: () =>
-          ref.read(backupActionProvider.notifier).restore(option, fetch),
+      task: () => ref
+          .read(backupActionProvider.notifier)
+          .restore(
+            selection.option,
+            fetch,
+            strategy: selection.strategy,
+            keepWebDAV: selection.keepWebDAV,
+          ),
     );
   }
 
-  Future<RestoreOption?> _pickRestoreOption() {
-    return dialogs.showCommonDialog<RestoreOption>(
-      child: const RestoreOptionsDialog(),
+  Future<RestoreSelection?> _pickRestoreOption(String backupLabel) {
+    return showFormSheet<RestoreSelection>(
+      context: context,
+      builder: (_) => RestoreConfirmationForm(
+        backupLabel: backupLabel,
+        strategy: ref.read(appSettingProvider).restoreStrategy,
+        hasWebDAV: ref.read(davSettingProvider) != null,
+      ),
     );
   }
 
@@ -121,14 +137,30 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
     }
     final backup = await showSheet<DAVBackup>(
       context: context,
-      builder: (sheetContext) => BackupVersionsSheet(backups: backups),
+      builder: (sheetContext) => BackupVersionsSheet(
+        backups: backups,
+        onDelete: (backup) async {
+          if (!mounted || !identical(client, _davConnection.client)) {
+            throw StateError(currentAppLocalizations.backupAccountChanged);
+          }
+          await client.deleteVersion(backup.name);
+        },
+        onSaveNote: (backup, note) async {
+          if (!mounted || !identical(client, _davConnection.client)) {
+            throw StateError(currentAppLocalizations.backupAccountChanged);
+          }
+          await client.saveNote(backup.name, note);
+        },
+      ),
     );
     if (backup == null ||
         !mounted ||
         !identical(client, _davConnection.client)) {
       return;
     }
-    final option = await _pickRestoreOption();
+    final option = await _pickRestoreOption(
+      backupVersionLabel(context, backup),
+    );
     if (option == null ||
         !mounted ||
         !identical(client, _davConnection.client)) {
@@ -151,11 +183,11 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
   }
 
   Future<void> _restoreOnLocal() async {
-    final option = await _pickRestoreOption();
-    if (option == null || !mounted) return;
     final file = await picker.pickerFile();
     final path = file?.path;
     if (path == null || !mounted) return;
+    final option = await _pickRestoreOption(basename(path));
+    if (option == null || !mounted) return;
     await _restore(option, (_) async => path);
   }
 
@@ -284,31 +316,6 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
           ),
         ],
       ),
-    );
-  }
-}
-
-class BackupVersionsSheet extends StatelessWidget {
-  const BackupVersionsSheet({super.key, required this.backups});
-
-  final List<DAVBackup> backups;
-
-  @override
-  Widget build(BuildContext context) {
-    return SelectionSheet<DAVBackup>(
-      title: context.appLocalizations.selectBackupVersion,
-      sections: [
-        SelectionSection(
-          items: backups,
-          subtitleBuilder: (_, backup) => backup.name,
-        ),
-      ],
-      labelBuilder: (backup) => backup.createdAt == null
-          ? backup.name
-          : DateFormat.yMd().add_Hms().format(backup.createdAt!.toLocal()),
-      selectedOf: (_) => null,
-      onSelected: (backup) => Navigator.of(context).pop(backup),
-      emptyLabel: context.appLocalizations.noBackupFileFound,
     );
   }
 }

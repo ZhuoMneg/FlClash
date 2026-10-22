@@ -1,6 +1,7 @@
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/config/advanced.dart';
+import 'package:fl_clash/views/config/dns.dart';
+import 'package:fl_clash/views/config/general.dart';
 import 'package:fl_clash/views/tools.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,11 +43,11 @@ void main() {
     await openSearch(tester);
     await tester.enterText(find.byType(TextField), 'DNS');
     await tester.pumpAndSettle();
-    expect(find.text('Advanced configuration'), findsOneWidget);
+    expect(find.text('Settings › Advanced configuration'), findsOneWidget);
     expect(find.text('Language'), findsNothing);
-    await tester.tap(find.text('Advanced configuration'));
+    await tester.tap(find.byKey(const ValueKey('setting-result-dns')));
     await tester.pumpAndSettle();
-    expect(find.byType(AdvancedConfigView), findsOneWidget);
+    expect(find.byType(DnsView), findsOneWidget);
     expect(find.text('DNS'), findsWidgets);
   });
 
@@ -57,7 +58,13 @@ void main() {
       final search = find.byType(TextField);
       await tester.enterText(search, 'WebDAV');
       await tester.pumpAndSettle();
-      expect(find.text('Backup and restore'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('setting-result-webdav')),
+          matching: find.text('WebDAV'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Theme'), findsNothing);
       await tester.enterText(search, 'Developer');
       await tester.pumpAndSettle();
@@ -69,6 +76,27 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Theme'), findsOneWidget);
       expect(find.text('Language'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'a result reveals and highlights an option below the first screen',
+    (tester) async {
+      await openSearch(tester);
+      tester.view.physicalSize = const Size(900, 600);
+      container.read(viewSizeProvider.notifier).value = const Size(900, 600);
+      await tester.enterText(find.byType(TextField), 'log level');
+      await tester.pumpAndSettle();
+      expect(find.text('Settings › General'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('setting-result-log-level')));
+      await tester.pumpAndSettle();
+      expect(find.byType(GeneralView), findsOneWidget);
+      final highlight = find.byKey(const ValueKey('settings-search-highlight'));
+      expect(highlight, findsOneWidget);
+      final rect = tester.getRect(highlight);
+      expect(rect.top, greaterThanOrEqualTo(0));
+      expect(rect.bottom, lessThanOrEqualTo(600));
+      expect(find.text('Log level').hitTestable(), findsOneWidget);
     },
   );
 }

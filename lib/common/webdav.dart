@@ -154,6 +154,10 @@ class DAVTransport {
     return data is List<int> ? Uint8List.fromList(data) : Uint8List(0);
   }
 
+  Future<void> delete(String path) async {
+    await _send('DELETE', path, accept: const {200, 202, 204, 404});
+  }
+
   Future<List<String>> listFiles(String path) async {
     final response = await _send(
       'PROPFIND',

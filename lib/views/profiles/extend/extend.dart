@@ -11,8 +11,19 @@ import 'standard.dart';
 
 class ExtendView extends ConsumerStatefulWidget {
   final int profileId;
+  final Widget? titleWidget;
+  final Widget? header;
+  final List<IconButtonData> iconActions;
+  final bool applyOnDispose;
 
-  const ExtendView({super.key, required this.profileId});
+  const ExtendView({
+    super.key,
+    required this.profileId,
+    this.titleWidget,
+    this.header,
+    this.iconActions = const [],
+    this.applyOnDispose = true,
+  });
 
   @override
   ConsumerState<ExtendView> createState() => _ExtendViewState();
@@ -35,11 +46,15 @@ class _ExtendViewState extends ConsumerState<ExtendView> {
       profileId: widget.profileId,
       child: CommonScaffold(
         title: appLocalizations.extend,
+        titleWidget: widget.titleWidget,
+        iconActions: widget.iconActions,
         body: ScrollConfiguration(
           behavior: const ShowBarScrollBehavior(),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: SizedBox(height: context.appBarInset)),
+              if (widget.header != null)
+                SliverToBoxAdapter(child: widget.header!),
               const _Title(),
               const _Content(),
             ],
@@ -51,7 +66,7 @@ class _ExtendViewState extends ConsumerState<ExtendView> {
 
   @override
   void dispose() {
-    _setupAction.autoApplyProfile();
+    if (widget.applyOnDispose) _setupAction.autoApplyProfile();
     super.dispose();
   }
 }

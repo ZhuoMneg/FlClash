@@ -219,6 +219,18 @@ abstract class Filter with _$Filter {
 }
 
 @freezed
+abstract class QuickRouteShortcut with _$QuickRouteShortcut {
+  const factory QuickRouteShortcut({
+    required String id,
+    @Default('') String label,
+    @Default('') String groupName,
+  }) = _QuickRouteShortcut;
+
+  factory QuickRouteShortcut.fromJson(Map<String, Object?> json) =>
+      _$QuickRouteShortcutFromJson(json);
+}
+
+@freezed
 abstract class AppSettingProps with _$AppSettingProps {
   const factory AppSettingProps({
     String? locale,
@@ -226,6 +238,13 @@ abstract class AppSettingProps with _$AppSettingProps {
     @JsonKey(fromJson: dashboardWidgetsFromJson)
     List<DashboardWidget> dashboardWidgets,
     @Default({}) Map<String, String> dashboardQuickGroups,
+    @Default({}) Map<String, List<QuickRouteShortcut>> profileQuickRoutes,
+    @Default({}) Map<String, List<String>> quickRouteFavorites,
+    @Default({}) Map<String, List<String>> quickRouteRecents,
+    @Default(false) bool desktopDashboardCustomized,
+    @Default(false) bool compactUi,
+    @Default([]) List<String> pinnedTools,
+    @Default([]) List<String> sidebarOrder,
     @Default(false) bool onlyStatisticsProxy,
     @Default(true) bool showNotificationStopAction,
     @Default(false) bool autoLaunch,
@@ -413,6 +432,7 @@ abstract class ProxiesStyleProps with _$ProxiesStyleProps {
     ProxyCardType cardType,
     @Default(false) bool hideTimeoutProxies,
     @Default('') String nodeExcludeFilter,
+    @Default(false) bool nodeExcludePlainText,
   }) = _ProxiesStyleProps;
 
   factory ProxiesStyleProps.fromJson(Map<String, Object?>? json) => json == null

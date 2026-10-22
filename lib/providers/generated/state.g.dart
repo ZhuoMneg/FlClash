@@ -1928,7 +1928,7 @@ final class ExcludedProxyNamesProvider
 }
 
 String _$excludedProxyNamesHash() =>
-    r'77b7bef7d0927d5affc2822912c8d439bfd2bfa4';
+    r'b989a3aa8058c9fc8df97236082fb12ddda56493';
 
 @ProviderFor(nodeFilteredGroupsState)
 final nodeFilteredGroupsStateProvider = NodeFilteredGroupsStateProvider._();
@@ -1970,7 +1970,7 @@ final class NodeFilteredGroupsStateProvider
 }
 
 String _$nodeFilteredGroupsStateHash() =>
-    r'0be136273683becb6d842dbc5bee194833121c8f';
+    r'1b9ff3e7e86b9d185e302b09a9c5fc974c7e9ab3';
 
 /// Searches before hiding, so a group whose matches all timed out keeps them,
 /// and with them its delay test, instead of dropping out of the results.
@@ -2951,7 +2951,7 @@ final class NavigationItemsStateProvider
 }
 
 String _$navigationItemsStateHash() =>
-    r'3c633d4f3e5f2e80b7cfd166a46397f9a207bb1e';
+    r'fc2ee822f88fe5673cfa583b0724daa38695d7a6';
 
 @ProviderFor(currentNavigationItemsState)
 final currentNavigationItemsStateProvider =
@@ -3000,7 +3000,7 @@ final class CurrentNavigationItemsStateProvider
 }
 
 String _$currentNavigationItemsStateHash() =>
-    r'06fbdc194f4527b945695fe3b72b16e0585fa440';
+    r'99a932b0c516c7bc681ee73e814a7ec04a028902';
 
 @ProviderFor(shownPageLabel)
 final shownPageLabelProvider = ShownPageLabelProvider._();

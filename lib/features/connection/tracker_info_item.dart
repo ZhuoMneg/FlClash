@@ -1,5 +1,6 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/connection/request_routing_actions.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
@@ -290,7 +291,7 @@ class TrackerInfoDetailView extends StatelessWidget {
           ]),
         ),
         generateSection(
-          title: appLocalizations.proxies,
+          title: appLocalizations.requestRecordedRoute,
           items: [
             ..._buildRows([
               (appLocalizations.specialProxy, metadata.specialProxy),
@@ -300,6 +301,7 @@ class TrackerInfoDetailView extends StatelessWidget {
             _buildChains(context),
           ],
         ),
+        RequestRoutingActions(request: trackerInfo),
       ],
     );
   }

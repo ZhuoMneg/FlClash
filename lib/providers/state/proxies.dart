@@ -74,26 +74,36 @@ GroupsState visibleGroupsState(Ref ref) {
 
 @riverpod
 Future<Set<String>> excludedProxyNames(Ref ref) async {
-  final pattern = ref
-      .watch(
-        proxiesStyleSettingProvider.select((state) => state.nodeExcludeFilter),
-      )
-      .trim();
+  final filter = ref.watch(
+    proxiesStyleSettingProvider.select(
+      (state) => (
+        pattern: state.nodeExcludeFilter.trim(),
+        plainText: state.nodeExcludePlainText,
+      ),
+    ),
+  );
+  final pattern = filter.pattern;
   if (pattern.isEmpty) return {};
-  final names = ref
-      .watch(groupsProvider)
-      .expand((group) => group.all)
-      .map((proxy) => proxy.name)
-      .toSet()
-      .toList();
-  return compute(matchExcludedProxyNames, (pattern: pattern, names: names));
+  final names = ref.watch(groupsProvider.select(ProxyFilterNames.new)).names;
+  return compute(matchProxyNameFilter, (
+    pattern: pattern,
+    names: names.toList(),
+    plainText: filter.plainText,
+  ));
 }
 
 @riverpod
 GroupsState nodeFilteredGroupsState(Ref ref) {
   final groups = ref.watch(currentGroupsStateProvider);
+  if (ref.watch(
+    proxiesStyleSettingProvider.select(
+      (state) => state.nodeExcludeFilter.trim().isEmpty,
+    ),
+  )) {
+    return groups;
+  }
   final excluded =
-      ref.watch(excludedProxyNamesProvider).asData?.value ?? const <String>{};
+      ref.watch(excludedProxyNamesProvider).value ?? const <String>{};
   if (excluded.isEmpty) return groups;
   return groups.copyWith(
     value: computeExcludeProxies(

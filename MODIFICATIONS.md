@@ -28,3 +28,22 @@ third-party notices are retained.
 Release notes identify the exact source commit for each published binary. Clone
 release source with `--recursive` to include the pinned core submodule; build
 commands and dependencies are in `.agents/commands.md`.
+
+## Usability update — 2026-10-22
+
+This update keeps the v0.9.1 stable baseline. Upstream v0.9.2-pre.1 is deferred
+until the stable release so its UI, desktop and core changes can be verified
+together with these customizations.
+
+- Apply committed routing edits to the running core without leaving the routing
+  tab; show the active profile, apply status and retry action.
+- Keep customizable quick routes, favorites and recent nodes per profile.
+- Edit desktop dashboard cards, their order and visibility; restore the default.
+- Search settings by option and path, then reveal and highlight the result.
+- Filter and pause request history; create a confirmed domain rule from a request,
+  or explicitly check the domain with a fresh HTTPS request.
+- Preview node exclusions in plain-text or regular-expression mode without list
+  flicker during recomputation.
+- Label, annotate and manually delete WebDAV backups; review restore scope,
+  merge/replace strategy and account preservation together.
+- Offer compact node cards and configurable pinned sidebar tools.

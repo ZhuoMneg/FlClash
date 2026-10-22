@@ -14,7 +14,17 @@ import 'quick_edit.dart';
 class CustomRulesView extends ConsumerStatefulWidget {
   final int profileId;
 
-  const CustomRulesView(this.profileId, {super.key});
+  final Widget? titleWidget;
+  final Widget? header;
+  final List<IconButtonData> iconActions;
+
+  const CustomRulesView(
+    this.profileId, {
+    super.key,
+    this.titleWidget,
+    this.header,
+    this.iconActions = const [],
+  });
 
   @override
   ConsumerState createState() => _CustomRulesViewState();
@@ -144,6 +154,9 @@ class _CustomRulesViewState extends ConsumerState<CustomRulesView> {
     final profileData = ref.watch(customProfileDataProvider(_profileId));
     return ListEditorPage<Rule, int>(
       title: appLocalizations.rule,
+      titleWidget: widget.titleWidget,
+      header: widget.header,
+      iconActions: widget.iconActions,
       idOf: (rule) => rule.id,
       itemsOf: (ref) {
         return ref.watch(profileRulesProvider(_profileId)).value;

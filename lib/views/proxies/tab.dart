@@ -87,7 +87,10 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       proxies: group.all,
       selectedProxyName: ref.read(selectedProxyNameProvider(group.name)),
       columns: _columns,
-      rowExtent: getRowExtent(cardType),
+      rowExtent: getRowExtent(
+        cardType,
+        compact: ref.read(appSettingProvider).compactUi,
+      ),
     );
     if (rowOffset == null) {
       return;
@@ -265,7 +268,12 @@ class ProxyGroupView extends ConsumerWidget {
           crossAxisCount: columns,
           mainAxisSpacing: proxyGridSpacing,
           crossAxisSpacing: 8,
-          mainAxisExtent: getItemHeight(cardType),
+          mainAxisExtent: getItemHeight(
+            cardType,
+            compact: ref.watch(
+              appSettingProvider.select((state) => state.compactUi),
+            ),
+          ),
         ),
         itemCount: proxies.length,
         addAutomaticKeepAlives: false,

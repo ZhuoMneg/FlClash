@@ -6,6 +6,8 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'node_exclusion.dart';
+
 class ProxiesSetting extends ConsumerWidget {
   const ProxiesSetting({super.key});
 
@@ -108,23 +110,18 @@ class ProxiesSetting extends ConsumerWidget {
             title: appLocalizations.filter,
             footer: appLocalizations.hideTimeoutProxiesDesc,
             items: [
-              ConfigTextItem(
-                title: (l) => l.nodeExclusion,
-                selector: proxiesStyleSettingProvider.select(
-                  (state) => state.nodeExcludeFilter,
+              ListItem(
+                title: Text(appLocalizations.nodeExclusion),
+                subtitle: Text(
+                  ref.watch(
+                    proxiesStyleSettingProvider.select(
+                      (state) => state.nodeExcludeFilter,
+                    ),
+                  ),
                 ),
-                allowEmpty: true,
-                validator: (value, l) {
-                  try {
-                    RegExp(value ?? '');
-                    return null;
-                  } on FormatException catch (error) {
-                    return l.customIssueInvalidFilter(l.regex, error.message);
-                  }
-                },
-                normalize: (value) => value.trim(),
-                onChanged: _writer(
-                  (state, value) => state.copyWith(nodeExcludeFilter: value),
+                onTap: () => showFormSheet<void>(
+                  context: context,
+                  builder: (_) => const NodeExclusionForm(),
                 ),
               ),
               ConfigToggleItem(
