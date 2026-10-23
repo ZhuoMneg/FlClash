@@ -472,10 +472,10 @@ enum DashboardWidget {
   serviceStatus,
   profiles,
   proxyGroups,
-  connectionStats,
+  connectionStats(platforms: []),
   intranetIp,
   memoryInfo,
-  quickRoutes;
+  quickRoutes(platforms: []);
 
   final List<SupportPlatform> platforms;
 

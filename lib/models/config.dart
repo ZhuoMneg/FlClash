@@ -116,10 +116,9 @@ const List<DashboardWidget> defaultDashboardWidgets = [
   DashboardWidget.vpnButton,
   DashboardWidget.networkTakeover,
   DashboardWidget.intranetIp,
-  DashboardWidget.quickRoutes,
+  DashboardWidget.memoryInfo,
   DashboardWidget.profiles,
   DashboardWidget.proxyGroups,
-  DashboardWidget.connectionStats,
 ];
 
 const _legacyDefaultDashboardWidgets = {

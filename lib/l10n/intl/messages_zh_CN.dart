@@ -950,6 +950,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "navigationBarStyle": MessageLookupByLibrary.simpleMessage("底栏"),
     "network": MessageLookupByLibrary.simpleMessage("网络"),
     "networkAccessDeniedError": m50,
+    "networkActivity": MessageLookupByLibrary.simpleMessage("网络活动"),
     "networkBadResponseError": m51,
     "networkCancelledError": MessageLookupByLibrary.simpleMessage("请求已取消"),
     "networkConnectionError": MessageLookupByLibrary.simpleMessage(

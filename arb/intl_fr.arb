@@ -1005,5 +1005,6 @@
   "requestActualRoute": "Résultat réel de la nouvelle requête",
   "requestActualRouteNote": "Il s’agit d’une requête HTTPS réelle, pas d’une prédiction ni d’une reproduction du processus initial. Les redirections affichent l’URL et le routage finaux.",
   "requestRecordedRoute": "Routage enregistré pour cette requête",
-  "requestRulePriorityNote": "Le domaine exact ne correspond qu’à cet hôte. Le suffixe inclut ses sous-domaines. La règle confirmée est insérée en premier."
+  "requestRulePriorityNote": "Le domaine exact ne correspond qu’à cet hôte. Le suffixe inclut ses sous-domaines. La règle confirmée est insérée en premier.",
+  "networkActivity": "Activité réseau"
 }

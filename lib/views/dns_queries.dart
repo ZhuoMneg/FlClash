@@ -1,3 +1,4 @@
+import 'package:fl_clash/features/connection/activity_section.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
@@ -99,84 +100,88 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: PageLabel.dns.label,
+      title: NetworkActivitySection.titleOf(context) ?? PageLabel.dns.label,
       searchState: AppBarSearchState(onSearch: _listController.search),
       onKeywordsUpdate: _listController.updateKeywords,
-      body: ValueListenableBuilder<DnsQueriesState>(
-        valueListenable: _listController,
-        builder: (context, state, _) {
-          final dnsQueries = state.list;
-          return NullStatusSwitcher(
-            isEmpty: dnsQueries.isEmpty,
-            isSearching: state.isSearching,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.dnsQueries),
-              illustration: NullStatusIllustration.dns,
-            ),
-            child: RecordTableFrame<DnsQuery>(
-              tableId: 'dns',
-              items: dnsQueries,
-              reverse: true,
-              columnsOf: (width) => _dnsQueryColumns(
-                context,
-                wide: width >= recordWideTableWidth,
+      body: NetworkActivitySection.wrap(
+        context,
+        ValueListenableBuilder<DnsQueriesState>(
+          valueListenable: _listController,
+          builder: (context, state, _) {
+            final dnsQueries = state.list;
+            return NullStatusSwitcher(
+              isEmpty: dnsQueries.isEmpty,
+              isSearching: state.isSearching,
+              nullStatus: NullStatus(
+                label: appLocalizations.nullTip(appLocalizations.dnsQueries),
+                illustration: NullStatusIllustration.dns,
               ),
-              builder: (context, table, dnsQueries) => Align(
-                alignment: Alignment.topCenter,
-                child: FloatingScrollbar(
-                  controller: _scrollController,
-                  hintBuilder: (fraction) {
-                    final index = (fraction * (dnsQueries.length - 1)).round();
-                    return dnsQueries[index].time.showFull;
-                  },
-                  child: ScrollToEndBox(
+              child: RecordTableFrame<DnsQuery>(
+                tableId: 'dns',
+                items: dnsQueries,
+                reverse: true,
+                columnsOf: (width) => _dnsQueryColumns(
+                  context,
+                  wide: width >= recordWideTableWidth,
+                ),
+                builder: (context, table, dnsQueries) => Align(
+                  alignment: Alignment.topCenter,
+                  child: FloatingScrollbar(
                     controller: _scrollController,
-                    enable: state.autoScrollToEnd,
-                    onCancelToEnd: () {
-                      _listController.setAutoScrollToEnd(false);
+                    hintBuilder: (fraction) {
+                      final index = (fraction * (dnsQueries.length - 1))
+                          .round();
+                      return dnsQueries[index].time.showFull;
                     },
-                    onResumeToEnd: () {
-                      _listController.resumeAutoScrollToEnd(
-                        ref.read(dnsQueriesProvider).list,
-                      );
-                    },
-                    child: SuperListView.separated(
-                      reverse: true,
-                      shrinkWrap: true,
-                      physics: _physics,
+                    child: ScrollToEndBox(
                       controller: _scrollController,
-                      padding: EdgeInsets.only(
-                        top: context.contentTopPadding,
-                        bottom: 16 + BottomInsetScope.of(context),
-                      ),
-                      itemCount: dnsQueries.length,
-                      extentEstimation:
-                          table?.estimateExtent ?? recordListExtentEstimation,
-                      separatorBuilder: (_, _) => table == null
-                          ? const SizedBox(height: recordListGap)
-                          : const SizedBox.shrink(),
-                      itemBuilder: (_, index) {
-                        if (table != null) {
-                          return _DnsQueryTableRow(
-                            dnsQuery: dnsQueries[index],
-                            table: table,
-                            striped: index.isOdd,
-                          );
-                        }
-                        return DnsQueryItem(
-                          dnsQuery: dnsQueries[index],
-                          onClickKeyword: (value) {
-                            context.commonScaffoldState?.addKeyword(value);
-                          },
+                      enable: state.autoScrollToEnd,
+                      onCancelToEnd: () {
+                        _listController.setAutoScrollToEnd(false);
+                      },
+                      onResumeToEnd: () {
+                        _listController.resumeAutoScrollToEnd(
+                          ref.read(dnsQueriesProvider).list,
                         );
                       },
+                      child: SuperListView.separated(
+                        reverse: true,
+                        shrinkWrap: true,
+                        physics: _physics,
+                        controller: _scrollController,
+                        padding: EdgeInsets.only(
+                          top: context.contentTopPadding,
+                          bottom: 16 + BottomInsetScope.of(context),
+                        ),
+                        itemCount: dnsQueries.length,
+                        extentEstimation:
+                            table?.estimateExtent ?? recordListExtentEstimation,
+                        separatorBuilder: (_, _) => table == null
+                            ? const SizedBox(height: recordListGap)
+                            : const SizedBox.shrink(),
+                        itemBuilder: (_, index) {
+                          if (table != null) {
+                            return _DnsQueryTableRow(
+                              dnsQuery: dnsQueries[index],
+                              table: table,
+                              striped: index.isOdd,
+                            );
+                          }
+                          return DnsQueryItem(
+                            dnsQuery: dnsQueries[index],
+                            onClickKeyword: (value) {
+                              context.commonScaffoldState?.addKeyword(value);
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

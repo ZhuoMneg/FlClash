@@ -1005,5 +1005,6 @@
   "requestActualRoute": "新規リクエストの実際の結果",
   "requestActualRouteNote": "これは実際の HTTPS リクエストです。予測や元のプロセスの再現ではありません。リダイレクト時は最終 URL とルートを表示します。",
   "requestRecordedRoute": "このリクエストの記録済みルート",
-  "requestRulePriorityNote": "完全一致はこのホストのみ、ドメイン接尾辞はサブドメインも対象です。確認後、ルールを先頭に追加します。"
+  "requestRulePriorityNote": "完全一致はこのホストのみ、ドメイン接尾辞はサブドメインも対象です。確認後、ルールを先頭に追加します。",
+  "networkActivity": "ネットワークアクティビティ"
 }

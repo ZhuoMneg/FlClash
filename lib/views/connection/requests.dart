@@ -1,3 +1,4 @@
+import 'package:fl_clash/features/connection/activity_section.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/features.dart';
@@ -65,38 +66,43 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
-      title: PageLabel.requests.label,
+      title:
+          NetworkActivitySection.titleOf(context) ??
+          context.appLocalizations.realtimeRequests,
       onKeywordsUpdate: _listController.updateKeywords,
-      body: Builder(
-        builder: (context) => Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                context.contentTopPadding,
-                16,
-                12,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 8,
-                children: [
-                  SearchField(onChanged: _listController.search),
-                  _buildFilters(),
-                ],
-              ),
-            ),
-            Expanded(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: FloatingBarScope(
-                  inset: 0,
-                  child: TopInsetScope(inset: 0, child: _buildRequests()),
+      body: NetworkActivitySection.wrap(
+        context,
+        Builder(
+          builder: (context) => Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  context.contentTopPadding,
+                  16,
+                  12,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 8,
+                  children: [
+                    SearchField(onChanged: _listController.search),
+                    _buildFilters(),
+                  ],
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: MediaQuery.removePadding(
+                  context: context,
+                  removeTop: true,
+                  child: FloatingBarScope(
+                    inset: 0,
+                    child: TopInsetScope(inset: 0, child: _buildRequests()),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

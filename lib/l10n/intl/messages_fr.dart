@@ -1304,6 +1304,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "network": MessageLookupByLibrary.simpleMessage("Réseau"),
     "networkAccessDeniedError": m50,
+    "networkActivity": MessageLookupByLibrary.simpleMessage("Activité réseau"),
     "networkBadResponseError": m51,
     "networkCancelledError": MessageLookupByLibrary.simpleMessage(
       "La requête a été annulée",

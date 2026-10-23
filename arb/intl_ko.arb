@@ -1005,5 +1005,6 @@
   "requestActualRoute": "새 요청의 실제 결과",
   "requestActualRouteNote": "실제 HTTPS 요청이며 예측이나 원래 프로세스의 재현이 아닙니다. 리디렉션 시 최종 URL과 경로가 표시됩니다.",
   "requestRecordedRoute": "이 요청에 기록된 실제 경로",
-  "requestRulePriorityNote": "정확한 도메인은 이 호스트만, 도메인 접미사는 하위 도메인도 포함합니다. 확인한 규칙은 맨 앞에 추가됩니다."
+  "requestRulePriorityNote": "정확한 도메인은 이 호스트만, 도메인 접미사는 하위 도메인도 포함합니다. 확인한 규칙은 맨 앞에 추가됩니다.",
+  "networkActivity": "네트워크 활동"
 }

@@ -306,10 +306,14 @@ class _ConnectionsTableCardState extends ConsumerState<ConnectionsTableCard>
           outer: headerHeight / 2,
           inner: 8,
           background: DashboardColors.of(context).tone,
-          semanticLabel: feed.page.label,
+          semanticLabel: feed == DashboardFeed.requests
+              ? appLocalizations.realtimeRequests
+              : feed.page.label,
           onTap: () => _select(feed),
           builder: (foreground) => _FeedSegment(
-            label: feed.page.label,
+            label: feed == DashboardFeed.requests
+                ? appLocalizations.realtimeRequests
+                : feed.page.label,
             count: count,
             height: headerHeight,
             foreground: foreground,

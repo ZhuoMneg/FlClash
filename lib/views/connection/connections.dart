@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fl_clash/features/connection/activity_section.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/core/method.dart';
@@ -128,55 +129,61 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: PageLabel.connections.label,
+      title:
+          NetworkActivitySection.titleOf(context) ??
+          PageLabel.connections.label,
       onKeywordsUpdate: _listController.updateKeywords,
       searchState: AppBarSearchState(onSearch: _listController.search),
       iconActions: _buildActions(),
-      body: ValueListenableBuilder<TrackerInfosState>(
-        valueListenable: _listController,
-        builder: (context, state, _) {
-          final connections = state.list;
-          Widget buildAction(TrackerInfo trackerInfo) {
-            return _BlockConnectionButton(
-              onPressed: () {
-                _handleBlockConnection(trackerInfo.id);
-              },
-            );
-          }
+      body: NetworkActivitySection.wrap(
+        context,
+        ValueListenableBuilder<TrackerInfosState>(
+          valueListenable: _listController,
+          builder: (context, state, _) {
+            final connections = state.list;
+            Widget buildAction(TrackerInfo trackerInfo) {
+              return _BlockConnectionButton(
+                onPressed: () {
+                  _handleBlockConnection(trackerInfo.id);
+                },
+              );
+            }
 
-          return NullStatusSwitcher(
-            isLoading: !_loaded,
-            isEmpty: connections.isEmpty,
-            isSearching: state.isSearching,
-            nullStatus: NullStatus(
-              label: appLocalizations.nullTip(appLocalizations.connections),
-              illustration: NullStatusIllustration.connections,
-            ),
-            child: RecordTableFrame<TrackerInfo>(
-              tableId: 'connections',
-              items: connections,
-              columnsOf: (width) => trackerInfoColumns(
-                context,
-                width: width,
-                isLive: true,
-                actionBuilder: buildAction,
+            return NullStatusSwitcher(
+              isLoading: !_loaded,
+              isEmpty: connections.isEmpty,
+              isSearching: state.isSearching,
+              nullStatus: NullStatus(
+                label: appLocalizations.nullTip(appLocalizations.connections),
+                illustration: NullStatusIllustration.connections,
               ),
-              builder: (context, table, connections) => TrackerInfoAnimatedList(
-                controller: _scrollController,
-                padding: EdgeInsets.only(
-                  top: context.contentTopPadding,
-                  bottom: 16 + BottomInsetScope.of(context),
+              child: RecordTableFrame<TrackerInfo>(
+                tableId: 'connections',
+                items: connections,
+                columnsOf: (width) => trackerInfoColumns(
+                  context,
+                  width: width,
+                  isLive: true,
+                  actionBuilder: buildAction,
                 ),
-                trackerInfos: connections,
-                table: table,
-                detailTitle: appLocalizations.details(
-                  appLocalizations.connection,
-                ),
-                actionBuilder: buildAction,
+                builder: (context, table, connections) =>
+                    TrackerInfoAnimatedList(
+                      controller: _scrollController,
+                      padding: EdgeInsets.only(
+                        top: context.contentTopPadding,
+                        bottom: 16 + BottomInsetScope.of(context),
+                      ),
+                      trackerInfos: connections,
+                      table: table,
+                      detailTitle: appLocalizations.details(
+                        appLocalizations.connection,
+                      ),
+                      actionBuilder: buildAction,
+                    ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

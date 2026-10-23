@@ -1005,5 +1005,6 @@
   "requestActualRoute": "New request: actual result",
   "requestActualRouteNote": "This is an actual HTTPS request, not a prediction or a replay of the original process. Redirects show the final URL and route.",
   "requestRecordedRoute": "Recorded route of this request",
-  "requestRulePriorityNote": "Exact domain matches only this host. Domain suffix also includes subdomains. The confirmed rule is inserted first."
+  "requestRulePriorityNote": "Exact domain matches only this host. Domain suffix also includes subdomains. The confirmed rule is inserted first.",
+  "networkActivity": "Network activity"
 }

@@ -1005,5 +1005,6 @@
   "requestActualRoute": "Resultado real de la nueva solicitud",
   "requestActualRouteNote": "Es una solicitud HTTPS real, no una predicción ni una repetición del proceso original. Si hay redirecciones, se muestran la URL y ruta finales.",
   "requestRecordedRoute": "Ruta registrada de esta solicitud",
-  "requestRulePriorityNote": "El dominio exacto solo coincide con este host. El sufijo incluye subdominios. La regla confirmada se inserta al principio."
+  "requestRulePriorityNote": "El dominio exacto solo coincide con este host. El sufijo incluye subdominios. La regla confirmada se inserta al principio.",
+  "networkActivity": "Actividad de red"
 }

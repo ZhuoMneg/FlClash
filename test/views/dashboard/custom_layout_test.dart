@@ -66,7 +66,7 @@ void main() {
         DashboardWidget.intranetIp,
         DashboardWidget.currentOutbound,
       ]);
-      expect(find.byType(QuickRoutesCard), findsNothing);
+      expect(find.byKey(const ValueKey('desktop-quickRoutes')), findsNothing);
       expect(find.byType(ProfilesCard), findsNothing);
       Rect rect(DashboardWidget card) =>
           tester.getRect(find.byKey(ValueKey('desktop-${card.name}')));
@@ -94,6 +94,27 @@ void main() {
       await closeDashboard(tester);
     },
   );
+
+  testWidgets('saved retired shortcuts leave no empty slot', (tester) async {
+    await pumpDashboard(tester, const Size(1220, 900), [
+      DashboardWidget.currentOutbound,
+      DashboardWidget.quickRoutes,
+      DashboardWidget.connectionStats,
+      DashboardWidget.memoryInfo,
+    ]);
+    expect(find.byKey(const ValueKey('desktop-quickRoutes')), findsNothing);
+    expect(find.byKey(const ValueKey('desktop-connectionStats')), findsNothing);
+    final outbound = tester.getRect(
+      find.byKey(const ValueKey('desktop-currentOutbound')),
+    );
+    final memory = tester.getRect(
+      find.byKey(const ValueKey('desktop-memoryInfo')),
+    );
+    expect(memory.left, closeTo(outbound.right + 16, 0.01));
+    expect(DashboardWidget.quickRoutes.platforms, isEmpty);
+    expect(tester.takeException(), isNull);
+    await closeDashboard(tester);
+  });
 
   for (final card in DashboardWidget.values.where(
     (card) => card.platforms.contains(SupportPlatform.Windows),

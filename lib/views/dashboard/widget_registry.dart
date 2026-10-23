@@ -12,7 +12,7 @@ extension DashboardWidgetView on DashboardWidget {
     DashboardWidget.vpnButton => const VpnCard(),
     DashboardWidget.networkTakeover => const NetworkTakeoverCard(),
     DashboardWidget.serviceStatus => const ServiceStatusCard(),
-    DashboardWidget.quickRoutes => const QuickRoutesCard(),
+    DashboardWidget.quickRoutes => const SizedBox.shrink(),
     DashboardWidget.profiles => const ProfilesCard(),
     DashboardWidget.proxyGroups => const ProxyGroupsCard(),
     DashboardWidget.connectionStats => const ConnectionStatsCard(),

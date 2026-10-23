@@ -8451,6 +8451,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Network activity`
+  String get networkActivity {
+    return Intl.message(
+      'Network activity',
+      name: 'networkActivity',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

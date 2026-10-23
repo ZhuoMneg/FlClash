@@ -4,6 +4,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/views.dart';
 import 'package:fl_clash/views/routing.dart';
+import 'package:fl_clash/views/connection/network_activity.dart';
 import 'package:material_ui/material_ui.dart';
 
 class Navigation implements NavigationPort {
@@ -47,7 +48,7 @@ class Navigation implements NavigationPort {
         glyph: AppGlyphs.requests,
         label: PageLabel.requests,
         builder: (_) =>
-            const RequestsView(key: GlobalObjectKey(PageLabel.requests)),
+            const NetworkActivityView(key: GlobalObjectKey(PageLabel.requests)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.moreFull],
       ),
       NavigationItem(

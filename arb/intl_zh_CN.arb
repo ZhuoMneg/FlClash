@@ -1005,5 +1005,6 @@
   "requestActualRoute": "新请求的实际结果",
   "requestActualRouteNote": "这是一次实际 HTTPS 请求，并非预测，也不代表原进程的路由；发生重定向时显示最终地址和路由。",
   "requestRecordedRoute": "此请求记录的实际路由",
-  "requestRulePriorityNote": "精确域名仅匹配此主机；域名后缀也匹配其子域名。确认后规则将插入首位。"
+  "requestRulePriorityNote": "精确域名仅匹配此主机；域名后缀也匹配其子域名。确认后规则将插入首位。",
+  "networkActivity": "网络活动"
 }

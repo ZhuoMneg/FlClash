@@ -47,3 +47,13 @@ together with these customizations.
 - Label, annotate and manually delete WebDAV backups; review restore scope,
   merge/replace strategy and account preservation together.
 - Offer compact node cards and configurable pinned sidebar tools.
+
+## Dashboard simplification
+
+- Remove the redundant route-shortcuts card and its editor. Existing saved
+  shortcut data remains readable, but the retired card is no longer offered.
+- Reflow the default dashboard around a wider profile card without leaving an
+  empty slot; keep the original proxy-group picker.
+- Move connections, request history and DNS queries into the Network activity
+  navigation page, retaining their full search, filtering and detail views.
+  Remove the corresponding dashboard feed and summary from all layouts.
