@@ -184,7 +184,7 @@ class _RoutingEditorState extends ConsumerState<_RoutingEditor> {
                   titleWidget: title,
                   header: header,
                   iconActions: actions,
-                  applyOnDispose: false,
+                  showApplyAction: false,
                 ),
         );
       },

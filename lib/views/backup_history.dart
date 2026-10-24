@@ -19,9 +19,11 @@ class BackupVersionsSheet extends StatefulWidget {
     required this.backups,
     this.onDelete,
     this.onSaveNote,
+    this.loadNote,
   });
 
   final List<DAVBackup> backups;
+  final Future<DAVBackup> Function(DAVBackup backup)? loadNote;
   final Future<void> Function(DAVBackup backup)? onDelete;
   final Future<void> Function(DAVBackup backup, String note)? onSaveNote;
 
@@ -33,6 +35,36 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
   late final List<DAVBackup> _backups = List.of(widget.backups);
   String _query = '';
   bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.loadNote != null) unawaited(_loadNotes());
+  }
+
+  Future<void> _loadNotes() async {
+    final pending = List.of(_backups).iterator;
+    Future<void> worker() async {
+      while (mounted && pending.moveNext()) {
+        final backup = pending.current;
+        try {
+          final updated = await widget.loadNote!(backup);
+          if (!mounted) return;
+          final index = _backups.indexOf(backup);
+          if (index >= 0 && updated.note != backup.note) {
+            setState(() => _backups[index] = updated);
+          }
+        } catch (error) {
+          commonPrint.log(
+            'Backup note unavailable: $error',
+            logLevel: LogLevel.warning,
+          );
+        }
+      }
+    }
+
+    await Future.wait([for (var i = 0; i < 4; i++) worker()]);
+  }
 
   Future<void> _run(
     Future<void> Function() task,
@@ -64,7 +96,7 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
     );
     if (note == null || !mounted || note.trim() == backup.note) return;
     await _run(() => widget.onSaveNote!(backup, note.trim()), () {
-      final index = _backups.indexOf(backup);
+      final index = _backups.indexWhere((item) => item.name == backup.name);
       if (index >= 0) _backups[index] = backup.withNote(note.trim());
     });
   }
@@ -81,7 +113,10 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
       destructive: true,
     );
     if (confirmed != true || !mounted) return;
-    await _run(() => widget.onDelete!(backup), () => _backups.remove(backup));
+    await _run(
+      () => widget.onDelete!(backup),
+      () => _backups.removeWhere((item) => item.name == backup.name),
+    );
   }
 
   List<CommonPopupMenuItem> _menu(DAVBackup backup) {
@@ -101,7 +136,6 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
                 backup.name,
               ].join('\n\n'),
             ),
-            cancelable: false,
           ),
         ),
       ),
@@ -149,7 +183,7 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
               top: context.contentTopPadding,
-              bottom: 20 + BottomInsetScope.of(context),
+              bottom: 20 + context.bottomInset,
             ),
             children: [
               generateSection(

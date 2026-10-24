@@ -305,6 +305,35 @@ void main() {
         },
       );
 
+      test(
+        'published custom step 3 still runs both official setting upgrades',
+        () async {
+          final configMap = _createConfigMap();
+          configMap['themeProps'] = {
+            'primaryColor': 0xFFAF52DE,
+            'primaryColors': [0xFFAF52DE, 0xFF123456],
+            'sidebarBlur': true,
+          };
+          final store = _FakeMigrationStore(
+            configMap: configMap,
+            version: Migration.currentVersion,
+            upgradeVersion: 3,
+          );
+          final config = await Migration(store: store).run();
+          expect(config.themeProps.primaryColor, 0xFFCB30E0);
+          expect(config.themeProps.primaryColors, [0xFFCB30E0, 0xFF123456]);
+          expect(config.themeProps.sidebarBlur, isFalse);
+          expect(store.upgradeVersion, 5);
+          final second = _FakeMigrationStore(
+            configMap: jsonDecode(jsonEncode(config)),
+            version: Migration.currentVersion,
+            upgradeVersion: 5,
+          );
+          await Migration(store: second).run();
+          expect(second.events, ['getConfigMap', 'getVersion']);
+        },
+      );
+
       test('a new install only records it', () async {
         final store = _FakeMigrationStore(
           configMap: null,

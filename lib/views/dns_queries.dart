@@ -1,5 +1,7 @@
 import 'package:fl_clash/features/connection/activity_section.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/core/method.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -57,6 +59,8 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
     with RouteMotionHoldMixin<DnsQueriesView> {
   final _listController = DnsQueryListController();
   late final ScrollController _scrollController;
+  final _refreshTag = Object();
+  var _isActive = false;
   late final _physics = FollowEndScrollPhysics(
     isFollowing: () => _listController.value.autoScrollToEnd,
   );
@@ -77,7 +81,21 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final active = PageActivityScope.isActiveOf(context);
+    if (active == _isActive) return;
+    _isActive = active;
+    if (active) {
+      _updateDnsQueriesThrottler();
+    } else {
+      throttler.cancel(_refreshTag);
+    }
+  }
+
+  @override
   void dispose() {
+    throttler.cancel(_refreshTag);
     _listController.dispose();
     if (widget.scrollController == null) {
       _scrollController.dispose();
@@ -86,14 +104,39 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
   }
 
   void _updateDnsQueriesThrottler() {
-    throttler.call(FunctionTag.dnsQueries, () {
-      if (!mounted) {
+    if (!_isActive) return;
+    throttler.call(_refreshTag, () {
+      if (!mounted || !_isActive) {
         return;
       }
-      updateWhenRouteSettled(
-        () => _listController.setDnsQueries(ref.read(dnsQueriesProvider).list),
-      );
+      updateWhenRouteSettled(() {
+        if (mounted && _isActive) {
+          _listController.setDnsQueries(ref.read(dnsQueriesProvider).list);
+        }
+      });
     }, duration: renderThrottleDuration);
+  }
+
+  Future<void> _clearDnsCache() async {
+    final appLocalizations = context.appLocalizations;
+    var cleared = false;
+    try {
+      cleared = await ref.read(coreHandlerProvider).clearDnsCache();
+    } catch (error) {
+      commonPrint.log(
+        'clearDnsCache error: $error',
+        logLevel: coreFailureLogLevel(error),
+      );
+    }
+    if (!mounted) {
+      return;
+    }
+    context.showNotifier(
+      cleared
+          ? appLocalizations.dnsCacheCleared
+          : appLocalizations.clearDnsCacheFailed,
+      level: cleared ? MessageLevel.success : MessageLevel.error,
+    );
   }
 
   @override
@@ -103,6 +146,13 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
       title: NetworkActivitySection.titleOf(context) ?? PageLabel.dns.label,
       searchState: AppBarSearchState(onSearch: _listController.search),
       onKeywordsUpdate: _listController.updateKeywords,
+      iconActions: [
+        IconButtonData(
+          glyph: AppGlyphs.broom,
+          tooltip: appLocalizations.clearDnsCache,
+          onPressed: _clearDnsCache,
+        ),
+      ],
       body: NetworkActivitySection.wrap(
         context,
         ValueListenableBuilder<DnsQueriesState>(
@@ -151,7 +201,7 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
                         controller: _scrollController,
                         padding: EdgeInsets.only(
                           top: context.contentTopPadding,
-                          bottom: 16 + BottomInsetScope.of(context),
+                          bottom: 16 + context.bottomInset,
                         ),
                         itemCount: dnsQueries.length,
                         extentEstimation:

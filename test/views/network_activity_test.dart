@@ -3,7 +3,6 @@ import 'package:fl_clash/core/interface.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/connection/connections.dart';
 import 'package:fl_clash/views/connection/network_activity.dart';
 import 'package:fl_clash/views/connection/requests.dart';
 import 'package:fl_clash/views/dns_queries.dart';
@@ -46,7 +45,9 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text('Network activity'), findsOneWidget);
-        expect(find.byType(ConnectionsView), findsOneWidget);
+        expect(find.byType(RequestsView), findsOneWidget);
+        expect(container.read(appSettingProvider).networkActivityTab, 1);
+        verifyNever(core.getConnections);
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-1')));
         await tester.pumpAndSettle();
         expect(find.byType(RequestsView), findsOneWidget);
@@ -58,6 +59,7 @@ void main() {
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-2')));
         await tester.pumpAndSettle();
         expect(find.byType(DnsQueriesView), findsOneWidget);
+        expect(container.read(appSettingProvider).networkActivityTab, 2);
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-1')));
         await tester.pumpAndSettle();
         expect(

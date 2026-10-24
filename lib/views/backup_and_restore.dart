@@ -70,7 +70,7 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
     );
     if (res != true) return;
     unawaited(
-      dialogs.showMessage(
+      dialogs.showAlert(
         title: title,
         message: TextSpan(text: successMessage),
       ),
@@ -139,6 +139,11 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
       context: context,
       builder: (sheetContext) => BackupVersionsSheet(
         backups: backups,
+        loadNote: (backup) async {
+          if (!mounted || !identical(client, _davConnection.client))
+            return backup;
+          return client.readNote(backup);
+        },
         onDelete: (backup) async {
           if (!mounted || !identical(client, _davConnection.client)) {
             throw StateError(currentAppLocalizations.backupAccountChanged);
@@ -209,9 +214,10 @@ class _BackupAndRestoreState extends ConsumerState<BackupAndRestore>
       isLoading: isLoading,
       title: appLocalizations.backupAndRestore,
       body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-        ).copyWith(top: context.appBarInset, bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
+          top: context.sectionsTopPadding,
+          bottom: 16 + context.bottomInset,
+        ),
         children: [
           generateSection(
             title: appLocalizations.remote,

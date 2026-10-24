@@ -338,8 +338,14 @@ void main() {
         final latest = (await client.listBackups()).first;
         await client.saveNote(latest.name, 'Before travel');
 
-        final refreshed = await buildClient().listBackups();
+        final reader = buildClient();
+        final metadata = await reader.listBackups();
+        expect(metadata.first.note, isEmpty);
+        final refreshed = await Future.wait(metadata.map(reader.readNote));
         expect(refreshed.first.note, 'Before travel');
+        final reads = server.requests.where((r) => r.method == 'GET').length;
+        expect((await reader.readNote(metadata.first)).note, 'Before travel');
+        expect(server.requests.where((r) => r.method == 'GET').length, reads);
         expect(refreshed.last.name, 'backup.zip');
         expect(refreshed.last.note, isEmpty);
         expect(server.files['/$appName/${latest.name}'], [1, 2, 3]);
@@ -358,7 +364,9 @@ void main() {
         server.files['/$appName/backup.zip.note.json'] = utf8.encode(
           'invalid JSON',
         );
-        final backups = await buildClient().listBackups();
+        final reader = buildClient();
+        final backups = await reader.listBackups();
+        expect((await reader.readNote(backups.single)).note, isEmpty);
         expect(backups.single.name, 'backup.zip');
         expect(backups.single.note, isEmpty);
       },

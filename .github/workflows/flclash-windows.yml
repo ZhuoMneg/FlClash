@@ -33,6 +33,18 @@ jobs:
           channel: stable
           cache: true
       - uses: dtolnay/rust-toolchain@1.99.0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: core/go.sum
+      - name: Verify Go core
+        working-directory: core
+        run: go test ./...
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: plugins/rust_api/rust
+      - name: Verify Rust editor and IPC
+        run: cargo test --manifest-path plugins/rust_api/rust/Cargo.toml
       - name: Resolve dependencies
         run: flutter pub get
       - name: Verify release package validation
@@ -55,6 +67,8 @@ jobs:
         run: flutter test test/common/node_exclusion_test.dart test/providers/node_exclusion_test.dart test/common/compute_test.dart test/common/webdav_test.dart test/common/dav_client_test.dart test/views/settings_search_test.dart test/views/backup_versions_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart --concurrency 2
       - name: Verify routing and usability workflows
         run: flutter test test/views/network_activity_test.dart test/views/connections_test.dart test/views/dns_queries_view_test.dart test/views/routing_test.dart test/features/connection test/views/navigation_settings_test.dart test/views/restore_confirmation_test.dart test/views/dashboard/custom_layout_test.dart --concurrency 2
+      - name: Verify official core, database, editor and override changes
+        run: flutter test test/core test/database test/plugins/code_forge test/providers/setup_action_test.dart test/providers/config_test.dart test/views/general_config_test.dart test/views/proxies_list_test.dart test/models/dns_override_test.dart test/models/ntp_override_test.dart test/models/sniffer_override_test.dart --concurrency 2
       - name: Verify settings destinations
         run: flutter test test/widgets/views_smoke_test.dart --name 'settings opens|settings renders its default state'
 

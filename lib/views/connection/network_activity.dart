@@ -5,20 +5,24 @@ import 'package:fl_clash/views/connection/requests.dart';
 import 'package:fl_clash/views/dns_queries.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fl_clash/providers/providers.dart';
 
-class NetworkActivityView extends StatefulWidget {
+class NetworkActivityView extends ConsumerStatefulWidget {
   const NetworkActivityView({super.key});
 
   @override
-  State<NetworkActivityView> createState() => _NetworkActivityViewState();
+  ConsumerState<NetworkActivityView> createState() =>
+      _NetworkActivityViewState();
 }
 
-class _NetworkActivityViewState extends State<NetworkActivityView> {
-  var _selected = 0;
-
+class _NetworkActivityViewState extends ConsumerState<NetworkActivityView> {
   @override
   Widget build(BuildContext context) {
     final l = context.appLocalizations;
+    final selected = ref
+        .watch(appSettingProvider.select((s) => s.networkActivityTab))
+        .clamp(0, 2);
     return NetworkActivitySection(
       tabs: Padding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -34,14 +38,16 @@ class _NetworkActivityViewState extends State<NetworkActivityView> {
               ChoiceChip(
                 key: ValueKey('network-activity-tab-$index'),
                 label: Text(label),
-                selected: _selected == index,
-                onSelected: (_) => setState(() => _selected = index),
+                selected: selected == index,
+                onSelected: (_) => ref
+                    .read(appSettingProvider.notifier)
+                    .update((s) => s.copyWith(networkActivityTab: index)),
               ),
           ],
         ),
       ),
       child: IndexedStack(
-        index: _selected,
+        index: selected,
         children: [
           for (final (index, page) in const [
             ConnectionsView(),
@@ -50,8 +56,8 @@ class _NetworkActivityViewState extends State<NetworkActivityView> {
           ].indexed)
             PageActivityScope(
               isActive:
-                  PageActivityScope.isActiveOf(context) && _selected == index,
-              child: TickerMode(enabled: _selected == index, child: page),
+                  PageActivityScope.isActiveOf(context) && selected == index,
+              child: TickerMode(enabled: selected == index, child: page),
             ),
         ],
       ),

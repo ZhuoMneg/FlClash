@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
+
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -17,8 +19,22 @@ class Contributor {
   const Contributor({required this.avatar, required this.name});
 }
 
-class AboutView extends ConsumerWidget {
+class AboutView extends ConsumerStatefulWidget {
   const AboutView({super.key});
+
+  @override
+  ConsumerState<AboutView> createState() => _AboutViewState();
+}
+
+class _AboutViewState extends ConsumerState<AboutView> {
+  CancelToken? _updateToken;
+  bool _updateFailed = false;
+
+  @override
+  void dispose() {
+    _updateToken?.cancel();
+    super.dispose();
+  }
 
   static const _contributors = [
     Contributor(avatar: 'assets/images/avatar/june2.jpg', name: 'June2'),
@@ -28,11 +44,23 @@ class AboutView extends ConsumerWidget {
   Future<void> _checkUpdate(BuildContext context, WidgetRef ref) async {
     if (ref.read(loadingProvider(LoadingTag.checkUpdate))) return;
     final commonAction = ref.read(commonActionProvider.notifier);
+    _updateToken = CancelToken();
     final result = await globalState.loadingRun(
-      () async => (release: await request.checkForUpdate()),
+      () async {
+        try {
+          return (
+            release: await request.checkForUpdate(cancelToken: _updateToken),
+          );
+        } on DioException catch (error) {
+          if (CancelToken.isCancel(error)) return null;
+          rethrow;
+        }
+      },
       title: context.appLocalizations.checkUpdate,
       tag: LoadingTag.checkUpdate,
     );
+    if (!mounted) return;
+    setState(() => _updateFailed = result == null);
     if (result == null) return;
     unawaited(
       commonAction.checkUpdateResultHandle(data: result.release, isUser: true),
@@ -57,19 +85,24 @@ class AboutView extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     final isLoading = ref.watch(loadingProvider(LoadingTag.checkUpdate));
     return CommonScaffold(
       isLoading: isLoading,
       title: appLocalizations.about,
       body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-        ).copyWith(top: context.contentTopPadding, bottom: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
+          top: context.contentTopPadding,
+          bottom: 32 + context.bottomInset,
+        ),
         children: [
           _AboutHero(
             isCheckingUpdate: isLoading,
+            updateFailed: _updateFailed,
+            onCancelUpdate: _updateToken == null
+                ? null
+                : () => _updateToken?.cancel(),
             onCheckUpdate: updateRepository.isEmpty
                 ? null
                 : () => _checkUpdate(context, ref),
@@ -128,11 +161,15 @@ class AboutView extends ConsumerWidget {
 
 class _AboutHero extends StatelessWidget {
   final bool isCheckingUpdate;
+  final bool updateFailed;
+  final VoidCallback? onCancelUpdate;
   final VoidCallback? onCheckUpdate;
   final VoidCallback onEnterDeveloperMode;
 
   const _AboutHero({
     required this.isCheckingUpdate,
+    this.updateFailed = false,
+    this.onCancelUpdate,
     required this.onCheckUpdate,
     required this.onEnterDeveloperMode,
   });
@@ -204,8 +241,12 @@ class _AboutHero extends StatelessWidget {
             TonalButton(
               size: TonalButtonSize.bar,
               glyph: AppGlyphs.sync,
-              label: appLocalizations.checkUpdate,
-              onPressed: isCheckingUpdate ? null : onCheckUpdate,
+              label: isCheckingUpdate
+                  ? appLocalizations.cancel
+                  : updateFailed
+                  ? appLocalizations.retry
+                  : appLocalizations.checkUpdate,
+              onPressed: isCheckingUpdate ? onCancelUpdate : onCheckUpdate,
             ),
           ],
         ],

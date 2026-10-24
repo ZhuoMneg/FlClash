@@ -499,6 +499,7 @@ void main() {
             )
             .first,
       );
+      await tester.pump();
       await tester.tap(logItem);
       await tester.pumpAndSettle();
 

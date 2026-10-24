@@ -21,7 +21,9 @@ class Request {
     _read = read;
   }
 
-  Request() {
+  final Duration updateTimeout;
+
+  Request({this.updateTimeout = const Duration(seconds: 12)}) {
     dio = Dio(BaseOptions(headers: {'User-Agent': browserUa}));
     _clashDio = Dio();
     _clashDio.httpClientAdapter = IOHttpClientAdapter(
@@ -86,9 +88,11 @@ class Request {
   }
 
   /// Null when this build is current; throws when GitHub cannot be asked.
-  Future<Map<String, dynamic>?> checkForUpdate() async {
+  Future<Map<String, dynamic>?> checkForUpdate({
+    CancelToken? cancelToken,
+  }) async {
     if (updateRepository.isEmpty) return null;
-    final release = await latestRelease();
+    final release = await latestRelease(cancelToken: cancelToken);
     final remoteVersion = (release['tag_name'] as String).replaceFirst(
       RegExp(r'^(?:build-)?v'),
       '',
@@ -100,23 +104,50 @@ class Request {
     return hasUpdate ? release : null;
   }
 
+  Future<Response<T>> _getRelease<T>(
+    String url, {
+    required Options options,
+    CancelToken? cancelToken,
+  }) {
+    final token = CancelToken();
+    if (cancelToken != null) {
+      if (cancelToken.isCancelled) token.cancel();
+      unawaited(cancelToken.whenCancel.then((_) => token.cancel()));
+    }
+    return dio
+        .get<T>(url, options: options, cancelToken: token)
+        .timeout(
+          updateTimeout,
+          onTimeout: () {
+            token.cancel();
+            throw DioException.receiveTimeout(
+              timeout: updateTimeout,
+              requestOptions: RequestOptions(path: url),
+            );
+          },
+        );
+  }
+
   /// The release page redirect still answers once the hourly API quota is spent.
   @visibleForTesting
-  Future<Map<String, dynamic>> latestRelease() async {
+  Future<Map<String, dynamic>> latestRelease({CancelToken? cancelToken}) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>(
+      final response = await _getRelease<Map<String, dynamic>>(
         'https://api.github.com/repos/$releaseRepository/releases/latest',
         options: Options(responseType: ResponseType.json),
+        cancelToken: cancelToken,
       );
       return response.data!;
     } on DioException catch (error) {
+      if (CancelToken.isCancel(error)) rethrow;
       commonPrint.log(
         'latest release API failed: ${compactError(error)}',
         logLevel: LogLevel.warning,
       );
     }
-    final response = await dio.get<void>(
+    final response = await _getRelease<void>(
       'https://github.com/$releaseRepository/releases/latest',
+      cancelToken: cancelToken,
       options: Options(
         followRedirects: false,
         validateStatus: (status) => status != null && status < 400,

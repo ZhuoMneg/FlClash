@@ -31,6 +31,10 @@ class DAVClient {
 
   final DAVTransport _transport;
   final String fileName;
+  Set<String> _availableNoteFiles = {};
+  final _notes = <String, String>{};
+  final _noteLoads = <String, Future<DAVBackup>>{};
+  final _noteRevisions = <String, int>{};
 
   Future<bool> ping() async {
     try {
@@ -109,16 +113,12 @@ class DAVClient {
       if (error.statusCode == 404) return [];
       rethrow;
     }
-    final available = names.toSet();
-    final backups = names.map(_backupOf).nonNulls.toList();
-    for (var start = 0; start < backups.length; start += 4) {
-      final end = (start + 4).clamp(0, backups.length);
-      final withNotes = await Future.wait([
-        for (var index = start; index < end; index++)
-          _readNote(backups[index], available),
-      ]);
-      backups.setRange(start, end, withNotes);
-    }
+    _availableNoteFiles = names.toSet();
+    final backups = names
+        .map(_backupOf)
+        .nonNulls
+        .map((backup) => backup.withNote(_notes[backup.name] ?? ''))
+        .toList();
     backups.sort((a, b) {
       final stamp = (b.createdAt?.microsecondsSinceEpoch ?? -1).compareTo(
         a.createdAt?.microsecondsSinceEpoch ?? -1,
@@ -142,13 +142,32 @@ class DAVClient {
     }
   }
 
-  Future<DAVBackup> _readNote(DAVBackup backup, Set<String> available) async {
-    if (!available.contains(_noteFile(backup.name))) return backup;
+  Future<DAVBackup> readNote(DAVBackup backup) {
+    _validateBackupName(backup.name);
+    final cached = _notes[backup.name];
+    if (cached != null) return Future.value(backup.withNote(cached));
+    if (!_availableNoteFiles.contains(_noteFile(backup.name))) {
+      return Future.value(backup);
+    }
+    return _noteLoads.putIfAbsent(backup.name, () async {
+      try {
+        return await _readNote(backup);
+      } finally {
+        final _ = _noteLoads.remove(backup.name);
+      }
+    });
+  }
+
+  Future<DAVBackup> _readNote(DAVBackup backup) async {
+    final revision = _noteRevisions[backup.name] ?? 0;
     try {
       final bytes = await _transport.get('$root/${_noteFile(backup.name)}');
       final metadata = jsonDecode(utf8.decode(bytes));
       if (metadata is Map && metadata['note'] is String) {
-        return backup.withNote(metadata['note'] as String);
+        if (revision == (_noteRevisions[backup.name] ?? 0)) {
+          _notes[backup.name] = metadata['note'] as String;
+        }
+        return backup.withNote(_notes[backup.name] ?? '');
       }
     } catch (error) {
       commonPrint.log(
@@ -170,11 +189,21 @@ class DAVClient {
         utf8.encode(jsonEncode({'version': 1, 'note': note.trim()})),
       );
     }
+    _noteRevisions.update(name, (value) => value + 1, ifAbsent: () => 1);
+    _notes[name] = note.trim();
+    if (note.trim().isEmpty) {
+      _availableNoteFiles.remove(_noteFile(name));
+    } else {
+      _availableNoteFiles.add(_noteFile(name));
+    }
   }
 
   Future<void> deleteVersion(String name) async {
     _validateBackupName(name);
     await _transport.delete('$root/$name');
+    _notes.remove(name);
+    _availableNoteFiles.remove(_noteFile(name));
+    _noteRevisions.update(name, (value) => value + 1, ifAbsent: () => 1);
     try {
       await _transport.delete('$root/${_noteFile(name)}');
     } catch (error) {

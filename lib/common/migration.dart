@@ -91,12 +91,14 @@ class Migration {
 
   /// One-off setting changes for upgrades, apart from [currentVersion], which
   /// backups carry and an older app refuses when it is newer than its own.
-  static const upgradeVersion = 3;
+  static const upgradeVersion = 5;
 
   static const Map<int, Config Function(Config config)> _upgrades = {
     1: _resetThemeColors,
     2: _keepGlassLook,
     3: _showQuickRoutes,
+    4: _followSystemColors,
+    5: _turnOffSidebarBlur,
   };
 
   Future<Config> run() async {
@@ -220,6 +222,32 @@ Config _showQuickRoutes(Config config) => config.copyWith(
     }.toList(),
   ),
 );
+const _formerSystemColors = {
+  0xFFAF52DE: 0xFFCB30E0,
+  0xFFFF3B30: 0xFFFF383C,
+  0xFFFF9500: 0xFFFF8D28,
+};
+
+// Every preset but blue moved to iOS 27's system color; one picked before moves.
+Config _followSystemColors(Config config) {
+  final theme = config.themeProps;
+  return config.copyWith(
+    themeProps: theme.copyWith(
+      primaryColor:
+          _formerSystemColors[theme.primaryColor] ?? theme.primaryColor,
+      primaryColors: [
+        ...{
+          for (final color in theme.primaryColors)
+            _formerSystemColors[color] ?? color,
+        },
+      ],
+    ),
+  );
+}
+
+// Releases stored sidebar blur on while its switch stayed hidden.
+Config _turnOffSidebarBlur(Config config) =>
+    config.copyWith(themeProps: config.themeProps.copyWith(sidebarBlur: false));
 
 bool _isV0(Map<String, Object?>? configMap) =>
     configMap?['proxiesStyle'] != null;

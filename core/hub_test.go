@@ -419,7 +419,7 @@ func TestHandleValidateProxiesLeavesARunningProxysResolverInPlace(t *testing.T) 
 	if got[0] != "" {
 		t.Fatalf("easytier proxy reported %q", got[0])
 	}
-	if !strings.Contains(got[1], "/outside") || strings.Contains(got[1], "\x00") {
+	if !strings.Contains(filepath.ToSlash(got[1]), "/outside") || strings.Contains(got[1], "\x00") {
 		t.Errorf("unsafe state dir reported %q, want the proxy's own name", got[1])
 	}
 	resolvers := dns.NewResolver(dns.Config{
@@ -1066,6 +1066,13 @@ func TestProxyViewKeepsWhatTheHostReads(t *testing.T) {
 	node := encode(namedProxy("node-a"))
 	if want := map[string]any{"name": "node-a", "type": "Direct"}; fmt.Sprint(node) != fmt.Sprint(want) {
 		t.Errorf("node view = %v, want %v", node, want)
+	}
+	fromProvider := encode(adapter.NewProxy(outbound.NewDirectWithOption(outbound.DirectOption{
+		BasicOption: outbound.BasicOption{ProviderName: "subscription"},
+		Name:        "node-p",
+	})))
+	if fromProvider["provider-name"] != "subscription" {
+		t.Errorf("provider node view = %v, want its provider-name", fromProvider)
 	}
 
 	members := []constant.Proxy{namedProxy("node-a"), namedProxy("node-b")}

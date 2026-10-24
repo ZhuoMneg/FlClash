@@ -156,9 +156,9 @@ class _DesktopDashboard extends StatelessWidget {
       builder: (context, constraints) {
         final base = EdgeInsetsDirectional.fromSTEB(
           16,
-          MediaQuery.paddingOf(context).top,
+          context.contentTopPadding,
           24,
-          24 + MediaQuery.paddingOf(context).bottom,
+          24 + context.bottomInset,
         );
         final room =
             constraints.maxWidth - base.horizontal - gap * (columns - 1);

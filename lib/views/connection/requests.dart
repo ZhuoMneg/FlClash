@@ -1,6 +1,5 @@
 import 'package:fl_clash/features/connection/activity_section.dart';
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/features.dart';
 import 'package:fl_clash/features/connection/request_filter.dart';
 import 'package:fl_clash/models/models.dart';
@@ -22,6 +21,8 @@ class _RequestsViewState extends ConsumerState<RequestsView>
     with RouteMotionHoldMixin<RequestsView> {
   final _listController = TrackerInfoListController();
   late final ScrollController _scrollController;
+  final _refreshTag = Object();
+  var _isActive = false;
   var _filter = const RequestFilter();
   var _manualPause = false;
   late final _physics = FollowEndScrollPhysics(
@@ -44,7 +45,21 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final active = PageActivityScope.isActiveOf(context);
+    if (active == _isActive) return;
+    _isActive = active;
+    if (active) {
+      updateRequestsThrottler();
+    } else {
+      throttler.cancel(_refreshTag);
+    }
+  }
+
+  @override
   void dispose() {
+    throttler.cancel(_refreshTag);
     _listController.dispose();
     if (widget.scrollController == null) {
       _scrollController.dispose();
@@ -53,13 +68,16 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   }
 
   void updateRequestsThrottler() {
-    throttler.call(FunctionTag.requests, () {
-      if (!mounted) {
+    if (!_isActive) return;
+    throttler.call(_refreshTag, () {
+      if (!mounted || !_isActive) {
         return;
       }
-      updateWhenRouteSettled(
-        () => _listController.setTrackerInfos(ref.read(requestsProvider).list),
-      );
+      updateWhenRouteSettled(() {
+        if (mounted && _isActive) {
+          _listController.setTrackerInfos(ref.read(requestsProvider).list);
+        }
+      });
     }, duration: renderThrottleDuration);
   }
 
@@ -254,7 +272,7 @@ class _RequestsViewState extends ConsumerState<RequestsView>
                     controller: _scrollController,
                     padding: EdgeInsets.only(
                       top: 0,
-                      bottom: 16 + BottomInsetScope.of(context),
+                      bottom: 16 + context.bottomInset,
                     ),
                     trackerInfos: requests,
                     table: table,

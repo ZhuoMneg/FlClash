@@ -268,7 +268,7 @@ class _ListEditorPageState<T, K> extends ConsumerState<ListEditorPage<T, K>> {
     16,
     widget.header == null ? context.contentTopPadding : 8,
     16,
-    24 + BottomInsetScope.of(context),
+    24 + context.bottomInset,
   );
 
   /// Reuses each row it builds, so the list settling on its own rebuilds none.

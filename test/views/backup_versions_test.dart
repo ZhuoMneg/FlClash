@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fl_clash/common/dav_client.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
@@ -25,6 +27,7 @@ void main() {
     WidgetTester tester,
     List<DAVBackup> backups,
     ValueChanged<DAVBackup?> onResult, {
+    Future<DAVBackup> Function(DAVBackup)? loadNote,
     Future<void> Function(DAVBackup)? onDelete,
     Future<void> Function(DAVBackup, String)? onSaveNote,
   }) async {
@@ -45,6 +48,7 @@ void main() {
                     context: context,
                     builder: (_) => BackupVersionsSheet(
                       backups: backups,
+                      loadNote: loadNote,
                       onDelete: onDelete,
                       onSaveNote: onSaveNote,
                     ),
@@ -61,6 +65,31 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
   }
+
+  testWidgets(
+    'history is usable while notes are pending and ignores a closed sheet',
+    (tester) async {
+      final pending = Completer<DAVBackup>();
+      DAVBackup? chosen;
+      final backup = DAVBackup(
+        name: 'pending.zip',
+        createdAt: DateTime.utc(2026, 10, 20),
+      );
+      await open(
+        tester,
+        [backup],
+        (value) => chosen = value,
+        loadNote: (_) => pending.future,
+      );
+      expect(find.text('Select backup version'), findsOneWidget);
+      await tester.tap(find.textContaining('Latest'));
+      await tester.pumpAndSettle();
+      expect(chosen?.name, backup.name);
+      pending.complete(backup.withNote('Late note'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('history picker returns the chosen older backup', (tester) async {
     DAVBackup? chosen;

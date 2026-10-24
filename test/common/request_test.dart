@@ -40,6 +40,27 @@ class _HostAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _PendingAdapter implements HttpClientAdapter {
+  int calls = 0;
+  int cancellations = 0;
+  final started = Completer<void>();
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    calls++;
+    if (!started.isCompleted) started.complete();
+    cancelFuture?.then((_) => cancellations++);
+    return Completer<ResponseBody>().future;
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -115,6 +136,58 @@ void main() {
     Request requestAnswering(Map<String, ResponseBody Function()> byHost) {
       return Request()..dio.httpClientAdapter = _HostAdapter(byHost);
     }
+
+    test(
+      'stalled update endpoints time out, cancel their sockets, and can be retried',
+      () async {
+        final adapter = _PendingAdapter();
+        final client = Request(updateTimeout: const Duration(milliseconds: 20))
+          ..dio.httpClientAdapter = adapter;
+        await expectLater(
+          client.latestRelease(),
+          throwsA(
+            isA<DioException>().having(
+              (e) => e.type,
+              'type',
+              DioExceptionType.receiveTimeout,
+            ),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(adapter.calls, 2);
+        expect(adapter.cancellations, 2);
+        client.dio.httpClientAdapter = _HostAdapter({
+          'api.github.com': () => ResponseBody.fromString(
+            '{"tag_name":"v0.9.2"}',
+            200,
+            headers: {
+              Headers.contentTypeHeader: [Headers.jsonContentType],
+            },
+          ),
+        });
+        expect(await client.latestRelease(), {'tag_name': 'v0.9.2'});
+      },
+    );
+
+    test('cancelling an update does not start a fallback request', () async {
+      final adapter = _PendingAdapter();
+      final client = Request()..dio.httpClientAdapter = adapter;
+      final token = CancelToken();
+      final result = client.latestRelease(cancelToken: token);
+      await adapter.started.future;
+      token.cancel();
+      await expectLater(
+        result,
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.cancel,
+          ),
+        ),
+      );
+      expect(adapter.calls, 1);
+    });
 
     test('reads the release from the API', () async {
       final request = requestAnswering({

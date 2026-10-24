@@ -27,6 +27,7 @@ import 'popup.dart';
 import 'scaffold.dart';
 import 'sheet.dart';
 import 'sortable.dart';
+import 'switch.dart';
 
 part 'list_row_separator.dart';
 part 'list_selected.dart';
@@ -435,7 +436,7 @@ class ListItem<T> extends StatelessWidget {
               : () {
                   toggleAction.onChanged!(!toggleAction.value);
                 },
-          trailing: Switch(
+          trailing: CommonSwitch(
             value: toggleAction.value,
             onChanged: toggleAction.onChanged,
           ),
@@ -529,7 +530,7 @@ class ListHeader extends StatelessWidget {
     final padding = this.padding ?? listHeaderPaddingOf(context);
     final lineHeight = MeasureScope.of(
       context,
-    ).textHeight(AppTextStyle.footnote);
+    ).textHeight(AppTextStyle.headline);
     final overhang = (_actionSize.button - lineHeight) / 2;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -548,7 +549,9 @@ class ListHeader extends StatelessWidget {
                 title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: context.listCaptionStyle,
+                style: AppTextStyle.headline
+                    .of(context)
+                    .copyWith(color: context.colorScheme.onSurfaceVariant),
               ),
             ),
             ?trailing,
@@ -576,47 +579,64 @@ class ListFooter extends StatelessWidget {
   }
 }
 
+class ListSectionGap extends StatelessWidget {
+  const ListSectionGap({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(height: listHeaderPaddingOf(context).top);
+  }
+}
+
+/// A section's rows alone, for a group under a header its caller lays out.
+Widget generateGroup(Iterable<Widget> items) {
+  if (items.isEmpty) return const SizedBox.shrink();
+  return Builder(
+    builder: (context) => DecoratedBox(
+      decoration: ShapeDecoration(
+        shape: AppShape.xl,
+        shadows: context.surfaceLevel == SurfaceLevel.page
+            ? context.colorScheme.cardShadows
+            : const [],
+      ),
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: ShapeDecoration(
+          shape: AppShape.xl.copyWith(
+            side: context.surfaceLevel == SurfaceLevel.page
+                ? context.colorScheme.cardEdge
+                : BorderSide.none,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ...items.mapIndexed<Widget>(
+              (index, item) => ItemPositionProvider(
+                position: ItemPosition.get(index, items.length),
+                child: item,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 Widget generateSection({
   String? title,
   required Iterable<Widget> items,
   List<IconButtonData> actions = const [],
   String? footer,
 }) {
-  final genItems = items.mapIndexed<Widget>(
-    (index, item) => ItemPositionProvider(
-      position: ItemPosition.get(index, items.length),
-      child: item,
-    ),
-  );
   return Column(
     children: [
-      if (items.isNotEmpty && title != null)
-        ListHeader(title: title, actions: actions),
       if (items.isNotEmpty)
-        Builder(
-          builder: (context) => DecoratedBox(
-            decoration: ShapeDecoration(
-              shape: AppShape.xl,
-              shadows: context.surfaceLevel == SurfaceLevel.page
-                  ? context.colorScheme.cardShadows
-                  : const [],
-            ),
-            child: DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: ShapeDecoration(
-                shape: AppShape.xl.copyWith(
-                  side: context.surfaceLevel == SurfaceLevel.page
-                      ? context.colorScheme.cardEdge
-                      : BorderSide.none,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [...genItems],
-              ),
-            ),
-          ),
-        ),
+        title != null
+            ? ListHeader(title: title, actions: actions)
+            : const ListSectionGap(),
+      generateGroup(items),
       if (items.isNotEmpty && footer != null) ListFooter(text: footer),
     ],
   );
