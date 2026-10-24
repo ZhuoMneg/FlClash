@@ -278,8 +278,8 @@ class _MobileDashboard extends ConsumerWidget {
     final saved = ref.watch(
       dashboardStateProvider.select((state) => state.dashboardWidgets),
     );
-    final top = MediaQuery.paddingOf(context).top + 4;
-    final bottom = 16 + BottomInsetScope.of(context);
+    final top = context.contentTopPadding;
+    final bottom = 16 + context.bottomInset;
     return CustomScrollView(
       // A viewport per card lays them all out and holds the scroll end still.
       scrollCacheExtent: editing
@@ -353,7 +353,12 @@ class _CustomDesktopDashboard extends ConsumerWidget {
         final available = constraints.maxWidth - 32 - gap * (columns - 1);
         final unit = available / columns;
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(
+            16,
+            16 + context.contentTopPadding,
+            16,
+            16 + context.bottomInset,
+          ),
           child: Wrap(
             spacing: gap,
             runSpacing: gap,
