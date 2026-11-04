@@ -63,7 +63,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           : appLocalizations.dashboard,
       backAction: editing ? () => _setEditing(false) : null,
       actions: [
-        if (!editing) const UpdateStatusButton(),
+        if (!editing && !ViewScope.isMobileOf(context))
+          const UpdateStatusButton(),
         if (!editing && coreLib == null) const CoreStatusButton(),
       ],
       confirmationAction: editing

@@ -149,6 +149,10 @@ void main() {
       await pumpDetail(tester, tracker, mitm: mitm);
       expect(find.text(currentAppLocalizations.mitmDecryptHost), findsNothing);
       expect(find.text(currentAppLocalizations.mitmExcludeHost), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      container.dispose();
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.pump(const Duration(milliseconds: 1));
     }
   });
 }

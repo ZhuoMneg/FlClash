@@ -180,7 +180,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: const TestApp(child: ToolsView()),
+        child: const TestApp(child: ToolsView(settingsOnly: true)),
       ),
     );
     await tester.pump();

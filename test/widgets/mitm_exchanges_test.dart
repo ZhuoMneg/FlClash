@@ -212,6 +212,8 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
   });
 
   testWidgets('a body that fails says so beside its headers', (tester) async {
@@ -230,6 +232,8 @@ void main() {
 
     await tester.pumpWidget(const SizedBox.shrink());
     container.dispose();
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
   });
 
   testWidgets('a decrypted connection lists its requests in a tab of their '
