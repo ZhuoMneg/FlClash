@@ -1,0 +1,22 @@
+import 'package:flutter/widgets.dart';
+import 'package:prism_ui/prism_ui.dart';
+
+ColorScheme appSurfaceColors(ColorScheme scheme) =>
+    scheme.brightness == Brightness.dark
+    ? scheme
+    : scheme.copyWith(
+        surface: Colors.white,
+        surfaceContainer: Colors.white,
+        surfaceBright: const Color(0xFFFCFCFE),
+        surfaceContainerHigh: const Color(0xFFF3F5F9),
+        surfaceContainerHighest: const Color(0xFFE9EDF4),
+      );
+
+extension AppSurfaces on ColorScheme {
+  Color get appChromeSurface =>
+      brightness == Brightness.dark ? chromeSurface : Colors.white;
+
+  BorderSide get cardEdge => brightness == Brightness.dark
+      ? BorderSide.none
+      : const BorderSide(color: Color(0xFFE6EAF1));
+}

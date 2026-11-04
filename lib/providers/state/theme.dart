@@ -81,11 +81,13 @@ ColorScheme _cachedColorScheme(
   final key = (seedColor, brightness, style, pureBlack);
   final colorScheme =
       _colorSchemes.remove(key) ??
-      seededColorScheme(
-        seedColor: seedColor,
-        brightness: brightness,
-        style: style,
-      ).toPureBlack(pureBlack);
+      appSurfaceColors(
+        seededColorScheme(
+          seedColor: seedColor,
+          brightness: brightness,
+          style: style,
+        ).toPureBlack(pureBlack),
+      );
   _colorSchemes[key] = colorScheme;
   if (_colorSchemes.length > _maxCachedColorSchemes) {
     _colorSchemes.remove(_colorSchemes.keys.first);

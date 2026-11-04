@@ -1,20 +1,15 @@
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/ui/sidebar.dart';
-import 'package:fl_clash/ui/surface.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:prism_ui/prism_ui.dart';
 
 import '../helpers/test_app.dart';
+import '../helpers/host_scaffold.dart';
 
 final _paneFinder = find
-    .byWidgetPredicate(
-      (widget) =>
-          widget is Material &&
-          widget.elevation > 0 &&
-          widget.shape is BorderDirectional,
-    )
+    .byWidgetPredicate((widget) => widget is Surface && widget.elevation > 0)
     .first;
 
 const _destinations = [
@@ -38,19 +33,17 @@ Widget _sidebar({
   List<SidebarDestination> destinations = _destinations,
   int selectedIndex = 0,
   bool expanded = true,
-  bool docked = false,
-  double height = 400,
   ValueChanged<int>? onSelected,
   VoidCallback? onToggle,
   Size windowControls = Size.zero,
   EdgeInsets safePadding = EdgeInsets.zero,
 }) {
   return TestApp(
-    child: Scaffold(
+    child: HostScaffold(
       body: Row(
         children: [
           SizedBox(
-            height: height,
+            height: 400,
             child: Builder(
               builder: (context) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(padding: safePadding),
@@ -58,7 +51,6 @@ Widget _sidebar({
                   destinations: destinations,
                   selectedIndex: selectedIndex,
                   expanded: expanded,
-                  docked: docked,
                   onSelected: onSelected ?? (_) {},
                   onToggle: onToggle,
                   windowControls: windowControls,
@@ -111,77 +103,6 @@ Finder _rowTooltip(String message) => find.byWidgetPredicate(
 );
 
 void main() {
-  testWidgets('eight dock destinations keep the final label fully visible', (
-    tester,
-  ) async {
-    const destinations = [
-      SidebarDestination(glyph: AppGlyphs.dashboard, label: 'Dashboard'),
-      SidebarDestination(glyph: AppGlyphs.proxies, label: 'Proxies'),
-      SidebarDestination(glyph: AppGlyphs.profiles, label: 'Profiles'),
-      SidebarDestination(glyph: AppGlyphs.filter, label: 'Routing'),
-      SidebarDestination(glyph: AppGlyphs.requests, label: 'Activity'),
-      SidebarDestination(glyph: AppGlyphs.tools, label: 'Tools'),
-      SidebarDestination(glyph: AppGlyphs.connections, label: 'Network Tunnel'),
-      SidebarDestination(
-        glyph: AppGlyphs.settings,
-        label: 'Settings',
-        isFooter: true,
-      ),
-    ];
-    for (final height in [594.0, 400.0]) {
-      await tester.pumpWidget(
-        _sidebar(
-          docked: true,
-          height: height,
-          windowControls: const Size(0, 32),
-          destinations: destinations,
-          selectedIndex: 6,
-        ),
-      );
-      await tester.pumpAndSettle();
-      final viewport = tester.getRect(find.byType(SingleChildScrollView));
-      final label = tester.getRect(find.text('Network Tunnel'));
-      expect(label.bottom, lessThanOrEqualTo(viewport.bottom));
-      expect(label.top, greaterThanOrEqualTo(viewport.top));
-      expect(tester.takeException(), isNull);
-    }
-  });
-
-  testWidgets('the dock keeps labels and a footer while selecting pages', (
-    tester,
-  ) async {
-    int? selected;
-    await tester.pumpWidget(
-      _sidebar(
-        docked: true,
-        destinations: const [
-          ..._destinations,
-          SidebarDestination(
-            glyph: AppGlyphs.settings,
-            label: 'Settings',
-            isFooter: true,
-          ),
-        ],
-        onSelected: (index) => selected = index,
-      ),
-    );
-    expect(tester.getSize(_sidebarFinder).width, 90);
-    expect(_labelOpacities(tester, 'Proxies'), [1]);
-    expect(
-      tester.getCenter(find.text('Settings')).dy,
-      greaterThan(tester.getCenter(find.text('Profiles')).dy),
-    );
-    await tester.tap(find.text('Proxies'));
-    expect(selected, 1);
-    await tester.tap(find.text('Settings'));
-    expect(selected, 3);
-    await tester.pumpWidget(_sidebar(docked: true, expanded: false));
-    await tester.pumpAndSettle();
-    expect(tester.getSize(_sidebarFinder).width, 48);
-    expect(_labelOpacities(tester, 'Proxies'), [0]);
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('the selected row carries a centered indicator', (tester) async {
     await tester.pumpWidget(_sidebar(selectedIndex: 1));
 
@@ -335,7 +256,7 @@ void main() {
       find
           .ancestor(
             of: _glyph(AppGlyphs.dashboard),
-            matching: find.byType(Material),
+            matching: find.byType(PressRegion),
           )
           .first,
     );
@@ -377,7 +298,7 @@ void main() {
         tester.getTopLeft(find.byTooltip('Expand')),
       );
       final colorScheme = Theme.of(tester.element(_sidebarFinder)).colorScheme;
-      final pane = tester.widget<Material>(_paneFinder);
+      final pane = tester.widget<Surface>(_paneFinder);
       expect(pane.color, colorScheme.chromeSurface);
       expect(
         (pane.shape! as BorderDirectional).end,

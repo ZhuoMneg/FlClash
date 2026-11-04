@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_clash/ui/ui.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 
 class SettingSearchDestination extends StatefulWidget {
   const SettingSearchDestination({

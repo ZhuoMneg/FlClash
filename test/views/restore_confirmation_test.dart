@@ -5,7 +5,8 @@ import 'package:fl_clash/views/restore_confirmation.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 
 import '../helpers/test_app.dart';
 import '../helpers/test_profiles.dart';
@@ -31,6 +32,7 @@ void main() {
           child: TestApp(
             child: Builder(
               builder: (context) => Scaffold(
+                title: 'Restore',
                 body: TextButton(
                   onPressed: () async {
                     result = await showFormSheet<RestoreSelection>(

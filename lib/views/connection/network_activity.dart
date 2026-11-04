@@ -1,10 +1,12 @@
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/connection/activity_section.dart';
-import 'package:fl_clash/views/connection/connections.dart';
+
 import 'package:fl_clash/views/connection/requests.dart';
 import 'package:fl_clash/views/dns_queries.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_clash/providers/providers.dart';
 
@@ -35,11 +37,11 @@ class _NetworkActivityViewState extends ConsumerState<NetworkActivityView> {
               l.realtimeRequests,
               l.dnsQueries,
             ].indexed)
-              ChoiceChip(
+              Chip(
                 key: ValueKey('network-activity-tab-$index'),
-                label: Text(label),
+                label: label,
                 selected: selected == index,
-                onSelected: (_) => ref
+                onPressed: () => ref
                     .read(appSettingProvider.notifier)
                     .update((s) => s.copyWith(networkActivityTab: index)),
               ),
@@ -50,8 +52,8 @@ class _NetworkActivityViewState extends ConsumerState<NetworkActivityView> {
         index: selected,
         children: [
           for (final (index, page) in const [
-            ConnectionsView(),
-            RequestsView(),
+            RequestsView(initialFeed: RequestFeed.live),
+            RequestsView(initialFeed: RequestFeed.recent),
             DnsQueriesView(),
           ].indexed)
             PageActivityScope(

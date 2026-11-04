@@ -7,7 +7,7 @@ import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'script.dart';
@@ -94,10 +94,7 @@ class _ExtendViewState extends ConsumerState<ExtendView> {
       }
       _applied = inputs;
       _unappliedOnOpen = false;
-      context.showNotifier(
-        appLocalizations.applied,
-        level: MessageLevel.success,
-      );
+      dialogs.showBanner(appLocalizations.applied, level: BannerLevel.success);
     } finally {
       if (mounted) {
         setState(() {
@@ -120,35 +117,40 @@ class _ExtendViewState extends ConsumerState<ExtendView> {
         inputs != null &&
         (_unappliedOnOpen ||
             !const DeepCollectionEquality().equals(_applied, inputs));
-    return ProfileIdProvider(
-      profileId: widget.profileId,
-      child: CommonScaffold(
-        title: appLocalizations.extend,
-        titleWidget: widget.titleWidget,
-        iconActions: widget.iconActions,
-        isLoading: _applying,
-        actions: [
-          if (widget.showApplyAction && (hasChanges || _applying))
-            FilledButton(
-              onPressed: _applying || inputs == null
-                  ? null
-                  : () => _handleApplyNow(inputs),
-              child: Text(appLocalizations.applyNow),
-            ),
-        ],
-        body: ScrollConfiguration(
-          behavior: const ShowBarScrollBehavior(),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: SizedBox(height: context.sectionsTopPadding),
+    return ArrivalHold(
+      ready: inputs != null,
+      child: ProfileIdProvider(
+        profileId: widget.profileId,
+        child: Scaffold(
+          title: appLocalizations.extend,
+          titleWidget: widget.titleWidget,
+          iconActions: widget.iconActions,
+          isLoading: _applying,
+          actions: [
+            if (widget.showApplyAction && (hasChanges || _applying))
+              FilledButton(
+                onPressed: _applying || inputs == null
+                    ? null
+                    : () => _handleApplyNow(inputs),
+                child: Text(appLocalizations.applyNow),
               ),
-              if (widget.header != null)
-                SliverToBoxAdapter(child: widget.header!),
-              const _ModeSection(),
-              const _Content(),
-              SliverToBoxAdapter(child: SizedBox(height: context.bottomInset)),
-            ],
+          ],
+          body: ScrollConfiguration(
+            behavior: const ShowBarScrollBehavior(),
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: SizedBox(height: context.sectionsTopPadding),
+                ),
+                if (widget.header != null)
+                  SliverToBoxAdapter(child: widget.header!),
+                const _ModeSection(),
+                const _Content(),
+                SliverToBoxAdapter(
+                  child: SizedBox(height: context.bottomInset),
+                ),
+              ],
+            ),
           ),
         ),
       ),

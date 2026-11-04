@@ -38,9 +38,9 @@ var (
 )
 
 type probeRoute struct {
-	chains      []string
 	rule        string
 	rulePayload string
+	chains      []string
 }
 
 // probeDialer opens one connection per dial, either pinned to a proxy or
@@ -219,11 +219,7 @@ func notifyProbeRoute(tracker statistic.Tracker) {
 	if !ok {
 		return
 	}
-	pending.(*routedConn).settle(&probeRoute{
-		chains:      append([]string(nil), info.Chain...),
-		rule:        info.Rule,
-		rulePayload: info.RulePayload,
-	})
+	pending.(*routedConn).settle(&probeRoute{chains: append([]string(nil), info.Chain...), rule: info.Rule, rulePayload: info.RulePayload})
 }
 
 func probeErrorKind(err error) string {
@@ -252,15 +248,22 @@ type probeRequest struct {
 	recorder *hitRecorder
 }
 
-func handleProbe(params *ProbeParams) *ProbeResult {
-	return runProbe(context.Background(), probeRequest{
-		method:    http.MethodGet,
-		url:       params.Url,
-		proxyName: params.ProxyName,
-		headers:   params.Headers,
-		timeout:   timeoutFromMillis(params.Timeout, defaultProbeTimeout),
-		maxBody:   params.MaxBody,
-	})
+type ProbeResult struct {
+	Rule         string
+	RulePayload  string
+	StatusCode   int
+	Delay        int64
+	Body         string
+	Url          string
+	Chains       []string
+	Error        string
+	Message      string
+	CoreEpoch    uint64
+	RouteVersion uint64
+
+	header    http.Header
+	lowerBody string
+	hits      []RouteHit
 }
 
 // runProbe returns nil when the request never got a slot before its deadline.
@@ -378,4 +381,20 @@ func readProbeBody(body io.Reader, maxBody int64, until func(string) bool) strin
 		}
 	}
 	return buffer.String()
+}
+
+func handleRequestProbe(params *ProbeParams) map[string]any {
+	result := runProbe(context.Background(), probeRequest{
+		method: http.MethodGet, url: params.Url, proxyName: params.ProxyName,
+		headers: params.Headers, timeout: timeoutFromMillis(params.Timeout, defaultProbeTimeout),
+		maxBody: params.MaxBody,
+	})
+	if result == nil {
+		return nil
+	}
+	return map[string]any{
+		"status-code": result.StatusCode, "delay": result.Delay, "url": result.Url,
+		"body": result.Body, "chains": result.Chains, "rule": result.Rule,
+		"rule-payload": result.RulePayload, "error": result.Error, "message": result.Message,
+	}
 }

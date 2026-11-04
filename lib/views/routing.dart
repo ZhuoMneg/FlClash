@@ -12,7 +12,8 @@ import 'package:fl_clash/views/profiles/extend/extend.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 
 import 'routing_session.dart';
 
@@ -23,7 +24,7 @@ class RoutingView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profile = ref.watch(currentProfileProvider);
     if (profile == null) {
-      return CommonScaffold(
+      return Scaffold(
         title: context.appLocalizations.routing,
         body: Center(
           child: TextButton(

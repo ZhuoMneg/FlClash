@@ -195,7 +195,7 @@ func TestTunnelLoadRejectsUnsafeFallbackBeforeWriting(t *testing.T) {
 		t.Fatal(err)
 	}
 	c := testTunnelConfig()
-	params := defaultSetupParams()
+	params := &SetupParams{}
 	params.NetworkTunnel = &c
 	if _, err = loadSetupConfig(params); err == nil || !strings.Contains(err.Error(), "direct choice") {
 		t.Fatalf("unsafe setup result: %v", err)
@@ -229,11 +229,11 @@ func TestTunnelLoadPersistsCompleteConfig(t *testing.T) {
 				t.Fatal(err)
 			}
 			c := testTunnelConfig()
-			params := defaultSetupParams()
+			params := &SetupParams{}
 			params.NetworkTunnel = &c
 			if withBase {
 				path := writeBaseProfile(t, string(data))
-				base, err := handleGetProfileBase(path)
+				base, err := handleGetProfileBase(PathParams{Path: path})
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -244,7 +244,7 @@ func TestTunnelLoadPersistsCompleteConfig(t *testing.T) {
 				t.Fatalf("load tunnel config: %v", err)
 			}
 			t.Cleanup(func() { closeNetworkTunnelCandidate(cfg) })
-			persisted, err := handleGetConfig(runningConfigPath())
+			persisted, err := handleReadConfig(PathParams{Path: runningConfigPath()})
 			if err != nil {
 				t.Fatalf("read persisted tunnel config: %v", err)
 			}

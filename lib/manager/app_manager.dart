@@ -4,12 +4,13 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/system_dns.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/mitm.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/widgets/icon.dart';
 import 'package:flutter/foundation.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppStateManager extends ConsumerStatefulWidget {
@@ -89,6 +90,10 @@ class _AppStateManagerState extends ConsumerState<AppStateManager>
     _updateVisible(state);
     if (state == AppLifecycleState.resumed) {
       unawaited(ref.read(locationPermissionsProvider.notifier).refresh());
+      // A certificate removed meanwhile stops decryption before the next start.
+      if (mitmFeature && ref.read(patchClashConfigProvider).mitm.enable) {
+        unawaited(ref.read(mitmTrustStateProvider.notifier).refresh());
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
           return;
@@ -159,14 +164,9 @@ class _Sidebar extends ConsumerWidget {
     );
     final version = ref.watch(versionProvider);
     return NavigationSidebar(
-      docked: true,
       destinations: [
         for (final item in items)
-          SidebarDestination(
-            glyph: item.glyph,
-            label: item.label.label,
-            isFooter: item.label == PageLabel.settings,
-          ),
+          SidebarDestination(glyph: item.glyph, label: item.label.label),
       ],
       selectedIndex: currentIndex,
       expanded: canExpand && sidebarExpanded,
@@ -228,7 +228,7 @@ class AppSidebarContainer extends ConsumerWidget {
     final currentIndex = navigationState.currentIndex;
     final backdropOpacity = ref.watch(windowBlurProvider);
     final page = SurfaceLevel.page.colorOf(context.colorScheme);
-    final chrome = context.colorScheme.chromeSurface;
+    final chrome = context.colorScheme.appChromeSurface;
     void onSelected(int index) {
       _handleToPage(ref, navigationItems[index].label);
     }
@@ -248,18 +248,13 @@ class AppSidebarContainer extends ConsumerWidget {
                 widthFactor: 1,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxHeight: 610),
-                  child: Material(
+                  child: Surface(
                     color: backdropOpacity != null
                         ? chrome.withValues(alpha: backdropOpacity)
                         : chrome,
                     shape: AppShape.all(
                       _dockPanelCorner,
                     ).copyWith(side: context.colorScheme.cardEdge),
-                    elevation: 2,
-                    shadowColor: context.colorScheme.shadow.withValues(
-                      alpha: 0.1,
-                    ),
-                    surfaceTintColor: Colors.transparent,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: MediaQuery.removePadding(

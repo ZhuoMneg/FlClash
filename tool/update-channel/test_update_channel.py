@@ -32,6 +32,22 @@ class UpdateChannelTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'checksum mismatch'):
             channel.validate(self.directory)
 
+    def test_installer_is_verified_by_the_in_app_checksum_file(self):
+        installer = self.directory / 'FlClash-0.9.1+12-windows-amd64-setup.exe'
+        installer.write_bytes(b'installer fixture')
+        channel.prepare(str(self.package), '0.9.1', '12', 'a' * 40, str(installer))
+        self.assertEqual(channel.validate(self.directory)['installer'], installer.name)
+        self.assertEqual((self.directory / 'SHA256SUMS').read_bytes(),
+                         (self.directory / 'SHA256SUMS.txt').read_bytes())
+        installer.write_bytes(b'tampered installer')
+        with self.assertRaisesRegex(ValueError, 'Installer checksum mismatch'):
+            channel.validate(self.directory)
+
+    def test_installer_path_cannot_escape_the_release_directory(self):
+        self.change(installer='../unexpected.exe')
+        with self.assertRaisesRegex(ValueError, 'installer filename'):
+            channel.validate(self.directory)
+
     def test_path_traversal_fails(self):
         self.change(file='../FlClash-0.9.1-windows-amd64.zip')
         with self.assertRaisesRegex(ValueError, 'filename'):

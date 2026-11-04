@@ -85,3 +85,11 @@ together with these customizations.
   tunnel routing, and preserve multi-expression exclusion filters.
 - Recreate the UDP bridge after an unexpected receive failure, and reject invalid
   private imports before saving them.
+
+## Official 0.9.3 integration
+
+- Merge official v0.9.3 and its pinned Prism UI, core, editor and platform changes.
+- Keep the white desktop surfaces, rounded navigation, request tools, routing,
+  exclusions, versioned backups and profile-scoped Windows network tunnel.
+- Publish an installer and SHA256SUMS in this repository for the official verified
+  updater, retaining the portable ZIP and credential-free update checks.

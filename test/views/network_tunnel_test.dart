@@ -9,7 +9,7 @@ import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/network_tunnel.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../helpers/test_app.dart';
@@ -147,7 +147,7 @@ void main() {
       expect(find.text(oldEndpoint), findsNothing);
       expect(pending.length, greaterThan(1));
       pending.last.complete({'running': true, 'home': newEndpoint});
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.text(newEndpoint), findsOneWidget);
       for (final reply in pending.take(pending.length - 1)) {
         if (change == 'core') {

@@ -5,13 +5,13 @@ import 'package:fl_clash/common/dav_client.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
-import 'package:intl/intl.dart' show DateFormat;
+import 'package:flutter/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 
 String backupVersionLabel(BuildContext context, DAVBackup backup) =>
     backup.createdAt == null
     ? context.appLocalizations.backupLegacy
-    : DateFormat.yMd().add_Hms().format(backup.createdAt!.toLocal());
+    : backup.createdAt!.showFull;
 
 class BackupVersionsSheet extends StatefulWidget {
   const BackupVersionsSheet({
@@ -77,7 +77,10 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
       if (mounted) setState(onSuccess);
     } catch (error) {
       if (mounted) {
-        context.showNotifier(error.toString(), level: MessageLevel.error);
+        dialogs.showBanner(
+          userFacingErrorMessage(error, context.appLocalizations),
+          level: BannerLevel.error,
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -119,10 +122,10 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
     );
   }
 
-  List<CommonPopupMenuItem> _menu(DAVBackup backup) {
+  List<PopupMenuItem> _menu(DAVBackup backup) {
     final l = context.appLocalizations;
     return [
-      CommonPopupMenuItem(
+      PopupMenuItem(
         glyph: AppGlyphs.info,
         label: l.details(l.backup),
         onPressed: () => unawaited(
@@ -140,13 +143,13 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
         ),
       ),
       if (widget.onSaveNote != null)
-        CommonPopupMenuItem(
+        PopupMenuItem(
           glyph: AppGlyphs.edit,
           label: l.backupNote,
           onPressed: () => unawaited(_editNote(backup)),
         ),
       if (widget.onDelete != null)
-        CommonPopupMenuItem(
+        PopupMenuItem(
           glyph: AppGlyphs.delete,
           label: l.delete,
           danger: true,
@@ -169,7 +172,7 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
           ],
         )
         .toList();
-    return CommonScaffold(
+    return Scaffold(
       isLoading: _busy,
       title: l.selectBackupVersion,
       searchState: AppBarSearchState(
@@ -179,7 +182,10 @@ class _BackupVersionsSheetState extends State<BackupVersionsSheet> {
         builder: (context) => NullStatusSwitcher(
           isEmpty: matches.isEmpty,
           isSearching: search.isNotEmpty,
-          nullStatus: NullStatus(label: l.noBackupFileFound),
+          nullStatus: NullStatus(
+            illustration: NullStatusIllustration.data,
+            label: l.noBackupFileFound,
+          ),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
               top: context.contentTopPadding,

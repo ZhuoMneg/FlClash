@@ -16,11 +16,11 @@ import 'package:fl_clash/views/hotkey.dart';
 import 'package:fl_clash/views/settings/navigation_settings.dart';
 import 'package:fl_clash/views/settings/search_destination.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'config/advanced.dart';
-import 'config/custom_resources.dart';
+import 'resources.dart';
 import 'developer.dart';
 import 'disclaimer.dart';
 import 'theme.dart';
@@ -102,7 +102,14 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         terms: [l.advancedConfig, 'DNS', l.network, l.rules, l.script],
         item: const _AdvancedConfigItem(),
       ),
-      (terms: [l.customProfileResources], item: const _CustomResourcesItem()),
+      (
+        terms: [l.resources],
+        item: ListItem.open(
+          leading: const GlyphIcon(AppGlyphs.resources),
+          title: Text(l.resources),
+          widget: const ResourcesView(),
+        ),
+      ),
       (
         terms: [l.general, l.systemProxy, l.tun, l.authentication, l.allowLan],
         item: const _GeneralItem(),
@@ -232,9 +239,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     ]) {
       add(id, title, [l.settings, l.general], const GeneralView());
     }
-    add('custom-resources', l.customProfileResources, [
-      l.settings,
-    ], const CustomResourcesView());
+    add('custom-resources', l.resources, [l.settings], const ResourcesView());
     return items.isEmpty
         ? null
         : generateSection(title: l.settings, items: items);
@@ -257,7 +262,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         ?_getOtherList(developerMode),
       ],
     ];
-    return CommonScaffold(
+    return Scaffold(
       title: widget.settingsOnly
           ? context.appLocalizations.settings
           : context.appLocalizations.tools,
@@ -269,6 +274,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
           isEmpty: items.isEmpty,
           isSearching: _query.isNotEmpty,
           nullStatus: NullStatus(
+            illustration: NullStatusIllustration.data,
             label: context.appLocalizations.nullTip(
               context.appLocalizations.settings,
             ),
@@ -393,19 +399,6 @@ class _AdvancedConfigItem extends StatelessWidget {
       leading: const GlyphIcon(AppGlyphs.wrench),
       title: Text(context.appLocalizations.advancedConfig),
       widget: const AdvancedConfigView(),
-    );
-  }
-}
-
-class _CustomResourcesItem extends StatelessWidget {
-  const _CustomResourcesItem();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListItem.open(
-      leading: const GlyphIcon(AppGlyphs.customize),
-      title: Text(context.appLocalizations.customProfileResources),
-      widget: const CustomResourcesView(),
     );
   }
 }

@@ -1,17 +1,31 @@
-import 'package:fl_clash/features/connection/activity_section.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/features/features.dart';
+import 'dart:async';
 import 'package:fl_clash/features/connection/request_filter.dart';
+import 'package:fl_clash/features/connection/activity_section.dart';
+
+import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/core/controller.dart';
+import 'package:fl_clash/core/method.dart';
+import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/features.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RequestsView extends ConsumerStatefulWidget {
   final ScrollController? scrollController;
+  final RequestFeed? initialFeed;
+  final Future<List<TrackerInfo>> Function()? connectionsReader;
 
-  const RequestsView({super.key, this.scrollController});
+  const RequestsView({
+    super.key,
+    this.scrollController,
+    this.initialFeed,
+    @visibleForTesting this.connectionsReader,
+  });
 
   @override
   ConsumerState<RequestsView> createState() => _RequestsViewState();
@@ -19,23 +33,37 @@ class RequestsView extends ConsumerStatefulWidget {
 
 class _RequestsViewState extends ConsumerState<RequestsView>
     with RouteMotionHoldMixin<RequestsView> {
-  final _listController = TrackerInfoListController();
-  late final ScrollController _scrollController;
+  final _recent = TrackerInfoListController();
   final _refreshTag = Object();
   var _isActive = false;
-  var _filter = const RequestFilter();
   var _manualPause = false;
-  late final _physics = FollowEndScrollPhysics(
-    isFollowing: () => _listController.value.autoScrollToEnd,
-  );
+  var _filter = const RequestFilter();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final active = PageActivityScope.isActiveOf(context);
+    if (_isActive == active) return;
+    _isActive = active;
+    if (active) {
+      updateRequestsThrottler();
+    } else {
+      throttler.cancel(_refreshTag);
+    }
+  }
+
+  final _live = TrackerInfoListController();
+  final _liveFeed = GlobalKey<_LiveFeedState>();
+  late final _filters = trackerInfoFilterController(ref, 'requests');
+  late var _feed =
+      widget.initialFeed ?? ref.read(appSettingProvider).requestFeed;
 
   @override
   void initState() {
     super.initState();
-    _scrollController =
-        widget.scrollController ??
-        sheetScrollController(context, initialScrollOffset: double.maxFinite);
-    _listController.setTrackerInfos(ref.read(requestsProvider).list);
+    if (_feed == RequestFeed.recent) {
+      _showLatestRequests();
+    }
     ref.listenManual(requestsProvider.select((state) => state.revision), (
       _,
       _,
@@ -45,199 +73,276 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final active = PageActivityScope.isActiveOf(context);
-    if (active == _isActive) return;
-    _isActive = active;
-    if (active) {
-      updateRequestsThrottler();
-    } else {
-      throttler.cancel(_refreshTag);
+  void dispose() {
+    throttler.cancel(_refreshTag);
+    _recent.dispose();
+    _live.dispose();
+    _filters.dispose();
+    super.dispose();
+  }
+
+  void _setRequests(List<TrackerInfo> requests) {
+    _recent.setTrackerInfos(requests);
+    _filters.offer(_recent.value.trackerInfos);
+  }
+
+  void _showLatestRequests() {
+    _manualPause = false;
+    _recent.resumeAutoScrollToEnd(ref.read(requestsProvider).list);
+    _filters.offer(_recent.value.trackerInfos);
+  }
+
+  void updateRequestsThrottler() {
+    if (!_isActive) return;
+    throttler.call(_refreshTag, () {
+      if (!mounted || !_isActive || _feed != RequestFeed.recent) {
+        return;
+      }
+      updateWhenRouteSettled(() {
+        if (mounted && _isActive) {
+          _setRequests(ref.read(requestsProvider).list);
+        }
+      });
+    }, duration: renderThrottleDuration);
+  }
+
+  void _search(String query) {
+    _recent.search(query);
+    _live.search(query);
+  }
+
+  void _selectFeed(RequestFeed feed) {
+    if (feed == _feed) {
+      return;
+    }
+    // Offered before the feed mounts: a build below this page can't notify it.
+    if (feed == RequestFeed.recent) {
+      _showLatestRequests();
+    }
+    setState(() => _feed = feed);
+    if (widget.initialFeed == null) {
+      ref
+          .read(appSettingProvider.notifier)
+          .update((state) => state.copyWith(requestFeed: feed));
+    }
+  }
+
+  List<IconButtonData> _buildActions() {
+    if (_feed != RequestFeed.live) {
+      return const [];
+    }
+    return [
+      IconButtonData(
+        glyph: AppGlyphs.clearAll,
+        tooltip: context.appLocalizations.closeConnections,
+        onPressed: () => _liveFeed.currentState?.closeAll(),
+      ),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final body = RecordFilterScope(
+      onFilter: _filters.add,
+      child: ListenableBuilder(
+        listenable: _filters,
+        builder: (_, _) => _buildBody(),
+      ),
+    );
+    return ListenableBuilder(
+      listenable: Listenable.merge([_filters, _filters.options]),
+      child: body,
+      builder: (context, body) {
+        final pinned = !ViewScope.isMobileOf(context);
+        return Scaffold(
+          title: NetworkActivitySection.titleOf(context) ?? _labelOf(_feed),
+          titleMenuItems: _buildFeedMenu(),
+          searchState: _feed == RequestFeed.live
+              ? AppBarSearchState(onSearch: _search)
+              : null,
+          keywords: _filters.keywordsOf(pinned: pinned),
+          iconActions: _buildActions(),
+          menuItems: _filters.menuItems(context, pinned: pinned),
+          body: NetworkActivitySection.wrap(context, body!),
+        );
+      },
+    );
+  }
+
+  String _labelOf(RequestFeed feed) => switch (feed) {
+    RequestFeed.recent => context.appLocalizations.recentRequests,
+    RequestFeed.live => context.appLocalizations.running,
+  };
+
+  List<PopupMenuItem> _buildFeedMenu() {
+    return [
+      for (final feed in RequestFeed.values)
+        PopupMenuItem(
+          label: _labelOf(feed),
+          checked: feed == _feed,
+          onPressed: () => _selectFeed(feed),
+        ),
+    ];
+  }
+
+  Widget _recentControls(Widget child) => Column(
+    children: [
+      Padding(
+        padding: EdgeInsets.fromLTRB(16, context.contentTopPadding, 16, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: [
+            SearchField(onChanged: _search),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final (disposition, label) in [
+                  (RequestDisposition.direct, context.appLocalizations.direct),
+                  (
+                    RequestDisposition.rejected,
+                    context.appLocalizations.requestRejected,
+                  ),
+                ])
+                  Chip(
+                    label: label,
+                    selected: _filter.disposition == disposition,
+                    onPressed: () => setState(
+                      () => _filter = RequestFilter(
+                        disposition: _filter.disposition == disposition
+                            ? RequestDisposition.any
+                            : disposition,
+                      ),
+                    ),
+                  ),
+                if (_filter.isActive)
+                  Chip(
+                    label: context.appLocalizations.reset,
+                    onPressed: () =>
+                        setState(() => _filter = const RequestFilter()),
+                  ),
+                ValueListenableBuilder<TrackerInfosState>(
+                  valueListenable: _recent,
+                  builder: (context, state, _) => Chip(
+                    key: const ValueKey('requests-follow-toggle'),
+                    label: _manualPause || !state.autoScrollToEnd
+                        ? context.appLocalizations.requestResumeFollow
+                        : context.appLocalizations.requestPauseFollow,
+                    onPressed: () {
+                      if (_manualPause || !state.autoScrollToEnd) {
+                        _showLatestRequests();
+                      } else {
+                        _manualPause = true;
+                        _recent.setAutoScrollToEnd(false);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      Expanded(
+        child: MediaQuery.removePadding(
+          context: context,
+          removeTop: true,
+          child: FloatingBarScope(
+            inset: 0,
+            child: TopInsetScope(inset: 0, child: child),
+          ),
+        ),
+      ),
+    ],
+  );
+
+  Widget _buildBody() {
+    return switch (_feed) {
+      RequestFeed.recent => _recentControls(
+        _RecentFeed(
+          requestFilter: _filter,
+          listController: _recent,
+          filters: _filters,
+          scrollController: widget.scrollController,
+          onResumeToEnd: () {
+            if (!_manualPause) _showLatestRequests();
+          },
+        ),
+      ),
+      RequestFeed.live => _LiveFeed(
+        key: _liveFeed,
+        listController: _live,
+        filters: _filters,
+        scrollController: widget.scrollController,
+        connectionsReader: widget.connectionsReader,
+      ),
+    };
+  }
+}
+
+class _RecentFeed extends StatefulWidget {
+  final RequestFilter requestFilter;
+  final TrackerInfoListController listController;
+  final RecordFilterController<TrackerInfo> filters;
+  final ScrollController? scrollController;
+  final VoidCallback onResumeToEnd;
+
+  const _RecentFeed({
+    required this.requestFilter,
+    required this.listController,
+    required this.filters,
+    required this.scrollController,
+    required this.onResumeToEnd,
+  });
+
+  @override
+  State<_RecentFeed> createState() => _RecentFeedState();
+}
+
+class _RecentFeedState extends State<_RecentFeed> {
+  late final ScrollController _scrollController;
+  late final _physics = FollowEndScrollPhysics(
+    isFollowing: () => widget.listController.value.autoScrollToEnd,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController =
+        widget.scrollController ??
+        sheetScrollController(context, initialScrollOffset: double.maxFinite);
+    // A sheet's one controller may have been left where the live feed reads.
+    if (widget.scrollController != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
+      });
     }
   }
 
   @override
   void dispose() {
-    throttler.cancel(_refreshTag);
-    _listController.dispose();
     if (widget.scrollController == null) {
       _scrollController.dispose();
     }
     super.dispose();
   }
 
-  void updateRequestsThrottler() {
-    if (!_isActive) return;
-    throttler.call(_refreshTag, () {
-      if (!mounted || !_isActive) {
-        return;
-      }
-      updateWhenRouteSettled(() {
-        if (mounted && _isActive) {
-          _listController.setTrackerInfos(ref.read(requestsProvider).list);
-        }
-      });
-    }, duration: renderThrottleDuration);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return CommonScaffold(
-      title:
-          NetworkActivitySection.titleOf(context) ??
-          context.appLocalizations.realtimeRequests,
-      onKeywordsUpdate: _listController.updateKeywords,
-      body: NetworkActivitySection.wrap(
-        context,
-        Builder(
-          builder: (context) => Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  16,
-                  context.contentTopPadding,
-                  16,
-                  12,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 8,
-                  children: [
-                    SearchField(onChanged: _listController.search),
-                    _buildFilters(),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: MediaQuery.removePadding(
-                  context: context,
-                  removeTop: true,
-                  child: FloatingBarScope(
-                    inset: 0,
-                    child: TopInsetScope(inset: 0, child: _buildRequests()),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _resumeFollowing() {
-    _manualPause = false;
-    _listController.resumeAutoScrollToEnd(ref.read(requestsProvider).list);
-  }
-
-  Future<void> _chooseFilter({required bool process}) async {
-    final l = context.appLocalizations;
-    final values =
-        _listController.value.trackerInfos
-            .map(
-              (request) => process
-                  ? request.metadata.process
-                  : request.chains.firstOrNull ?? '',
-            )
-            .where((value) => value.isNotEmpty)
-            .toSet()
-            .toList()
-          ..sort();
-    final selected = process ? _filter.process : _filter.outbound;
-    final value = await showSheet<String>(
-      context: context,
-      builder: (sheetContext) => SelectionSheet<String>(
-        title: process ? l.process : l.outboundExit,
-        sections: [
-          SelectionSection(items: ['', ...values]),
-        ],
-        labelBuilder: (value) => value.isEmpty ? l.requestFilterAll : value,
-        selectedOf: (_) => selected ?? '',
-        onSelected: (value) => Navigator.of(sheetContext).pop(value),
-      ),
-    );
-    if (value == null || !mounted) return;
-    setState(() {
-      _filter = RequestFilter(
-        disposition: _filter.disposition,
-        process: process ? (value.isEmpty ? null : value) : _filter.process,
-        outbound: process ? _filter.outbound : (value.isEmpty ? null : value),
-      );
-    });
-  }
-
-  Widget _buildFilters() {
-    final l = context.appLocalizations;
-    Widget disposition(RequestDisposition value, String label) => FilterChip(
-      label: Text(label),
-      selected: _filter.disposition == value,
-      onSelected: (selected) => setState(() {
-        _filter = RequestFilter(
-          disposition: selected ? value : RequestDisposition.any,
-          process: _filter.process,
-          outbound: _filter.outbound,
-        );
-      }),
-    );
-    return ValueListenableBuilder<TrackerInfosState>(
-      valueListenable: _listController,
-      builder: (context, state, _) => Wrap(
-        spacing: 8,
-        runSpacing: 4,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          disposition(RequestDisposition.direct, l.direct),
-          disposition(RequestDisposition.rejected, l.requestRejected),
-          OutlinedButton(
-            onPressed: () => _chooseFilter(process: true),
-            child: Text(
-              '${l.process}: ${_filter.process ?? l.requestFilterAll}',
-            ),
-          ),
-          OutlinedButton(
-            onPressed: () => _chooseFilter(process: false),
-            child: Text(
-              '${l.outboundExit}: ${_filter.outbound ?? l.requestFilterAll}',
-            ),
-          ),
-          if (_filter.isActive)
-            TextButton(
-              onPressed: () => setState(() => _filter = const RequestFilter()),
-              child: Text(l.reset),
-            ),
-          TextButton(
-            key: const ValueKey('requests-follow-toggle'),
-            onPressed: () {
-              if (state.autoScrollToEnd) {
-                _manualPause = true;
-                _listController.setAutoScrollToEnd(false);
-              } else {
-                _resumeFollowing();
-              }
-            },
-            child: Text(
-              state.autoScrollToEnd
-                  ? l.requestPauseFollow
-                  : l.requestResumeFollow,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRequests() {
     final appLocalizations = context.appLocalizations;
     return ValueListenableBuilder<TrackerInfosState>(
-      valueListenable: _listController,
+      valueListenable: widget.listController,
       builder: (context, state, _) {
-        final requests = _filter.isActive
-            ? state.list.where(_filter.matches).toList()
-            : state.list;
+        final requests = widget.filters
+            .apply(state.list)
+            .where(widget.requestFilter.matches)
+            .toList();
         return NullStatusSwitcher(
           isEmpty: requests.isEmpty,
-          isSearching: state.isSearching || _filter.isActive,
+          isSearching: state.isSearching || widget.filters.isFiltering,
           nullStatus: NullStatus(
             label: appLocalizations.nullTip(appLocalizations.requests),
             illustration: NullStatusIllustration.requests,
@@ -248,41 +353,249 @@ class _RequestsViewState extends ConsumerState<RequestsView>
             reverse: true,
             columnsOf: (width) =>
                 trackerInfoColumns(context, width: width, isLive: false),
-            builder: (context, table, requests) => Align(
-              alignment: Alignment.topCenter,
-              child: FloatingScrollbar(
-                controller: _scrollController,
-                hintBuilder: (fraction) {
-                  final index = (fraction * (requests.length - 1)).round();
-                  return requests[index].start.showFull;
-                },
-                child: ScrollToEndBox(
+            builder: (context, table, requests) {
+              final padding = EdgeInsets.only(
+                top: context.contentTopPadding,
+                bottom: 16 + context.bottomInset,
+              );
+              final detailTitle = appLocalizations.details(
+                appLocalizations.request,
+              );
+              final groups = widget.filters.groupsOf(requests, reverse: true);
+              if (groups != null) {
+                return FloatingScrollbar(
                   controller: _scrollController,
-                  enable: state.autoScrollToEnd,
-                  onCancelToEnd: () {
-                    _listController.setAutoScrollToEnd(false);
+                  hintBuilder: (fraction) {
+                    final index = (fraction * (groups.length - 1)).round();
+                    return groups[index].items.first.start.showFull;
                   },
-                  onResumeToEnd: () {
-                    if (!_manualPause) _resumeFollowing();
-                  },
-                  child: TrackerInfoList(
-                    reverse: true,
-                    shrinkWrap: true,
-                    physics: _physics,
+                  child: TrackerInfoGroupedList(
+                    groups: groups,
+                    grouping: widget.filters.value.grouping!,
+                    isLive: false,
                     controller: _scrollController,
-                    padding: EdgeInsets.only(
-                      top: 0,
-                      bottom: 16 + context.bottomInset,
-                    ),
-                    trackerInfos: requests,
+                    padding: padding,
                     table: table,
-                    detailTitle: appLocalizations.details(
-                      appLocalizations.request,
+                    detailTitle: detailTitle,
+                  ),
+                );
+              }
+              return Align(
+                alignment: Alignment.topCenter,
+                child: FloatingScrollbar(
+                  controller: _scrollController,
+                  hintBuilder: (fraction) {
+                    final index = (fraction * (requests.length - 1)).round();
+                    return requests[index].start.showFull;
+                  },
+                  child: ScrollToEndBox(
+                    controller: _scrollController,
+                    enable: state.autoScrollToEnd,
+                    onCancelToEnd: () {
+                      widget.listController.setAutoScrollToEnd(false);
+                    },
+                    onResumeToEnd: () {
+                      widget.onResumeToEnd();
+                    },
+                    child: TrackerInfoList(
+                      reverse: true,
+                      shrinkWrap: true,
+                      physics: _physics,
+                      controller: _scrollController,
+                      padding: padding,
+                      trackerInfos: requests,
+                      table: table,
+                      detailTitle: detailTitle,
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _LiveFeed extends ConsumerStatefulWidget {
+  final TrackerInfoListController listController;
+  final RecordFilterController<TrackerInfo> filters;
+  final ScrollController? scrollController;
+  final Future<List<TrackerInfo>> Function()? connectionsReader;
+
+  const _LiveFeed({
+    super.key,
+    required this.listController,
+    required this.filters,
+    required this.scrollController,
+    required this.connectionsReader,
+  });
+
+  @override
+  ConsumerState<_LiveFeed> createState() => _LiveFeedState();
+}
+
+class _LiveFeedState extends ConsumerState<_LiveFeed>
+    with
+        WidgetsBindingObserver,
+        ActivePollingMixin<_LiveFeed>,
+        RouteMotionHoldMixin<_LiveFeed> {
+  CoreController get _core => ref.read(coreHandlerProvider);
+
+  final _speedRanker = TrackerSpeedRanker();
+  late final ScrollController _scrollController;
+  var _loaded = false;
+  // A sheet's one controller opens where the recent feed reads, its far end.
+  late var _startsAtFarEnd = widget.scrollController != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController =
+        widget.scrollController ?? sheetScrollController(context);
+  }
+
+  @override
+  Duration get pollInterval => const Duration(seconds: 1);
+
+  Future<void> closeAll() => _close(_core.closeConnections);
+
+  @override
+  Future<void> poll(PollGuard isCurrent) async {
+    final trackerInfos = await _readConnections();
+    if (!isCurrent()) {
+      return;
+    }
+    _showConnections(trackerInfos);
+  }
+
+  Future<void> _refreshConnections() async {
+    final trackerInfos = await _readConnections();
+    if (!mounted) {
+      return;
+    }
+    _showConnections(trackerInfos);
+  }
+
+  Future<List<TrackerInfo>?> _readConnections() async {
+    try {
+      final connectionsReader = widget.connectionsReader;
+      if (connectionsReader != null) {
+        return await connectionsReader();
+      }
+      return ref.read(coreStatusProvider) == CoreStatus.connected
+          ? await _core.getConnections()
+          : const [];
+    } catch (error) {
+      commonPrint.log(
+        'updateConnections error: $error',
+        logLevel: coreFailureLogLevel(error),
+      );
+      return null;
+    }
+  }
+
+  void _showConnections(List<TrackerInfo>? trackerInfos) {
+    final readAt = DateTime.now();
+    if (!_loaded) {
+      showFirstContent(() {
+        setState(() => _loaded = true);
+        // A failed read must not leave the controller's list from the last visit.
+        _applyConnections(trackerInfos ?? const [], readAt);
+      });
+      return;
+    }
+    updateWhenRouteSettled(() => _applyConnections(trackerInfos, readAt));
+  }
+
+  void _applyConnections(List<TrackerInfo>? trackerInfos, DateTime readAt) {
+    if (trackerInfos == null) {
+      return;
+    }
+    widget.listController.setTrackerInfos(
+      _speedRanker.rank(trackerInfos, readAt),
+    );
+    widget.filters.offer(widget.listController.value.trackerInfos);
+    if (_startsAtFarEnd) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _startsAtFarEnd && _scrollController.hasClients) {
+          _startsAtFarEnd = false;
+          _scrollController.jumpTo(0);
+        }
+      });
+    }
+  }
+
+  Future<void> _closeConnection(TrackerInfo trackerInfo) =>
+      _close(() => _core.closeConnection(trackerInfo.id));
+
+  Future<void> _close(Future<void> Function() close) async {
+    await globalState.safeRun(close, title: 'close connections');
+    if (mounted) {
+      await _refreshConnections();
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.scrollController == null) {
+      _scrollController.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appLocalizations = context.appLocalizations;
+    return ValueListenableBuilder<TrackerInfosState>(
+      valueListenable: widget.listController,
+      builder: (context, state, _) {
+        final connections = widget.filters.apply(state.list);
+        return NullStatusSwitcher(
+          isLoading: !_loaded,
+          loadingStatus: const Center(child: ActivityIndicator.page()),
+          isEmpty: connections.isEmpty,
+          isSearching: state.isSearching || widget.filters.isFiltering,
+          nullStatus: NullStatus(
+            label: appLocalizations.nullTip(appLocalizations.connections),
+            illustration: NullStatusIllustration.connections,
+          ),
+          child: RecordTableFrame<TrackerInfo>(
+            tableId: 'connections',
+            items: connections,
+            columnsOf: (width) =>
+                trackerInfoColumns(context, width: width, isLive: true),
+            builder: (context, table, connections) {
+              final padding = EdgeInsets.only(
+                top: context.contentTopPadding,
+                bottom: 16 + context.bottomInset,
+              );
+              final detailTitle = appLocalizations.details(
+                appLocalizations.connection,
+              );
+              final groups = widget.filters.groupsOf(connections);
+              if (groups != null) {
+                return TrackerInfoGroupedList(
+                  groups: groups,
+                  grouping: widget.filters.value.grouping!,
+                  isLive: true,
+                  controller: _scrollController,
+                  padding: padding,
+                  table: table,
+                  detailTitle: detailTitle,
+                  onClose: _closeConnection,
+                );
+              }
+              return TrackerInfoAnimatedList(
+                controller: _scrollController,
+                padding: padding,
+                trackerInfos: connections,
+                table: table,
+                detailTitle: detailTitle,
+                onClose: _closeConnection,
+              );
+            },
           ),
         );
       },

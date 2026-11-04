@@ -62,7 +62,9 @@ jobs:
       - name: Verify interface and source rules
         run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/rounded_surfaces_test.dart test/icons test/manager/window_header_test.dart test/manager/theme_manager_test.dart test/common/helpers_test.dart test/widgets/proxy_card_focus_test.dart test/widgets/profile_focus_test.dart test/widgets/list_header_focus_test.dart test/widgets/list_row_separator_test.dart test/widgets/proxies_tab_test.dart test/widgets/proxies_list_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/common/migration_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
       - name: Verify custom release versions
-        run: flutter test test/common/request_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
+        run: flutter test test/common/request_test.dart test/common/app_update_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
+      - name: Verify custom tunnel lifecycle
+        run: flutter test test/models/network_tunnel_test.dart test/views/network_tunnel_test.dart test/manager/core_manager_test.dart --concurrency 2
       - name: Verify added utilities
         run: flutter test test/common/node_exclusion_test.dart test/providers/node_exclusion_test.dart test/common/compute_test.dart test/common/webdav_test.dart test/common/dav_client_test.dart test/views/settings_search_test.dart test/views/backup_versions_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart --concurrency 2
       - name: Verify routing and usability workflows
@@ -71,6 +73,8 @@ jobs:
         run: flutter test test/core test/database test/plugins/code_forge test/providers/setup_action_test.dart test/providers/config_test.dart test/views/general_config_test.dart test/views/proxies_list_test.dart test/models/dns_override_test.dart test/models/ntp_override_test.dart test/models/sniffer_override_test.dart --concurrency 2
       - name: Verify settings destinations
         run: flutter test test/widgets/views_smoke_test.dart --name 'settings opens|settings renders its default state'
+      - name: Verify Prism widget integration
+        run: flutter test test/widgets --concurrency 2
 
   windows:
     needs: checks
@@ -103,6 +107,21 @@ jobs:
         run: |
           Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
           Copy-Item MODIFICATIONS.md build/windows/x64/runner/Release/MODIFICATIONS.md
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Package the official Windows installer
+        run: |
+          python -m pip install jinja2==3.1.6
+          $version = (Select-String '^version: ([^+]+)' pubspec.yaml).Matches.Groups[1].Value
+          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path -LiteralPath $compiler)) { throw 'Inno Setup is missing' }
+          python tool/windows_installer.py "$version+$env:GITHUB_RUN_NUMBER" build/windows/x64/runner/Release dist-installer --compiler "$compiler"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlClash-windows-installer
+          path: dist-installer/*.exe
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: FlClash-windows-amd64
@@ -124,6 +143,10 @@ jobs:
         with:
           name: FlClash-windows-amd64
           path: bundle
+      - uses: actions/download-artifact@v4
+        with:
+          name: FlClash-windows-installer
+          path: installer
       - name: Prepare verified build
         shell: bash
         run: |
@@ -132,7 +155,9 @@ jobs:
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           name="FlClash-$version-windows-amd64.zip"
           (cd bundle && zip -qr "../$name" .)
-          python3 tool/update_channel.py prepare "$name" "$version" "$GITHUB_RUN_NUMBER" "$GITHUB_SHA"
+          setup="FlClash-$version+$GITHUB_RUN_NUMBER-windows-amd64-setup.exe"
+          cp "installer/$setup" .
+          python3 tool/update_channel.py prepare "$name" "$version" "$GITHUB_RUN_NUMBER" "$GITHUB_SHA" "$setup"
       - name: Publish in this repository
         shell: bash
         env:
@@ -142,12 +167,13 @@ jobs:
           set -euo pipefail
           tag=$(python3 tool/update_channel.py validate .)
           file=$(python3 -c 'import json; print(json.load(open("build-info.json"))["file"])')
+          setup=$(python3 -c 'import json; print(json.load(open("build-info.json"))["installer"])')
           if gh release view "$tag" --repo "$TARGET_REPO" >/dev/null 2>&1; then exit 0; fi
           latest=$(gh api "repos/$TARGET_REPO/releases/latest" --jq .tag_name 2>/dev/null || true)
           is_latest=true
           if [ -n "$latest" ] && ! python3 tool/update_channel.py newer "$tag" "$latest"; then is_latest=false; fi
           printf 'FlClash %s\n\nModified build based on [chen08209/FlClash](https://github.com/chen08209/FlClash). Licensed under GPL-3.0.\n\nSource: https://github.com/%s/tree/%s\n\nBuild from the corresponding source, including submodules:\n\n```sh\ngit clone --recursive --branch "%s" https://github.com/%s.git\n```\n\nVerify the download with SHA256SUMS.txt.\n' "$tag" "$TARGET_REPO" "$GITHUB_SHA" "$tag" "$TARGET_REPO" > release-notes.txt
-          gh release create "$tag" "$file" SHA256SUMS.txt build-info.json LICENSE --repo "$TARGET_REPO" --target "$GITHUB_SHA" --latest="$is_latest" --title "FlClash $tag" --notes-file release-notes.txt
+          gh release create "$tag" "$file" "$setup" SHA256SUMS SHA256SUMS.txt build-info.json LICENSE --repo "$TARGET_REPO" --target "$GITHUB_SHA" --latest="$is_latest" --title "FlClash $tag" --notes-file release-notes.txt
 
   promote-upstream:
     needs: windows

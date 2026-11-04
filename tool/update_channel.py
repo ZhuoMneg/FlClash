@@ -28,20 +28,45 @@ def validate(directory):
         digest = hashlib.file_digest(stream, 'sha256').hexdigest()
     if manifest['sha256'] != digest:
         raise ValueError('Package checksum mismatch')
-    if (directory / 'SHA256SUMS.txt').read_text() != f'{digest}  {expected}\n':
+    sums = f'{digest}  {expected}\n'
+    if 'installer' in manifest:
+        installer_name = f'FlClash-{version}+{build}-windows-amd64-setup.exe'
+        if manifest['installer'] != installer_name:
+            raise ValueError('Unexpected installer filename')
+        installer = directory / installer_name
+        if not installer.is_file() or installer.is_symlink() or installer.stat().st_size == 0:
+            raise ValueError('Missing installer')
+        with installer.open('rb') as stream:
+            installer_digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+        if manifest['installer_sha256'] != installer_digest:
+            raise ValueError('Installer checksum mismatch')
+        sums += f'{installer_digest}  {installer_name}\n'
+    if (directory / 'SHA256SUMS.txt').read_text() != sums:
         raise ValueError('Checksum file mismatch')
+    if 'installer' in manifest and (directory / 'SHA256SUMS').read_text() != sums:
+        raise ValueError('Updater checksum file mismatch')
     return manifest
 
 
-def prepare(filename, version, build, source):
+def prepare(filename, version, build, source, installer=None):
     package = Path(filename)
     with package.open('rb') as stream:
         digest = hashlib.file_digest(stream, 'sha256').hexdigest()
     manifest = dict(version=version, build=int(build), source=source,
                     file=package.name, sha256=digest)
     directory = package.parent
+    sums = f'{digest}  {package.name}\n'
+    if installer is not None:
+        installer = Path(installer)
+        if installer.parent.resolve() != directory.resolve():
+            raise ValueError('Installer must be beside the package')
+        with installer.open('rb') as stream:
+            installer_digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+        manifest.update(installer=installer.name, installer_sha256=installer_digest)
+        sums += f'{installer_digest}  {installer.name}\n'
+        (directory / 'SHA256SUMS').write_text(sums)
     (directory / 'build-info.json').write_text(json.dumps(manifest) + '\n')
-    (directory / 'SHA256SUMS.txt').write_text(f'{digest}  {package.name}\n')
+    (directory / 'SHA256SUMS.txt').write_text(sums)
     validate(directory)
 
 

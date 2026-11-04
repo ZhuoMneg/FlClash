@@ -5,7 +5,8 @@ import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/backup_and_restore.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -39,9 +40,9 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: TestApp(
-          withStatusManager: true,
           child: Builder(
             builder: (context) => Scaffold(
+              title: 'Backups',
               body: TextButton(
                 onPressed: () async => onResult(
                   await showSheet<DAVBackup>(
@@ -181,9 +182,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       expect(find.text('Still available'), findsOneWidget);
       expect(
-        tester
-            .widget<CommonScaffold>(find.byType(CommonScaffold).first)
-            .isLoading,
+        tester.widget<Scaffold>(find.byType(Scaffold).first).isLoading,
         isFalse,
       );
       expect(tester.takeException(), isNull);

@@ -1,37 +1,42 @@
 # Surfaces
 
-This fork follows the user's approved white desktop preview: cool near-white cards,
-fine cool outlines and restrained shadows separate cards from the white page.
-Accent color still marks selection, status and the main action. Layout density and
-navigation proportions follow that preview; original interactions remain intact.
+This fork retains the user's white desktop theme: `appSurfaceColors` in
+`lib/ui/app_surfaces.dart` keeps light page and chrome white, cards cool white,
+and inset controls lightly tinted. The rounded desktop dock and dashboard use a
+thin cool edge. Dark mode and Prism's component geometry and motion stay seeded.
+
+FlClash draws structure with fills and keeps color for state. A surface stands out from what it sits on by a step in
+lightness, never by a border. Color appears where something is selected, on, failing, or the one action a screen is
+for. The dashboard set this direction; every other screen follows it, and components give up tonal container fills.
 
 ## Levels
 
-`SurfaceLevel` in `lib/ui/surface.dart` names four depths. Each surface takes the level one deeper than the one
+`SurfaceLevel` in `prism_ui/lib/surface.dart` names four depths. Each surface takes the level one deeper than the one
 it sits on, which `SurfaceScope` passes down the tree.
 
 | Level   | Light                     | Dark                      | Holds                                                   |
 |---------|---------------------------|---------------------------|---------------------------------------------------------|
-| `page`  | white                     | `surface`                 | scaffold body, sheets                                   |
-| `card`  | `#FCFCFE`                 | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
-| `block` | `#F3F5F9`                 | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
-| `inset` | `#E9EDF4`                 | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
+| `page`  | `surfaceContainer`        | `surface`                 | scaffold body, sheets                                   |
+| `card`  | `surfaceBright`           | `surfaceContainer`        | cards, grouped runs of rows, light-mode floats          |
+| `block` | `surfaceContainer`        | `surfaceContainerHigh`    | unselected segments, tiles and wells in a card          |
+| `inset` | `surfaceContainerHighest` | `surfaceContainerHighest` | small marks inside a block: glyph wells, badges, tracks |
 
-The shared `cardEdge` and `cardShadows` roles apply to standalone cards and the outside
-of grouped settings, never to every nested row. They are empty in dark mode.
-The desktop dock has the preview's outlined panel, bounded height and outlined
-vector icons; settings remains at its foot. The seeded ColorScheme itself is unchanged. Dark mode only
-lightens, because a darker step inside a lighter surface reads as a hole rather than a layer. `inset` is the floor;
+Light mode alternates gray and paper: a near-white card on a gray page, a gray block in the card. The card is tone 98,
+not pure white, and the page tone 94: pure white beside a tinted gray made the white glare and the gray look soiled. Dark mode only
+lightens, because a darker step inside a lighter surface reads as a hole rather than a layer, and it steps further:
+tones 6, 15, 21, 27 where light steps by 4, as iOS 27 sets its dark grouped card about 2.3 times as far off the page
+as its light one. At Material's dark tones a card stood barely clear of the page, and on pure black hardly at all.
+`inset` is the floor;
 nothing nests below it, so a design that needs a fifth level needs fewer containers instead.
 
-- A widget never picks its level at the call site. `CommonCard` and the other shared surfaces read
+- A widget never picks its level at the call site. `Card` and the other shared surfaces read
   `context.raisedSurfaceLevel` and wrap their child in `SurfaceScope`, so the same row is white on a page and gray
   inside a card. A branch on `isInBottomSheet` or on where a widget is placed to choose its fill is the bug this
   replaces.
 - Sheets are `page` level, like a page, so a section looks the same in a sheet and in a page. In dark mode a sheet
-  presents a level up, as iOS presents a sheet on its elevated backgrounds: `ColorScheme.elevated` moves every level
+  presents a level up, as iOS presents a sheet on its elevated backgrounds: `ThemeData.elevatedColorScheme` moves every level
   up one, so the sheet's page takes the tone of the cards it covers, its cards the tone of a block, and its blocks
-  the tone of an inset, under pure black too. `ElevatedColorScheme` carries the result and the sheet
+  the tone of an inset, under pure black too. The sheet
   routes apply it through `ElevatedSurfaceTheme`; a sheet opened from a sheet keeps the same lift. A scrim barely
   darkens a dark page, so a dark sheet at the page's own tone read as more of the page rather than a layer over it,
   a covered sheet's peek vanished, and on black the edge and corners went with it. Light mode keeps its levels,
@@ -39,8 +44,8 @@ nothing nests below it, so a design that needs a fifth level needs fewer contain
 - What floats over content, dialogs, menus, popups, the mobile dock, toasts, takes `SurfaceLevel.floatingOf`: `card`
   in light, `block` in dark. A shadow does not show on a dark page, so a float has to come out lighter than the cards
   it covers, and its content scopes to that level so a block inside still steps away from it.
-- Shadows mark what floats, plus the dashboard cards. Root cards use only the preview's small shared shadow;
-  grouped rows and nested controls do not repeat it. A render object that paints a shadow itself draws it
+- Shadows mark what floats, plus the dashboard cards. Cards in a scrolling list have none; a grid of proxies with a
+  blurred shadow each costs raster time for no extra layering. A render object that paints a shadow itself draws it
   with `drawRSuperellipse`, as `ShapeDecoration` does: Impeller blurs a superellipse in one analytic pass, but a path
   through an offscreen Gaussian blur on every frame, which made the shadows the largest raster cost of an opening menu.
   A shadow is black at an opacity, so one measured on iOS darkens FlClash's surfaces as it darkens iOS's own: the
@@ -49,7 +54,7 @@ nothing nests below it, so a design that needs a fifth level needs fewer contain
 
 ## The Seeded Scheme
 
-`seededColorScheme` in `lib/ui/color.dart` builds every app scheme: Material's scheme for the seed and the
+`seededColorScheme` in `prism_ui/lib/color.dart` builds every app scheme: Material's scheme for the seed and the
 `ColorStyle` picked in the theme settings, with four groups of roles replaced. Everything else stays Material,
 including `toPureBlack` applied after it.
 
@@ -95,7 +100,7 @@ Color marks the one item that differs, never the structure around it.
 - **Selected**, one of several rows, cards, or tiles: the item keeps its level's fill and a primary mark says which,
   as iOS checks the option picked from a list. A row in a grouped run takes `SelectionCheck` at its edge; a card that
   stands on its own, a profile or a proxy, and a tile take the filled `SelectionBadge`, which holds its own beside a
-  40 dp icon well where the bare check read as small and thin (`lib/ui/selection_mark.dart`). `CommonCard.isSelected` only reports the state to
+  40 dp icon well where the bare check read as small and thin (`prism_ui/lib/selection_mark.dart`). `Card.isSelected` only reports the state to
   accessibility. Fills were tried and rejected: a wash of primary landed on a gray that did not read as a choice, and
   `primaryContainer` read as a warning under rose seeds in light and as a heavy slab in dark, muddied the translucent
   marks on it, and cut a grouped run in two.
@@ -105,7 +110,7 @@ Color marks the one item that differs, never the structure around it.
   like the check while the group uses it, tonal while the group has fallen back to another proxy, which carries the
   check.
 - **Chosen segment** in a connected button group, a mode switch, or a run of compact choice chips
-  (`CommonCard.fillsSelection`): solid `primary` with `onPrimary`, as the dashboard outbound mode does. Only one
+  (`Card.fillsSelection`): solid `primary` with `onPrimary`, as the dashboard outbound mode does. Only one
   segment per group.
 - **Error** on a row or card: `errorContainer` with `onErrorContainer`, no border.
 - **Status** values (delay, availability, success, warning): the color goes on text, a glyph, or a small chip, never
@@ -113,6 +118,8 @@ Color marks the one item that differs, never the structure around it.
   Material's `error`; harmonizing pulled orange toward red under rose seeds until warning and error matched. Text takes
   tone 40 in light and 80 in dark, a chip takes `successContainer`/`warningContainer` (90/30) with the `on` role
   (30/90). A delay under 600 ms is success, above it warning, a failure error: `ColorScheme.delayColor`.
+- **Root access** on the dashboard's status card: a 1.5 dp `primary` border over its content, with no chip.
+  Its fill stays at its level, and a screen reader gets the state from the card's label.
 - **Destructive** action in an alert: `ColorScheme.destructive`, iOS 27's systemRed in both modes, not `error`. A
   menu's `danger` item still takes `error`.
 - **Data series** on one chart: the first is primary, the second primary at 45% over the card
@@ -135,7 +142,7 @@ Color marks the one item that differs, never the structure around it.
   iOS and macOS set one, with no stroke or fill of its own. A field among filled controls takes their fill, one level
   above its surface, through `FilledInputTheme`. An alert's fields, because they sit over its pill buttons, as
   UIAlertController sets them: as wide as the buttons, in their fill, with their text in line with the title and the
-  label as the placeholder (`CommonDialog.hasFields`); a field under a filled block of text in an alert takes the
+  label as the placeholder (`AlertDialog.hasFields`); a field under a filled block of text in an alert takes the
   block's width and corner instead. The custom color's hex field, because its card holds only fills, the color
   previews, where an outline was the one stroked thing. All of these stroke only while focused. Search fields are filled
   pills on the `GooSurface` they share with the buttons beside them, and ring only focus a key or a remote moved there,
@@ -143,7 +150,7 @@ Color marks the one item that differs, never the structure around it.
   the list scrolls under it: it floats like the dock, with the floating fill and the dock's shadow, or the dock's glass.
   The editor's find bar, because its fields sit in a row of filled pill buttons: they take the buttons' fill, one level
   above the bar. Any other field, one standing alone on a page, is outlined, with the floating label notched into the
-  stroke: `ThemeData.withAppShapes` gives every input `AppShape.input`, so call sites leave `border` unset. A lone field
+  stroke: `AppInputBorder` draws every input in `AppShape.input`, so call sites leave `border` unset. A lone field
   is never filled: here a fill means structure, so one read as one more card or row, and in light mode the hover overlay
   brought it down to the page's own tone. No field counts its characters, as none does on iOS or macOS; a length limit
   holds through its formatter. Material strokes a filled field's whole outline in `onSurfaceVariant`, which ringed the
@@ -151,7 +158,7 @@ Color marks the one item that differs, never the structure around it.
 - **Window chrome**: the desktop sidebar's inner edge and the title bar's bottom edge draw a divider where they meet
   the content. The chrome fill alone left the edge to a four-tone step, which read as a smudge rather than a boundary.
 
-Nothing else draws an outline. Rows in a grouped run are separated by the hairline from `lib/ui/list_row_separator.dart`, which divides
+Nothing else draws an outline. Rows in a grouped run are separated by the hairline from `prism_ui/lib/list_row_separator.dart`, which divides
 one surface and does not outline it. Record lists, requests, connections, logs, and DNS queries, are not grouped: they
 run to thousands of tall rows, and one card that long reads as a slab rather than a group. A stacked row of three or
 four lines is already its own block, so each is a card of its own, `RecordListItem`: the raised fill at `xl`, 16 dp
@@ -161,20 +168,60 @@ a full-width divider were the one structural line left on screens otherwise draw
 where a row is one line read across many columns, they drop the gap and give every other row the raised fill, inset
 and rounded like the column header, so the eye keeps its row; the dashboard's table does the same.
 
-Every divider takes its color from `ThemeData.withAppSurfaces`: `onSurface` at 14%, never `outlineVariant`. A
+Every divider takes its color from `Divider.colorOf`: `onSurface` at 14%, never `outlineVariant`. A
 translucent line keeps the same contrast on the page, a card, or the chrome, in both modes; `outlineVariant` stood out
 twice as much on the dark page as on the light one and carried the seed's tint.
 
+## Press
+
+Cards, rows and the surfaces that act like them (dashboard cards and blocks, record rows, chips, swatches, segments)
+answer a press with ink under every pointer; buttons keep the tint iOS 27 gives a UIButton, measured in the
+simulator. Nothing scales.
+
+- **Ink**: the `PressLook.ink` of `PressSurface`, drawn and timed as Material 3's `InkWell` . A state layer of the content color at 10% fades in over 200 ms and stays while held: from
+  pointer down under a mouse, which drags no scroll view, and under a touch once the tap recognizer reports it, at
+  `kPressTimeout` or on release. Release, a scroll, or another recognizer taking the pointer fades it out over 200 ms;
+  the activate key flashes it. On Android the press also sends a 617 ms sparkle from where it landed toward the
+  center with `InkSparkle`'s shader (`shaders/ink_sparkle.frag`, run by `PressSparkles` in
+  `prism_ui/lib/press_sparkle.dart`), from the center for a key, so a quick tap still answers; other
+  platforms show the state layer alone, as Material's desktop highlight does. The content color is `onSurface` on a
+  neutral card or row, `onPrimary` on a card that fills its selection (`PressSurface.inkColor`), the foreground where
+  one is set. The sparkle waits for the shader to load and is skipped under reduced motion.
+- **Tint**: a button, filled, text or icon, fades to 75% in light and mixes in 20% white in dark, so a held button
+  brightens there. Outside a scroll view it shows on pointer down; inside one that can scroll it waits 150 ms, as
+  UIScrollView holds a touch before handing it to the button, so a quick tap acts without lighting it, and a drag that
+  starts a scroll clears it at once. Release fades it over 250 ms on `Curves.easeInOut`; the activate key shows it and
+  fades it the same way. A button under `ElasticPress` (bar buttons, `ElasticButton`) and a selected segment take
+  `PressLook.none`, showing neither, and leave the press to the swell.
+- **Hover**: iPadOS 27 leaves list cells, grid cells, and filled and gray buttons unchanged under a pointer, but a
+  desktop pointer expects an answer, so a `PressSurface` lays `onSurface` at 4% over its fill, as faint as the
+  sidebar's, while a pointer rests on it, besides turning the cursor to a hand. A button whose style resolves its own
+  hover overlay (the alert's) shows only that, and a surface with `PressLook.none` leaves the hover to its owner: bar
+  button groups keep their pointer capsule, a lone bar button its lift, and the window's caption buttons shade as the
+  system's do.
+- A control inside a card, a switch, an icon button, a delay label, takes its own press and leaves the card unlit:
+  `CardSurface` (`prism_ui/lib/card_surface.dart`) skips a press whose hit lands on anything with a semantic tap.
+
+`PressSurface` (`prism_ui/lib/press_surface.dart`) owns the press, the ink, the focus ring, and the fill's
+transitions, drawn by `CardSurface`, one render object that lays out, paints, and hit-tests the surface. `Card` is a
+`PressSurface` with the card's fill and content styles; a row that is not a card, such as a record or a bare `ListItem`, takes a
+`PressSurface` of its own, transparent where the row has no fill. `IconButton` (`prism_ui/lib/common_button.dart`)
+is a `PressSurface` laid out and colored as a Material 3 icon button, styled by `ButtonStyle` and
+`ButtonTheme`. Rows lay out with `ListRow` (`prism_ui/lib/list_row.dart`),
+the geometry of a Material 3 list tile without its ink, so nothing in a list needs a `Material` ancestor.
+
 ## Navigation
 
-- The desktop sidebar and title bar are window chrome, `ColorScheme.chromeSurface`: white in light and
-  `surfaceContainerLow` in dark, with a divider along the content edge. The overlay pane takes the same fill and edge,
-  plus its original shadow. Sidebar destinations use rounded pills; the selected light-mode pill has a pale primary
-  fill, primary icon/text and a small shadow. Dark mode keeps the neutral selected fill. The moving primary bar remains.
+- The desktop sidebar and title bar are window chrome, `ColorScheme.chromeSurface`: `surfaceContainerHighest` in
+  light and `surfaceContainerLow` in dark, four tones from the page either way, with a divider along the edge that
+  meets the content. At `page` level the sidebar merged with the content. In dark the chrome stays below `card`, so
+  cards still stand out from it. The pane the sidebar opens over the content takes the same fill and edge, plus a
+  shadow.
+  The selected destination keeps its neutral fill and primary bar, which already marks it with color.
 - The mobile dock and the docked navigation bar are floats; their indicator is a neutral platter one level above
   them, and the selected destination's content takes primary, as iOS's tab bar marks its selection.
 - With Liquid Glass on (Theme settings), the dock, the buttons of a page's bar, a docked search, popup
-  menus, and alerts are glass from `lib/ui/liquid_glass.dart` instead of a fill, and the dock's platter takes the
+  menus, and alerts are glass from `prism_ui/lib/liquid_glass.dart` instead of a fill, and the dock's platter takes the
   secondary hue and chroma at tone 90, or at tone 4 in dark, which sinks it below the bar as iOS 27 does.
 - The proxies page's group tabs are compact choice chips, the current group in the chosen segment's solid `primary`.
   Once they overflow, a tonal button at their end opens every group as a popup menu, the current one checked and
@@ -182,10 +229,10 @@ twice as much on the dark page as on the light one and carried the seed's tint.
 
 ## Where It Lives
 
-- `lib/ui/surface.dart`: `SurfaceLevel`, `SurfaceScope`, `context.surfaceLevel`, `context.raisedSurfaceLevel`,
-  `ColorScheme.chromeSurface`, and `ThemeData.withAppSurfaces`, applied next to `withAppShapes` wherever the app
-  builds its theme.
-- `lib/ui/color.dart`: `seededColorScheme`, the status palettes, and `delayColor`.
+- `prism_ui/lib/surface.dart`: `SurfaceLevel`, `SurfaceScope`, `context.surfaceLevel`, `context.raisedSurfaceLevel`,
+  and `ColorScheme.chromeSurface`.
+- `prism_ui/lib/color.dart`: `seededColorScheme` and the status palettes; `lib/ui/delay_color.dart` maps a
+  delay onto them.
 - `lib/views/dashboard/style.dart`: `DashboardColors` maps `page`, `card`, `tone`, and `tone2` onto the levels and
   adds the dashboard's switch, series, and status colors.
 

@@ -8,7 +8,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/widgets.dart';
 
 String? requestDomain(TrackerInfo request) {
   final host = request.metadata.host.trim().toLowerCase().replaceFirst(
@@ -207,12 +207,12 @@ class _RequestRoutingActionsState extends ConsumerState<RequestRoutingActions> {
             ListItem(
               title: Text(l.requestCreateRule),
               onTap: !hasProfile || _saving ? null : _createRule,
-              trailing: _saving ? const CommonCircleLoading(size: 18) : null,
+              trailing: _saving ? const ActivityIndicator(size: 18) : null,
             ),
             ListItem(
               title: Text(l.requestCheckRoute),
               onTap: _checking ? null : _checkRoute,
-              trailing: _checking ? const CommonCircleLoading(size: 18) : null,
+              trailing: _checking ? const ActivityIndicator(size: 18) : null,
             ),
           ],
         ),
