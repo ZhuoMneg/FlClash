@@ -46,12 +46,14 @@ jobs:
       - name: Verify Rust editor and IPC
         run: cargo test --manifest-path plugins/rust_api/rust/Cargo.toml
       - name: Resolve dependencies
+        id: dependencies
         run: flutter pub get
       - name: Verify release package validation
         run: python3 -m unittest discover -s tool/update-channel -p 'test_*.py'
       - name: Analyze
         run: flutter analyze --no-fatal-infos
       - name: Skip unused Go build hook in UI tests
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -60,20 +62,28 @@ jobs:
           path.write_text(source.replace('setup:\n      build_assets: true', 'setup:\n      build_assets: false', 1))
           PY
       - name: Verify interface and source rules
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/views/navigation_test.dart test/views/requests_test.dart test/pages/home_test.dart test/views/theme_test.dart test/models/config_test.dart test/widgets/rounded_surfaces_test.dart test/icons test/manager/window_header_test.dart test/manager/theme_manager_test.dart test/common/helpers_test.dart test/widgets/proxy_card_focus_test.dart test/widgets/profile_focus_test.dart test/widgets/list_header_focus_test.dart test/widgets/list_row_separator_test.dart test/widgets/proxies_tab_test.dart test/widgets/proxies_list_test.dart test/widgets/sidebar_test.dart test/widgets/liquid_glass_test.dart test/widgets/liquid_glass_host_test.dart test/views/dashboard/layout_test.dart test/common/migration_test.dart test/common/request_test.dart test/l10n test/lint --concurrency 2
       - name: Verify custom release versions
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/common/request_test.dart test/common/app_update_test.dart --dart-define=UPDATE_REPOSITORY=${{ github.repository }}
       - name: Verify custom tunnel lifecycle
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/models/network_tunnel_test.dart test/views/network_tunnel_test.dart test/manager/core_manager_test.dart --concurrency 2
       - name: Verify added utilities
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/common/node_exclusion_test.dart test/providers/node_exclusion_test.dart test/common/compute_test.dart test/common/webdav_test.dart test/common/dav_client_test.dart test/views/settings_search_test.dart test/views/backup_versions_test.dart test/views/backup_and_restore_test.dart test/providers/backup_action_test.dart --concurrency 2
       - name: Verify routing and usability workflows
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/views/network_activity_test.dart test/views/connections_test.dart test/views/dns_queries_view_test.dart test/views/routing_test.dart test/features/connection test/views/navigation_settings_test.dart test/views/restore_confirmation_test.dart test/views/dashboard/custom_layout_test.dart --concurrency 2
       - name: Verify official core, database, editor and override changes
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/core test/database test/plugins/code_forge test/providers/setup_action_test.dart test/providers/config_test.dart test/views/general_config_test.dart test/views/proxies_list_test.dart test/models/dns_override_test.dart test/models/ntp_override_test.dart test/models/sniffer_override_test.dart --concurrency 2
       - name: Verify settings destinations
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/widgets/views_smoke_test.dart --name 'settings opens|settings renders its default state'
       - name: Verify Prism widget integration
+        if: ${{ !cancelled() && steps.dependencies.outcome == 'success' }}
         run: flutter test test/widgets --concurrency 2
 
   windows:

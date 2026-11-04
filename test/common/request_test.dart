@@ -165,13 +165,14 @@ void main() {
       return Request()..dio.httpClientAdapter = _HostAdapter(byHost);
     }
 
-    test(
+    testWidgets(
       'stalled update endpoints time out, cancel their sockets, and can be retried',
-      () async {
+      (tester) async {
         final adapter = _PendingAdapter();
         final client = Request(updateTimeout: const Duration(milliseconds: 20))
           ..dio.httpClientAdapter = adapter;
-        await expectLater(
+        var settled = false;
+        final outcome = expectLater(
           client.latestRelease(),
           throwsA(
             isA<DioException>().having(
@@ -180,20 +181,28 @@ void main() {
               DioExceptionType.receiveTimeout,
             ),
           ),
-        );
-        await Future<void>.delayed(Duration.zero);
+        ).whenComplete(() => settled = true);
+        for (var tick = 0; tick < 10 && !settled; tick++) {
+          await tester.pump(const Duration(milliseconds: 20));
+        }
+        expect(settled, isTrue);
+        await outcome;
         expect(adapter.calls, 2);
         expect(adapter.cancellations, 2);
-        client.dio.httpClientAdapter = _HostAdapter({
-          'api.github.com': () => ResponseBody.fromString(
-            '{"tag_name":"v0.9.2"}',
-            200,
-            headers: {
-              Headers.contentTypeHeader: [Headers.jsonContentType],
-            },
+        client.dio.interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) => handler.resolve(
+              Response(requestOptions: options, data: {'tag_name': 'v0.9.2'}),
+            ),
           ),
-        });
-        expect(await client.latestRelease(), {'tag_name': 'v0.9.2'});
+        );
+        Map<String, dynamic>? answer;
+        final retry = client.latestRelease().then((value) => answer = value);
+        for (var tick = 0; tick < 10 && answer == null; tick++) {
+          await tester.pump(Duration.zero);
+        }
+        expect(answer, {'tag_name': 'v0.9.2'});
+        await retry;
       },
     );
 
