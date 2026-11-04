@@ -191,6 +191,7 @@ class _Sidebar extends ConsumerWidget {
 
 class AppSidebarContainer extends ConsumerWidget {
   static const _dockPanelCorner = 32.0;
+  static const _dockPanelInset = 18.0;
   final Widget child;
 
   const AppSidebarContainer({super.key, required this.child});
@@ -229,6 +230,12 @@ class AppSidebarContainer extends ConsumerWidget {
     final backdropOpacity = ref.watch(windowBlurProvider);
     final page = SurfaceLevel.page.colorOf(context.colorScheme);
     final chrome = context.colorScheme.appChromeSurface;
+    final horizontalMargin =
+        (MediaQuery.sizeOf(context).width - maxMobileWidth).clamp(
+          0.0,
+          _dockPanelInset * 2,
+        ) /
+        2;
     void onSelected(int index) {
       _handleToPage(ref, navigationItems[index].label);
     }
@@ -242,7 +249,10 @@ class AppSidebarContainer extends ConsumerWidget {
           AnimatedVisibility.sidebar(
             visible: hasSidebar,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalMargin,
+                vertical: 14,
+              ),
               child: Align(
                 alignment: AlignmentDirectional.topStart,
                 widthFactor: 1,

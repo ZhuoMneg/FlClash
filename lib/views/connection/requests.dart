@@ -185,76 +185,81 @@ class _RequestsViewState extends ConsumerState<RequestsView>
     ];
   }
 
-  Widget _recentControls(Widget child) => Column(
-    children: [
-      Padding(
-        padding: EdgeInsets.fromLTRB(16, context.contentTopPadding, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 8,
-          children: [
-            SearchField(onChanged: _search),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final (disposition, label) in [
-                  (RequestDisposition.direct, context.appLocalizations.direct),
-                  (
-                    RequestDisposition.rejected,
-                    context.appLocalizations.requestRejected,
-                  ),
-                ])
-                  Chip(
-                    label: label,
-                    selected: _filter.disposition == disposition,
-                    onPressed: () => setState(
-                      () => _filter = RequestFilter(
-                        disposition: _filter.disposition == disposition
-                            ? RequestDisposition.any
-                            : disposition,
+  Widget _recentControls(Widget child) => Builder(
+    builder: (context) => Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, context.contentTopPadding, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 8,
+            children: [
+              SearchField(onChanged: _search),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final (disposition, label) in [
+                    (
+                      RequestDisposition.direct,
+                      context.appLocalizations.direct,
+                    ),
+                    (
+                      RequestDisposition.rejected,
+                      context.appLocalizations.requestRejected,
+                    ),
+                  ])
+                    Chip(
+                      label: label,
+                      selected: _filter.disposition == disposition,
+                      onPressed: () => setState(
+                        () => _filter = RequestFilter(
+                          disposition: _filter.disposition == disposition
+                              ? RequestDisposition.any
+                              : disposition,
+                        ),
                       ),
                     ),
+                  if (_filter.isActive)
+                    Chip(
+                      label: context.appLocalizations.reset,
+                      onPressed: () =>
+                          setState(() => _filter = const RequestFilter()),
+                    ),
+                  ValueListenableBuilder<TrackerInfosState>(
+                    valueListenable: _recent,
+                    builder: (context, state, _) => Chip(
+                      key: const ValueKey('requests-follow-toggle'),
+                      label: _manualPause || !state.autoScrollToEnd
+                          ? context.appLocalizations.requestResumeFollow
+                          : context.appLocalizations.requestPauseFollow,
+                      onPressed: () {
+                        if (_manualPause || !state.autoScrollToEnd) {
+                          _showLatestRequests();
+                        } else {
+                          _manualPause = true;
+                          _recent.setAutoScrollToEnd(false);
+                        }
+                      },
+                    ),
                   ),
-                if (_filter.isActive)
-                  Chip(
-                    label: context.appLocalizations.reset,
-                    onPressed: () =>
-                        setState(() => _filter = const RequestFilter()),
-                  ),
-                ValueListenableBuilder<TrackerInfosState>(
-                  valueListenable: _recent,
-                  builder: (context, state, _) => Chip(
-                    key: const ValueKey('requests-follow-toggle'),
-                    label: _manualPause || !state.autoScrollToEnd
-                        ? context.appLocalizations.requestResumeFollow
-                        : context.appLocalizations.requestPauseFollow,
-                    onPressed: () {
-                      if (_manualPause || !state.autoScrollToEnd) {
-                        _showLatestRequests();
-                      } else {
-                        _manualPause = true;
-                        _recent.setAutoScrollToEnd(false);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      Expanded(
-        child: MediaQuery.removePadding(
-          context: context,
-          removeTop: true,
-          child: FloatingBarScope(
-            inset: 0,
-            child: TopInsetScope(inset: 0, child: child),
+                ],
+              ),
+            ],
           ),
         ),
-      ),
-    ],
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: FloatingBarScope(
+              inset: 0,
+              child: TopInsetScope(inset: 0, child: child),
+            ),
+          ),
+        ),
+      ],
+    ),
   );
 
   Widget _buildBody() {

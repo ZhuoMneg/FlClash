@@ -279,7 +279,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
               context.appLocalizations.settings,
             ),
           ),
-          child: ListView.builder(
+          child: PrismListView(
             key: toolsStoreKey,
             itemCount: items.length,
             itemBuilder: (_, index) => items[index],

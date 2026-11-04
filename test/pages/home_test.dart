@@ -171,14 +171,10 @@ void main() {
             )
             .first,
       );
-      expect(sidebarSurface.color, colorScheme.chromeSurface);
-      expect(sidebarSurface.color, isNot(sidebarContainer.color));
-      expect(
-        (sidebarSurface.shape! as BorderDirectional).end,
-        Divider.createBorderSide(
-          tester.element(find.byType(NavigationSidebar)),
-        ),
-      );
+      expect(sidebarSurface.color, colorScheme.appChromeSurface);
+      final sidebarShape = sidebarSurface.shape! as RoundedSuperellipseBorder;
+      expect(sidebarShape.side, colorScheme.cardEdge);
+      expect(sidebarShape.borderRadius, AppRadius.all(32));
 
       await tester.tap(find.text('count: 0'));
       await tester.pump();
@@ -474,7 +470,7 @@ void main() {
   );
 
   testWidgets(
-    'desktop navigation keeps the tools route when logs are enabled',
+    'desktop navigation keeps the settings route when logs are enabled',
     (tester) async {
       tester.view.physicalSize = const Size(1400, 1000);
       tester.view.devicePixelRatio = 1;
@@ -485,7 +481,9 @@ void main() {
       addTearDown(container.dispose);
       globalState.container = container;
       container.read(viewSizeProvider.notifier).value = const Size(1400, 1000);
-      container.read(currentPageLabelProvider.notifier).toPage(PageLabel.tools);
+      container
+          .read(currentPageLabelProvider.notifier)
+          .toPage(PageLabel.settings);
 
       await tester.pumpWidget(
         UncontrolledProviderScope(
@@ -499,7 +497,12 @@ void main() {
       await tester.scrollUntilVisible(
         generalItem,
         500,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: find
+            .descendant(
+              of: find.byType(ToolsView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
       );
       await tester.tap(generalItem);
       await tester.pumpAndSettle();

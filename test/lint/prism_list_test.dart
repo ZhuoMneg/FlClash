@@ -8,7 +8,7 @@ import 'sources.dart';
 final _flutterList = RegExp(
   r'\b(?:ListView\.(?:builder|separated)|SliverList\.(?:builder|separated)|'
   r'ReorderableListView(?:\.\w+)?|ReorderableList|SliverReorderableList|'
-  r'PrismListView(?:\.\w+)?|SuperSliverList(?:\.\w+)?)\(',
+  r'SuperListView(?:\.\w+)?|SuperSliverList(?:\.\w+)?)\(',
 );
 
 const _allowed = {
@@ -24,7 +24,7 @@ void main() {
       if (entity is! File || !entity.path.endsWith('.dart')) {
         continue;
       }
-      final path = p.relative(entity.path);
+      final path = p.relative(entity.path).replaceAll(r'\', '/');
       if (_allowed.containsKey(path)) {
         continue;
       }
