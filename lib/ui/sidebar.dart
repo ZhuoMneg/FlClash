@@ -15,7 +15,6 @@ const _compactWidth = 48.0;
 const _expandedWidth = 220.0;
 const _dockWidth = 90.0;
 const _dockItemHeight = 58.0;
-const _dockMinimumContentHeight = 530.0;
 const _itemSize = 40.0;
 const _itemGap = 4.0;
 const _toggleGap = 8.0;
@@ -73,6 +72,7 @@ class NavigationSidebar extends StatefulWidget {
 class _NavigationSidebarState extends State<NavigationSidebar>
     with SingleTickerProviderStateMixin {
   final _overlayController = OverlayPortalController();
+  final _scrollController = ScrollController();
   late final AnimationController _overlayExpansion = AnimationController(
     vsync: this,
     duration: _expandDuration,
@@ -115,6 +115,7 @@ class _NavigationSidebarState extends State<NavigationSidebar>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _overlayProgress.dispose();
     _overlayExpansion.dispose();
     super.dispose();
@@ -157,6 +158,7 @@ class _NavigationSidebarState extends State<NavigationSidebar>
           duration: _expandDuration,
           curve: Easing.standard,
           builder: (context, progress, _) => _SidebarPane(
+            scrollController: _scrollController,
             docked: widget.docked,
             progress: progress,
             windowControls: widget.windowControls,
@@ -277,6 +279,7 @@ class _SidebarPane extends StatelessWidget {
     required this.onSelected,
     required this.onToggle,
     this.docked = false,
+    this.scrollController,
   });
 
   final double progress;
@@ -287,6 +290,7 @@ class _SidebarPane extends StatelessWidget {
   final ValueChanged<int> onSelected;
   final VoidCallback onToggle;
   final bool docked;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -310,6 +314,12 @@ class _SidebarPane extends StatelessWidget {
             : _itemSize) +
         MediaQuery.textScalerOf(context).scale(fontSize) -
         fontSize;
+    final dockContentHeight =
+        windowControls.height +
+        _verticalInset +
+        24 +
+        2 +
+        destinations.length * (itemHeight + itemGap);
     final paneWidth = lerpDouble(
       compactWidth,
       docked ? math.max(_dockWidth, compactWidth) : _expandedWidth,
@@ -358,74 +368,106 @@ class _SidebarPane extends StatelessWidget {
     return SizedBox(
       width: paneWidth,
       child: LayoutBuilder(
-        builder: (context, constraints) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(height: windowControls.height + _verticalInset),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: _SidebarButton(
-                colors: colors,
-                height: docked ? 24 : itemHeight,
-                sideInset: sideInset,
-                tooltip: expanded
-                    ? UiLocalizations.of(context).showLess
-                    : UiLocalizations.of(context).showMore,
-                tooltipIsLabel: true,
-                onTap: onToggle,
-                child: SizedBox(
-                  width: docked ? paneWidth - sideInset * 2 : itemWidth,
-                  child: Center(
-                    child: GlyphIcon(
-                      AppGlyphs.sidebar(progress),
-                      strokeWidth: docked ? 2 : null,
+        builder: (context, constraints) {
+          final controller = scrollController;
+          if (docked &&
+              controller != null &&
+              selectedIndex >= 0 &&
+              selectedIndex < destinations.length &&
+              !destinations[selectedIndex].isFooter) {
+            final row = destinations
+                .take(selectedIndex)
+                .where((item) => !item.isFooter)
+                .length;
+            final top = row * (itemHeight + itemGap);
+            final bottom = top + itemHeight + itemGap;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!controller.hasClients) {
+                return;
+              }
+              final position = controller.position;
+              final offset = position.pixels;
+              final target = top < offset
+                  ? top
+                  : bottom > offset + position.viewportDimension
+                  ? bottom - position.viewportDimension
+                  : offset;
+              final next = target.clamp(0.0, position.maxScrollExtent);
+              if (next != offset) {
+                controller.jumpTo(next);
+              }
+            });
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: windowControls.height + _verticalInset),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: _SidebarButton(
+                  colors: colors,
+                  height: docked ? 24 : itemHeight,
+                  sideInset: sideInset,
+                  tooltip: expanded
+                      ? UiLocalizations.of(context).showLess
+                      : UiLocalizations.of(context).showMore,
+                  tooltipIsLabel: true,
+                  onTap: onToggle,
+                  child: SizedBox(
+                    width: docked ? paneWidth - sideInset * 2 : itemWidth,
+                    child: Center(
+                      child: GlyphIcon(
+                        AppGlyphs.sidebar(progress),
+                        strokeWidth: docked ? 2 : null,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: docked ? 2 : _toggleGap),
-            Expanded(
-              child: ScrollConfiguration(
-                behavior: const HiddenBarScrollBehavior(),
-                child: SingleChildScrollView(
-                  child: Stack(
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          for (final (index, destination)
-                              in destinations.indexed)
-                            if (!destination.isFooter)
-                              destinationButton(index, destination),
-                        ],
-                      ),
-                      if (!docked &&
-                          selectedIndex < destinations.length &&
-                          !destinations[selectedIndex].isFooter)
-                        _SelectionIndicator(
-                          color: colors.indicator,
-                          index: selectedIndex,
-                          start: sideInset,
-                          stride: itemHeight + _itemGap,
+              SizedBox(height: docked ? 2 : _toggleGap),
+              Expanded(
+                child: ScrollConfiguration(
+                  behavior: const HiddenBarScrollBehavior(),
+                  child: SingleChildScrollView(
+                    controller: controller,
+                    child: Stack(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final (index, destination)
+                                in destinations.indexed)
+                              if (!destination.isFooter)
+                                destinationButton(index, destination),
+                          ],
                         ),
-                    ],
+                        if (!docked &&
+                            selectedIndex < destinations.length &&
+                            !destinations[selectedIndex].isFooter)
+                          _SelectionIndicator(
+                            color: colors.indicator,
+                            index: selectedIndex,
+                            start: sideInset,
+                            stride: itemHeight + _itemGap,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            for (final (index, destination) in destinations.indexed)
-              if (destination.isFooter) destinationButton(index, destination),
-            SizedBox(
-              height: docked
-                  ? (constraints.maxHeight - _dockMinimumContentHeight).clamp(
-                      _verticalInset,
-                      80.0,
-                    )
-                  : _verticalInset,
-            ),
-          ],
-        ),
+              for (final (index, destination) in destinations.indexed)
+                if (destination.isFooter) destinationButton(index, destination),
+              SizedBox(
+                height: docked
+                    ? (constraints.maxHeight - dockContentHeight).clamp(
+                        _verticalInset,
+                        80.0,
+                      )
+                    : _verticalInset,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -1084,6 +1084,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "安全な接続に失敗しました。サーバー証明書が無効か、接続が傍受されている可能性があります",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("ネットワークトンネル"),
     "networkType": MessageLookupByLibrary.simpleMessage("ネットワーク種別"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("次の一致"),
     "no": MessageLookupByLibrary.simpleMessage("いいえ"),
@@ -1712,6 +1713,49 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "ここで追加した項目は、すべてのプロファイルの TUN 設定を上書きします。追加していない項目はプロファイル自身の設定のままです。カスタムプロファイル自身が追加した項目が優先されます。",
     ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage("コアは停止中"),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard が無効のため拡張は接続できません",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage("アドレス調整サービス"),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "照会不可：前回のアドレスを維持",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage("照会可能"),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("両方を無効にする"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("無効"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage("自宅のエンドポイント"),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage("拡張スクリプト"),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage("トンネル設定をインポート"),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "現在のサブスクリプションに適用しました。両方のスイッチが有効です。",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage(
+      "インポートに失敗しました。設定ファイルを確認してください。",
+    ),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "このオフィス端末専用の非公開 JSON 設定をインポートします。先に古い自宅 WG スクリプトを無効にし、オフィスの TUN はオフにしてください。秘密鍵を含むため共有しないでください。",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "別のサブスクリプションの設定です",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage(
+      "暗号化された応答を最近受信しました",
+    ),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage("エンドポイントを更新"),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "拡張は既存の DIRECT ルールを保ち、ノードを WireGuard 経由で接続します。無効にすると元の設定に戻ります。拡張のみ有効の場合、WG が停止すると接続に失敗します。",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "先にオフィスのサブスクリプションを選択してください。",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("状態"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "アドレス照会の成功は WG 接続を保証しません。受信数は暗号化 UDP 通信を示します。Web サイトやルーターのテストで確認してください。",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage("暗号化 UDP 通信"),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage("設定が必要です"),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage("トンネル通信を待機中"),
     "turnOff": MessageLookupByLibrary.simpleMessage("オフにする"),
     "turnOn": MessageLookupByLibrary.simpleMessage("オンにする"),
     "udpRelayMode": MessageLookupByLibrary.simpleMessage("UDP リレーモード"),

@@ -1314,6 +1314,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "Не удалось установить защищённое соединение. Сертификат сервера может быть недействителен, или соединение перехватывается",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("Сетевой туннель"),
     "networkType": MessageLookupByLibrary.simpleMessage("Тип сети"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Следующее совпадение"),
     "no": MessageLookupByLibrary.simpleMessage("Нет"),
@@ -2103,6 +2104,63 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "Добавленные здесь параметры заменяют настройки TUN всех профилей; остальные остаются такими, как в профиле. Параметры, добавленные в самом пользовательском профиле, имеют приоритет.",
+    ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Ядро остановлено",
+    ),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard выключен: расширение не может подключиться",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage("Служба адресов"),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "Запрос недоступен; используется прежний адрес",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage(
+      "Запрос доступен",
+    ),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("Отключить оба"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("Отключено"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage("Домашний адрес"),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage(
+      "Скрипт расширения",
+    ),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage(
+      "Импорт конфигурации туннеля",
+    ),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "Применено к текущей подписке. Оба переключателя включены.",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage(
+      "Ошибка импорта. Проверьте файл конфигурации.",
+    ),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "Импортируйте закрытый JSON для этого офисного компьютера. Сначала отключите старый скрипт домашнего WG. Офисный TUN должен быть выключен. Файл содержит закрытый ключ — не передавайте его другим.",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "Настройки относятся к другой подписке",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage(
+      "Недавно получены зашифрованные ответы",
+    ),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage("Обновить адрес"),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "Расширение подключает узлы через WireGuard, сохраняя правила DIRECT. Отключение возвращает исходную подписку. При включённом расширении и выключенном WG подключения завершаются ошибкой без перехода на офисный выход.",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "Сначала выберите офисную подписку.",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("Состояние"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "Успешный запрос адреса не подтверждает связь WG. Счётчики показывают зашифрованный UDP-трафик. Проверьте доступ к сайту или маршрутизатору.",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage(
+      "Зашифрованный UDP-трафик",
+    ),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage(
+      "Требуется конфигурация",
+    ),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage(
+      "Ожидание трафика туннеля",
     ),
     "turnOff": MessageLookupByLibrary.simpleMessage("Выключить"),
     "turnOn": MessageLookupByLibrary.simpleMessage("Включить"),

@@ -44,6 +44,11 @@ func handleStartListener() bool {
 	configMu.Lock()
 	defer configMu.Unlock()
 	isRunning.Store(true)
+	if err := reconcileNetworkTunnel(); err != nil {
+		isRunning.Store(false)
+		logError("network tunnel start: %v", err)
+		return false
+	}
 	updateListeners(currentConfig)
 	resolver.ResetConnection()
 	// A probe already out left before the TUN routes and over the DNS
@@ -56,6 +61,7 @@ func handleStopListener() bool {
 	configMu.Lock()
 	defer configMu.Unlock()
 	isRunning.Store(false)
+	_ = reconcileNetworkTunnel()
 	listener.StopListener()
 	resolver.ResetConnection()
 	return true
@@ -93,6 +99,7 @@ func handleShutdown() bool {
 
 	configMu.Lock()
 	isRunning.Store(false)
+	_ = configureNetworkTunnel(nil)
 	listener.StopListener()
 	updater.StopGeoUpdater()
 	executor.Shutdown()

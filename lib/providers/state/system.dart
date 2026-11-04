@@ -19,9 +19,17 @@ UpdateParams updateParams(Ref ref) {
 }
 
 @riverpod
-({PatchClashConfig patchConfig, bool appendSystemDns, bool bypassPrivateRoute})
+({
+  PatchClashConfig patchConfig,
+  bool appendSystemDns,
+  bool bypassPrivateRoute,
+  NetworkTunnelSettings networkTunnel,
+})
 setupPatch(Ref ref) {
   return (
+    networkTunnel: ref.watch(
+      networkSettingProvider.select((state) => state.networkTunnel),
+    ),
     patchConfig: ref.watch(
       patchClashConfigProvider.select((state) => state.setupOnly),
     ),

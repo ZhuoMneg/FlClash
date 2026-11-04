@@ -8677,6 +8677,236 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Network Tunnel`
+  String get networkTunnel {
+    return Intl.message(
+      'Network Tunnel',
+      name: 'networkTunnel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Extension script`
+  String get tunnelExtension {
+    return Intl.message(
+      'Extension script',
+      name: 'tunnelExtension',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import tunnel configuration`
+  String get tunnelImport {
+    return Intl.message(
+      'Import tunnel configuration',
+      name: 'tunnelImport',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select the office subscription first.`
+  String get tunnelSelectProfile {
+    return Intl.message(
+      'Select the office subscription first.',
+      name: 'tunnelSelectProfile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Imported for the current subscription. Both switches are enabled.`
+  String get tunnelImportDone {
+    return Intl.message(
+      'Imported for the current subscription. Both switches are enabled.',
+      name: 'tunnelImportDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import failed. Check the configuration file.`
+  String get tunnelImportFailed {
+    return Intl.message(
+      'Import failed. Check the configuration file.',
+      name: 'tunnelImportFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.`
+  String get tunnelImportHelp {
+    return Intl.message(
+      'Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.',
+      name: 'tunnelImportHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disable both`
+  String get tunnelDisableAll {
+    return Intl.message(
+      'Disable both',
+      name: 'tunnelDisableAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.`
+  String get tunnelRoutingHelp {
+    return Intl.message(
+      'The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.',
+      name: 'tunnelRoutingHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Status`
+  String get tunnelStatus {
+    return Intl.message('Status', name: 'tunnelStatus', desc: '', args: []);
+  }
+
+  /// `Configuration required`
+  String get tunnelUnconfigured {
+    return Intl.message(
+      'Configuration required',
+      name: 'tunnelUnconfigured',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Configuration belongs to another subscription`
+  String get tunnelProfileMismatch {
+    return Intl.message(
+      'Configuration belongs to another subscription',
+      name: 'tunnelProfileMismatch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Core is stopped`
+  String get tunnelCoreStopped {
+    return Intl.message(
+      'Core is stopped',
+      name: 'tunnelCoreStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WireGuard is off; the extension cannot connect`
+  String get tunnelDependencyOff {
+    return Intl.message(
+      'WireGuard is off; the extension cannot connect',
+      name: 'tunnelDependencyOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Disabled`
+  String get tunnelDisabled {
+    return Intl.message('Disabled', name: 'tunnelDisabled', desc: '', args: []);
+  }
+
+  /// `Waiting for tunnel traffic`
+  String get tunnelWaiting {
+    return Intl.message(
+      'Waiting for tunnel traffic',
+      name: 'tunnelWaiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Encrypted replies received recently`
+  String get tunnelReceiving {
+    return Intl.message(
+      'Encrypted replies received recently',
+      name: 'tunnelReceiving',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Home endpoint`
+  String get tunnelEndpoint {
+    return Intl.message(
+      'Home endpoint',
+      name: 'tunnelEndpoint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Encrypted UDP traffic`
+  String get tunnelTraffic {
+    return Intl.message(
+      'Encrypted UDP traffic',
+      name: 'tunnelTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Endpoint directory`
+  String get tunnelDirectory {
+    return Intl.message(
+      'Endpoint directory',
+      name: 'tunnelDirectory',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Query available`
+  String get tunnelDirectoryReady {
+    return Intl.message(
+      'Query available',
+      name: 'tunnelDirectoryReady',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Query unavailable; retaining the last known endpoint`
+  String get tunnelDirectoryFailed {
+    return Intl.message(
+      'Query unavailable; retaining the last known endpoint',
+      name: 'tunnelDirectoryFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh endpoint`
+  String get tunnelRefresh {
+    return Intl.message(
+      'Refresh endpoint',
+      name: 'tunnelRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access.`
+  String get tunnelStatusHelp {
+    return Intl.message(
+      'A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access.',
+      name: 'tunnelStatusHelp',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

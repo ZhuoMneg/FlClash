@@ -265,14 +265,18 @@ func writeConfigDocument(path string, document *yaml.Node) error {
 }
 
 func writeDocumentFile(dir, pattern string, document *yaml.Node) (string, error) {
-	inlineAliases(document)
+	mapping, err := documentMapping(document)
+	if err != nil {
+		return "", err
+	}
+	inlineAliases(mapping)
 	file, err := os.CreateTemp(dir, pattern)
 	if err != nil {
 		return "", err
 	}
 	writer := bufio.NewWriterSize(file, 1<<20)
 	err = errors.Join(
-		encodeConfigMapping(writer, document.Content[0]),
+		encodeConfigMapping(writer, mapping),
 		writer.Flush(),
 		file.Close(),
 		os.Chmod(file.Name(), 0o644),

@@ -1253,6 +1253,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "Secure connection failed. The server\'s certificate may be invalid, or the connection is being intercepted",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("Network Tunnel"),
     "networkType": MessageLookupByLibrary.simpleMessage("Network type"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Next match"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
@@ -2002,6 +2003,63 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "Entries added here replace the TUN settings of every profile; anything not added keeps the profile\'s own setting. Entries a custom profile adds itself take precedence.",
+    ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Core is stopped",
+    ),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard is off; the extension cannot connect",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage(
+      "Endpoint directory",
+    ),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "Query unavailable; retaining the last known endpoint",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage(
+      "Query available",
+    ),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("Disable both"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("Disabled"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage("Home endpoint"),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage("Extension script"),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage(
+      "Import tunnel configuration",
+    ),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "Imported for the current subscription. Both switches are enabled.",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage(
+      "Import failed. Check the configuration file.",
+    ),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "Configuration belongs to another subscription",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage(
+      "Encrypted replies received recently",
+    ),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage("Refresh endpoint"),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "Select the office subscription first.",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("Status"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access.",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage(
+      "Encrypted UDP traffic",
+    ),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage(
+      "Configuration required",
+    ),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage(
+      "Waiting for tunnel traffic",
     ),
     "turnOff": MessageLookupByLibrary.simpleMessage("Turn off"),
     "turnOn": MessageLookupByLibrary.simpleMessage("Turn on"),

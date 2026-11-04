@@ -180,6 +180,8 @@ func acknowledged(run func()) methodHandler {
 var methodHandlers = map[CoreMethod]methodHandler{
 	initClashMethod:                withArguments(handleInitClash),
 	getIsInitMethod:                withoutArguments(handleGetIsInit),
+	getNetworkTunnelStatusMethod:   withoutArguments(handleNetworkTunnelStatus),
+	refreshNetworkTunnelMethod:     withoutArguments(handleRefreshNetworkTunnel),
 	forceGcMethod:                  acknowledged(handleForceGC),
 	shutdownMethod:                 withoutArguments(handleShutdown),
 	startListenerMethod:            withoutArguments(handleStartListener),

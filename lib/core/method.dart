@@ -6,6 +6,8 @@ enum CoreMethod {
   message,
   initClash,
   getIsInit,
+  getNetworkTunnelStatus,
+  refreshNetworkTunnel,
   forceGc,
   shutdown,
   validateConfig,

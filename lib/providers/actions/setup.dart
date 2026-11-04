@@ -66,10 +66,17 @@ class SetupAction extends _$SetupAction {
   SetupParams get _setupParams {
     final selectedMap = ref.read(selectedMapProvider);
     final appSetting = ref.read(appSettingProvider);
+    final tunnel = ref.read(networkSettingProvider).networkTunnel;
     return SetupParams(
       selectedMap: selectedMap,
       testUrl: ref.read(patchClashConfigProvider).testUrl,
       skipCertVerify: !appSetting.checkCertificate,
+      networkTunnel:
+          !ref.read(safeModeProvider) &&
+              system.isWindows &&
+              tunnel.appliesTo(ref.read(currentProfileIdProvider))
+          ? tunnel
+          : null,
     );
   }
 

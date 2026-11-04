@@ -16,7 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SetupParams {
 
-@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'skip-cert-verify') bool get skipCertVerify;@JsonKey(includeIfNull: false) SetupBase? get base;
+@JsonKey(name: 'selected-map') Map<String, String> get selectedMap;@JsonKey(name: 'test-url') String get testUrl;@JsonKey(name: 'skip-cert-verify') bool get skipCertVerify;@JsonKey(includeIfNull: false) SetupBase? get base;@JsonKey(name: 'network-tunnel', includeIfNull: false) NetworkTunnelSettings? get networkTunnel;
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,20 +30,20 @@ $SetupParamsCopyWith<SetupParams> get copyWith => _$SetupParamsCopyWithImpl<Setu
 @override
 bool operator ==(Object other) {
   final _this = this as SetupParams;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.skipCertVerify, _this.skipCertVerify) || other.skipCertVerify == _this.skipCertVerify)&&(identical(other.base, _this.base) || other.base == _this.base));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _this.selectedMap)&&(identical(other.testUrl, _this.testUrl) || other.testUrl == _this.testUrl)&&(identical(other.skipCertVerify, _this.skipCertVerify) || other.skipCertVerify == _this.skipCertVerify)&&(identical(other.base, _this.base) || other.base == _this.base)&&(identical(other.networkTunnel, _this.networkTunnel) || other.networkTunnel == _this.networkTunnel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as SetupParams;
-  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.skipCertVerify,_this.base);
+  return Object.hash(runtimeType,const DeepCollectionEquality().hash(_this.selectedMap),_this.testUrl,_this.skipCertVerify,_this.base,_this.networkTunnel);
 }
 
 @override
 String toString() {
   final _this = this as SetupParams;
-  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, skipCertVerify: ${_this.skipCertVerify}, base: ${_this.base})';
+  return 'SetupParams(selectedMap: ${_this.selectedMap}, testUrl: ${_this.testUrl}, skipCertVerify: ${_this.skipCertVerify}, base: ${_this.base}, networkTunnel: ${_this.networkTunnel})';
 }
 
 
@@ -54,11 +54,11 @@ abstract mixin class $SetupParamsCopyWith<$Res>  {
   factory $SetupParamsCopyWith(SetupParams value, $Res Function(SetupParams) _then) = _$SetupParamsCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'skip-cert-verify') bool skipCertVerify,@JsonKey(includeIfNull: false) SetupBase? base
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'skip-cert-verify') bool skipCertVerify,@JsonKey(includeIfNull: false) SetupBase? base,@JsonKey(name: 'network-tunnel', includeIfNull: false) NetworkTunnelSettings? networkTunnel
 });
 
 
-$SetupBaseCopyWith<$Res>? get base;
+$SetupBaseCopyWith<$Res>? get base;$NetworkTunnelSettingsCopyWith<$Res>? get networkTunnel;
 
 }
 /// @nodoc
@@ -71,13 +71,14 @@ class _$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? skipCertVerify = null,Object? base = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? selectedMap = null,Object? testUrl = null,Object? skipCertVerify = null,Object? base = freezed,Object? networkTunnel = freezed,}) {
   return _then(SetupParams(
 selectedMap: null == selectedMap ? _self.selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
 as String,skipCertVerify: null == skipCertVerify ? _self.skipCertVerify : skipCertVerify // ignore: cast_nullable_to_non_nullable
 as bool,base: freezed == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
-as SetupBase?,
+as SetupBase?,networkTunnel: freezed == networkTunnel ? _self.networkTunnel : networkTunnel // ignore: cast_nullable_to_non_nullable
+as NetworkTunnelSettings?,
   ));
 }
 /// Create a copy of SetupParams
@@ -91,6 +92,18 @@ $SetupBaseCopyWith<$Res>? get base {
 
   return $SetupBaseCopyWith<$Res>(_self.base!, (value) {
     return _then(_self.copyWith(base: value));
+  });
+}/// Create a copy of SetupParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$NetworkTunnelSettingsCopyWith<$Res>? get networkTunnel {
+    if (_self.networkTunnel == null) {
+    return null;
+  }
+
+  return $NetworkTunnelSettingsCopyWith<$Res>(_self.networkTunnel!, (value) {
+    return _then(_self.copyWith(networkTunnel: value));
   });
 }
 }
@@ -174,10 +187,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base, @JsonKey(name: 'network-tunnel', includeIfNull: false)  NetworkTunnelSettings? networkTunnel)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base,_that.networkTunnel);case _:
   return orElse();
 
 }
@@ -195,10 +208,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base)
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base, @JsonKey(name: 'network-tunnel', includeIfNull: false)  NetworkTunnelSettings? networkTunnel)  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams():
-return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base,_that.networkTunnel);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -215,10 +228,10 @@ return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base)
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'selected-map')  Map<String, String> selectedMap, @JsonKey(name: 'test-url')  String testUrl, @JsonKey(name: 'skip-cert-verify')  bool skipCertVerify, @JsonKey(includeIfNull: false)  SetupBase? base, @JsonKey(name: 'network-tunnel', includeIfNull: false)  NetworkTunnelSettings? networkTunnel)?  $default,) {final _that = this;
 switch (_that) {
 case _SetupParams() when $default != null:
-return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base);case _:
+return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base,_that.networkTunnel);case _:
   return null;
 
 }
@@ -230,7 +243,7 @@ return $default(_that.selectedMap,_that.testUrl,_that.skipCertVerify,_that.base)
 @JsonSerializable()
 
 class _SetupParams implements SetupParams {
-  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'skip-cert-verify') this.skipCertVerify = false, @JsonKey(includeIfNull: false) this.base}): _selectedMap = selectedMap;
+  const _SetupParams({@JsonKey(name: 'selected-map') required  Map<String, String> selectedMap, @JsonKey(name: 'test-url') required this.testUrl, @JsonKey(name: 'skip-cert-verify') this.skipCertVerify = false, @JsonKey(includeIfNull: false) this.base, @JsonKey(name: 'network-tunnel', includeIfNull: false) this.networkTunnel}): _selectedMap = selectedMap;
   factory _SetupParams.fromJson(Map<String, dynamic> json) => _$SetupParamsFromJson(json);
 
  final  Map<String, String> _selectedMap;
@@ -243,6 +256,7 @@ class _SetupParams implements SetupParams {
 @override@JsonKey(name: 'test-url') final  String testUrl;
 @override@JsonKey(name: 'skip-cert-verify') final  bool skipCertVerify;
 @override@JsonKey(includeIfNull: false) final  SetupBase? base;
+@override@JsonKey(name: 'network-tunnel', includeIfNull: false) final  NetworkTunnelSettings? networkTunnel;
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
@@ -257,18 +271,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.skipCertVerify, skipCertVerify) || other.skipCertVerify == skipCertVerify)&&(identical(other.base, base) || other.base == base));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _SetupParams&&const DeepCollectionEquality().equals(other.selectedMap, _selectedMap)&&(identical(other.testUrl, testUrl) || other.testUrl == testUrl)&&(identical(other.skipCertVerify, skipCertVerify) || other.skipCertVerify == skipCertVerify)&&(identical(other.base, base) || other.base == base)&&(identical(other.networkTunnel, networkTunnel) || other.networkTunnel == networkTunnel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,skipCertVerify,base);
+    return Object.hash(runtimeType,const DeepCollectionEquality().hash(_selectedMap),testUrl,skipCertVerify,base,networkTunnel);
 }
 
 @override
 String toString() {
-    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, skipCertVerify: $skipCertVerify, base: $base)';
+    return 'SetupParams(selectedMap: $selectedMap, testUrl: $testUrl, skipCertVerify: $skipCertVerify, base: $base, networkTunnel: $networkTunnel)';
 }
 
 
@@ -279,11 +293,11 @@ abstract mixin class _$SetupParamsCopyWith<$Res> implements $SetupParamsCopyWith
   factory _$SetupParamsCopyWith(_SetupParams value, $Res Function(_SetupParams) _then) = __$SetupParamsCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'skip-cert-verify') bool skipCertVerify,@JsonKey(includeIfNull: false) SetupBase? base
+@JsonKey(name: 'selected-map') Map<String, String> selectedMap,@JsonKey(name: 'test-url') String testUrl,@JsonKey(name: 'skip-cert-verify') bool skipCertVerify,@JsonKey(includeIfNull: false) SetupBase? base,@JsonKey(name: 'network-tunnel', includeIfNull: false) NetworkTunnelSettings? networkTunnel
 });
 
 
-@override $SetupBaseCopyWith<$Res>? get base;
+@override $SetupBaseCopyWith<$Res>? get base;@override $NetworkTunnelSettingsCopyWith<$Res>? get networkTunnel;
 
 }
 /// @nodoc
@@ -296,13 +310,14 @@ class __$SetupParamsCopyWithImpl<$Res>
 
 /// Create a copy of SetupParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? skipCertVerify = null,Object? base = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? selectedMap = null,Object? testUrl = null,Object? skipCertVerify = null,Object? base = freezed,Object? networkTunnel = freezed,}) {
   return _then(_SetupParams(
 selectedMap: null == selectedMap ? _self._selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,testUrl: null == testUrl ? _self.testUrl : testUrl // ignore: cast_nullable_to_non_nullable
 as String,skipCertVerify: null == skipCertVerify ? _self.skipCertVerify : skipCertVerify // ignore: cast_nullable_to_non_nullable
 as bool,base: freezed == base ? _self.base : base // ignore: cast_nullable_to_non_nullable
-as SetupBase?,
+as SetupBase?,networkTunnel: freezed == networkTunnel ? _self.networkTunnel : networkTunnel // ignore: cast_nullable_to_non_nullable
+as NetworkTunnelSettings?,
   ));
 }
 
@@ -317,6 +332,18 @@ $SetupBaseCopyWith<$Res>? get base {
 
   return $SetupBaseCopyWith<$Res>(_self.base!, (value) {
     return _then(_self.copyWith(base: value));
+  });
+}/// Create a copy of SetupParams
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$NetworkTunnelSettingsCopyWith<$Res>? get networkTunnel {
+    if (_self.networkTunnel == null) {
+    return null;
+  }
+
+  return $NetworkTunnelSettingsCopyWith<$Res>(_self.networkTunnel!, (value) {
+    return _then(_self.copyWith(networkTunnel: value));
   });
 }
 }

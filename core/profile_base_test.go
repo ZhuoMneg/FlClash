@@ -412,3 +412,59 @@ func TestEncodeConfigMappingKeepsEveryKeyAfterAnOpenEndedScalar(t *testing.T) {
 		t.Errorf("decoded %d rules, want all %d in order", len(decoded.Rules), len(rules))
 	}
 }
+
+func TestWriteConfigDocumentAcceptsEncodedMapping(t *testing.T) {
+	want := map[string]any{
+		"mixed-port": 7890,
+		"proxies": []map[string]any{
+			{"name": "home", "type": "socks5", "server": "10.203.77.1", "port": 7893},
+		},
+		"rules": []string{"DOMAIN,baidu.com,DIRECT", "MATCH,home"},
+	}
+	var mapping yaml.Node
+	if err := mapping.Encode(want); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	if err := writeConfigDocument(path, &mapping); err != nil {
+		t.Fatalf("write mapping: %v", err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got map[string]any
+	if err := yaml.Unmarshal(data, &got); err != nil {
+		t.Fatalf("read persisted mapping: %v", err)
+	}
+	wantData, err := yaml.Marshal(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var normalized map[string]any
+	if err := yaml.Unmarshal(wantData, &normalized); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, normalized) {
+		t.Fatalf("persisted mapping = %#v, want %#v", got, normalized)
+	}
+}
+
+func TestWriteConfigDocumentRejectsScalarBeforeReplacingFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.yaml")
+	want := []byte("mixed-port: 7890\n")
+	if err := os.WriteFile(path, want, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var scalar yaml.Node
+	if err := scalar.Encode("invalid config"); err != nil {
+		t.Fatal(err)
+	}
+	if err := writeConfigDocument(path, &scalar); err == nil {
+		t.Fatal("accepted scalar config")
+	}
+	got, err := os.ReadFile(path)
+	if err != nil || !bytes.Equal(got, want) {
+		t.Fatalf("rejected scalar replaced config: %q, %v", got, err)
+	}
+}

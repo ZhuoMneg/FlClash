@@ -371,6 +371,29 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
+  testWidgets(
+    'a tunnel change forces profile apply even when YAML is unchanged',
+    (tester) async {
+      final setupAction = _ApplyRecordingSetupAction();
+      final container = await _pumpCoreManager(
+        tester,
+        _coreInterface(),
+        overrides: [setupActionProvider.overrideWith(() => setupAction)],
+      );
+      container
+          .read(networkSettingProvider.notifier)
+          .update(
+            (state) => state.copyWith(
+              networkTunnel: state.networkTunnel.copyWith(enabled: false),
+            ),
+          );
+      await tester.pump();
+      expect(setupAction.appliedForce, [true]);
+      expect(setupAction.updates, 0);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets('a change to the global added rules, not their first load, '
       'asks for an apply', (tester) async {
     final setupAction = _ApplyRecordingSetupAction();

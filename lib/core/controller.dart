@@ -91,6 +91,11 @@ class CoreController {
 
   FutureOr<bool> get isInit => _interface.isInit;
 
+  Future<Map<String, dynamic>> getNetworkTunnelStatus() =>
+      _interface.getNetworkTunnelStatus();
+
+  Future<bool> refreshNetworkTunnel() => _interface.refreshNetworkTunnel();
+
   Future<String> validateConfig(String path) async {
     final res = await _interface.validateConfig(path);
     return res;

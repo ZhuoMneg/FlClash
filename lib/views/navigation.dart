@@ -1,9 +1,11 @@
 import 'package:fl_clash/common/app_ports.dart';
+import 'package:fl_clash/common/common.dart' show system;
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/views.dart';
 import 'package:fl_clash/views/routing.dart';
+import 'package:fl_clash/views/network_tunnel.dart';
 import 'package:fl_clash/views/connection/network_activity.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -84,6 +86,15 @@ class Navigation implements NavigationPort {
         builder: (_) => const ToolsView(key: GlobalObjectKey(PageLabel.tools)),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
+      if (system.isWindows)
+        NavigationItem(
+          glyph: AppGlyphs.connections,
+          label: PageLabel.networkTunnel,
+          builder: (_) => const NetworkTunnelView(
+            key: GlobalObjectKey(PageLabel.networkTunnel),
+          ),
+          modes: [NavigationItemMode.desktop],
+        ),
       NavigationItem(
         glyph: AppGlyphs.settings,
         label: PageLabel.settings,

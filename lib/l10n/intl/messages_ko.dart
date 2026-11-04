@@ -1065,6 +1065,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "보안 연결에 실패했습니다. 서버 인증서가 올바르지 않거나 연결이 가로채이고 있을 수 있습니다",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("네트워크 터널"),
     "networkType": MessageLookupByLibrary.simpleMessage("네트워크 유형"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("다음 결과"),
     "no": MessageLookupByLibrary.simpleMessage("아니요"),
@@ -1681,6 +1682,47 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "여기에 추가한 항목은 모든 프로필의 TUN 설정을 대체합니다. 추가하지 않은 항목은 프로필 자체 설정을 유지합니다. 사용자 지정 프로필이 직접 추가한 항목이 우선합니다.",
     ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage("코어가 중지되었습니다"),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard가 꺼져 확장을 연결할 수 없습니다",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage("주소 조정 서비스"),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "조회 불가: 마지막 주소 유지",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage("조회 가능"),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("모두 끄기"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("꺼짐"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage("집 엔드포인트"),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage("확장 스크립트"),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage("터널 설정 가져오기"),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "현재 구독에 적용했습니다. 두 스위치가 모두 켜졌습니다.",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage(
+      "가져오지 못했습니다. 설정 파일을 확인하세요.",
+    ),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "이 사무실 컴퓨터의 비공개 JSON 설정을 가져오세요. 먼저 기존 홈 WG 스크립트를 끄고 사무실 TUN은 꺼 두세요. 개인 키가 포함되어 있으므로 공유하지 마세요.",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "다른 구독에 연결된 설정입니다",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage("최근 암호화된 응답 수신"),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage("엔드포인트 새로 고침"),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "확장은 기존 DIRECT 규칙을 유지하고 노드를 WireGuard로 연결합니다. 끄면 원래 구독으로 복구됩니다. WG만 끄면 사무실 출구로 전환하지 않고 프록시 연결이 실패합니다.",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "먼저 사무실 구독을 선택하세요.",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("상태"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "주소 조회 성공은 WG 연결을 보장하지 않습니다. 수신 카운터는 암호화된 UDP 활동을 나타냅니다. 웹사이트나 라우터 테스트로 연결을 확인하세요.",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage("암호화된 UDP 트래픽"),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage("설정이 필요합니다"),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage("터널 트래픽 대기 중"),
     "turnOff": MessageLookupByLibrary.simpleMessage("끄기"),
     "turnOn": MessageLookupByLibrary.simpleMessage("켜기"),
     "udpRelayMode": MessageLookupByLibrary.simpleMessage("UDP 릴레이 모드"),

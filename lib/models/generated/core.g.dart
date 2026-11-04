@@ -13,6 +13,11 @@ _SetupParams _$SetupParamsFromJson(Map<String, dynamic> json) => _SetupParams(
   base: json['base'] == null
       ? null
       : SetupBase.fromJson(json['base'] as Map<String, dynamic>),
+  networkTunnel: json['network-tunnel'] == null
+      ? null
+      : NetworkTunnelSettings.fromJson(
+          json['network-tunnel'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
@@ -21,6 +26,7 @@ Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
       'test-url': instance.testUrl,
       'skip-cert-verify': instance.skipCertVerify,
       'base': ?instance.base,
+      'network-tunnel': ?instance.networkTunnel,
     };
 
 _SetupBase _$SetupBaseFromJson(Map<String, dynamic> json) => _SetupBase(

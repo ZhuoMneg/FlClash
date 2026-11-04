@@ -18,6 +18,8 @@ const (
 	messageMethod                  CoreMethod = "message"
 	initClashMethod                CoreMethod = "initClash"
 	getIsInitMethod                CoreMethod = "getIsInit"
+	getNetworkTunnelStatusMethod   CoreMethod = "getNetworkTunnelStatus"
+	refreshNetworkTunnelMethod     CoreMethod = "refreshNetworkTunnel"
 	forceGcMethod                  CoreMethod = "forceGc"
 	shutdownMethod                 CoreMethod = "shutdown"
 	validateConfigMethod           CoreMethod = "validateConfig"
@@ -99,10 +101,11 @@ type DecryptConfigParams struct {
 }
 
 type SetupParams struct {
-	SelectedMap    map[string]string `json:"selected-map"`
-	TestURL        string            `json:"test-url"`
-	SkipCertVerify bool              `json:"skip-cert-verify"`
-	Base           *SetupBase        `json:"base,omitempty"`
+	SelectedMap    map[string]string    `json:"selected-map"`
+	TestURL        string               `json:"test-url"`
+	SkipCertVerify bool                 `json:"skip-cert-verify"`
+	Base           *SetupBase           `json:"base,omitempty"`
+	NetworkTunnel  *NetworkTunnelConfig `json:"network-tunnel,omitempty"`
 }
 
 type SetupBase struct {

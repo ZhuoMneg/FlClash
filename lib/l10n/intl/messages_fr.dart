@@ -1348,6 +1348,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "Échec de la connexion sécurisée. Le certificat du serveur est peut-être invalide, ou la connexion est interceptée",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("Tunnel réseau"),
     "networkType": MessageLookupByLibrary.simpleMessage("Type de réseau"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Résultat suivant"),
     "no": MessageLookupByLibrary.simpleMessage("Non"),
@@ -2161,6 +2162,67 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "Les entrées ajoutées ici remplacent les réglages TUN de tous les profils ; tout ce qui n’est pas ajouté garde le réglage du profil. Les entrées qu’un profil personnalisé ajoute lui-même priment.",
+    ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage(
+      "Le cœur est arrêté",
+    ),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard désactivé : l’extension ne peut pas se connecter",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage(
+      "Service d’adresses",
+    ),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "Requête indisponible ; dernière adresse conservée",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage(
+      "Requête disponible",
+    ),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("Tout désactiver"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("Désactivé"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage(
+      "Adresse du domicile",
+    ),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage(
+      "Script d’extension",
+    ),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage(
+      "Importer la configuration du tunnel",
+    ),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "Importé pour l’abonnement actuel. Les deux options sont activées.",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage(
+      "Échec de l’importation. Vérifiez le fichier.",
+    ),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "Importez le JSON privé de cet ordinateur. Désactivez d’abord l’ancien script WG du domicile et laissez le TUN du bureau désactivé. Ce fichier contient une clé privée : ne le partagez pas.",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "Configuration liée à un autre abonnement",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage(
+      "Réponses chiffrées reçues récemment",
+    ),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage(
+      "Actualiser l’adresse",
+    ),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "L’extension relie les nœuds via WireGuard et conserve les règles DIRECT. Sa désactivation rétablit l’abonnement initial. Si seul WG est désactivé, les connexions échouent sans utiliser la sortie du bureau.",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "Sélectionnez d’abord l’abonnement du bureau.",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("État"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "Une requête réussie ne prouve pas la connexion WG. Les compteurs indiquent une activité UDP chiffrée. Vérifiez l’accès à un site ou au routeur.",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage("Trafic UDP chiffré"),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage(
+      "Configuration requise",
+    ),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage(
+      "En attente de trafic",
     ),
     "turnOff": MessageLookupByLibrary.simpleMessage("Désactiver"),
     "turnOn": MessageLookupByLibrary.simpleMessage("Activer"),

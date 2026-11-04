@@ -70,3 +70,18 @@ together with these customizations.
   this repository's public releases without client credentials.
 - Show backup dates before optional notes finish downloading; load and cache
   notes in bounded parallel batches without delaying restoration.
+
+## Windows network tunnel
+
+- Add profile-scoped private tunnel import, independent WireGuard and extension
+  switches, persistent settings, a combined disable action and traffic status.
+- Integrate the pinned TLS endpoint directory and physical-interface UDP bridge
+  into FlClashCore without an additional tunnel executable or startup script.
+- Preserve subscription chains and DIRECT rules, reject unsafe dialer paths,
+  restore the original profile when disabled and omit RPC arguments from logs.
+- Size dock spacing from the actual navigation count and reveal the selected
+  destination in short windows so added labels remain visible.
+- Validate effective filtered dialer groups and empty fallbacks before applying
+  tunnel routing, and preserve multi-expression exclusion filters.
+- Recreate the UDP bridge after an unexpected receive failure, and reject invalid
+  private imports before saving them.

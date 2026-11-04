@@ -408,10 +408,44 @@ abstract class NetworkProps with _$NetworkProps {
     @Default(true) bool autoSetSystemDns,
     @Default(false) bool appendSystemDns,
     @Default(defaultAuthenticationProps) AuthenticationProps authentication,
+    @Default(NetworkTunnelSettings()) NetworkTunnelSettings networkTunnel,
   }) = _NetworkProps;
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
       json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
+}
+
+@Freezed(toStringOverride: false)
+abstract class NetworkTunnelSettings with _$NetworkTunnelSettings {
+  const NetworkTunnelSettings._();
+
+  const factory NetworkTunnelSettings({
+    @Default(true) bool enabled,
+    @Default(true) bool extension,
+    @Default('') String host,
+    @Default(27034) int port,
+    @Default('') String pin,
+    @Default('') String token,
+    @Default('') String privateKey,
+    @Default('') String publicKey,
+    @Default('') String ip,
+    @Default('') String ipv6,
+    @Default('') String dns,
+    @Default('') @JsonKey(name: 'interface') String interfaceName,
+    int? profileId,
+  }) = _NetworkTunnelSettings;
+
+  bool get configured =>
+      host.isNotEmpty && token.isNotEmpty && privateKey.isNotEmpty;
+
+  bool appliesTo(int? id) => configured && profileId != null && profileId == id;
+
+  @override
+  String toString() =>
+      'NetworkTunnelSettings(configured: $configured, enabled: $enabled, extension: $extension)';
+
+  factory NetworkTunnelSettings.fromJson(Map<String, dynamic> json) =>
+      _$NetworkTunnelSettingsFromJson(json);
 }
 
 /// Reads the styles named `standard`, `icon` and `none` before they became

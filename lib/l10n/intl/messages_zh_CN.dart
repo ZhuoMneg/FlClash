@@ -987,6 +987,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkTlsError": MessageLookupByLibrary.simpleMessage(
       "安全连接失败，服务器证书可能无效，或连接被拦截",
     ),
+    "networkTunnel": MessageLookupByLibrary.simpleMessage("网络隧道"),
     "networkType": MessageLookupByLibrary.simpleMessage("网络类型"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("下一个匹配"),
     "no": MessageLookupByLibrary.simpleMessage("否"),
@@ -1547,6 +1548,45 @@ class MessageLookup extends MessageLookupByLibrary {
     "tunOverrideDesc": MessageLookupByLibrary.simpleMessage(
       "添加的项会覆写所有配置的虚拟网卡设置，未添加的项沿用配置自身的设置。自定义配置自己添加的项优先。",
     ),
+    "tunnelCoreStopped": MessageLookupByLibrary.simpleMessage("核心未运行"),
+    "tunnelDependencyOff": MessageLookupByLibrary.simpleMessage(
+      "WireGuard 已关闭，扩展无法连接",
+    ),
+    "tunnelDirectory": MessageLookupByLibrary.simpleMessage("地址协调服务"),
+    "tunnelDirectoryFailed": MessageLookupByLibrary.simpleMessage(
+      "查询暂不可用，继续使用上次地址",
+    ),
+    "tunnelDirectoryReady": MessageLookupByLibrary.simpleMessage("查询可用"),
+    "tunnelDisableAll": MessageLookupByLibrary.simpleMessage("一键关闭"),
+    "tunnelDisabled": MessageLookupByLibrary.simpleMessage("已关闭"),
+    "tunnelEndpoint": MessageLookupByLibrary.simpleMessage("家里端点"),
+    "tunnelExtension": MessageLookupByLibrary.simpleMessage("扩展脚本"),
+    "tunnelImport": MessageLookupByLibrary.simpleMessage("导入隧道配置"),
+    "tunnelImportDone": MessageLookupByLibrary.simpleMessage(
+      "已绑定当前订阅，两个开关均已开启。",
+    ),
+    "tunnelImportFailed": MessageLookupByLibrary.simpleMessage("导入失败，请检查配置文件。"),
+    "tunnelImportHelp": MessageLookupByLibrary.simpleMessage(
+      "导入办公室专用的私有 JSON 配置。请先在订阅中停用旧的回家 WG 扩展脚本，办公室 TUN 保持关闭。配置含私钥，请勿分享。",
+    ),
+    "tunnelProfileMismatch": MessageLookupByLibrary.simpleMessage(
+      "配置绑定的是另一个订阅",
+    ),
+    "tunnelReceiving": MessageLookupByLibrary.simpleMessage("近期已收到加密回包"),
+    "tunnelRefresh": MessageLookupByLibrary.simpleMessage("刷新端点"),
+    "tunnelRoutingHelp": MessageLookupByLibrary.simpleMessage(
+      "扩展通过 WireGuard 连接订阅节点，保留原有 DIRECT 规则。关闭扩展恢复原订阅；仅关闭 WireGuard、保留扩展时，代理连接会失败，不会自动改走办公室出口。",
+    ),
+    "tunnelSelectProfile": MessageLookupByLibrary.simpleMessage(
+      "请先选择办公室使用的订阅。",
+    ),
+    "tunnelStatus": MessageLookupByLibrary.simpleMessage("运行状态"),
+    "tunnelStatusHelp": MessageLookupByLibrary.simpleMessage(
+      "地址查询成功不代表 WG 已连通。回包计数反映加密 UDP 活动，请结合网站访问或路由器测试确认连接。",
+    ),
+    "tunnelTraffic": MessageLookupByLibrary.simpleMessage("加密 UDP 流量"),
+    "tunnelUnconfigured": MessageLookupByLibrary.simpleMessage("尚未导入配置"),
+    "tunnelWaiting": MessageLookupByLibrary.simpleMessage("等待隧道流量"),
     "turnOff": MessageLookupByLibrary.simpleMessage("关闭"),
     "turnOn": MessageLookupByLibrary.simpleMessage("开启"),
     "udpRelayMode": MessageLookupByLibrary.simpleMessage("UDP 中继模式"),

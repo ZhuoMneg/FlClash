@@ -60,7 +60,8 @@ class _CoreContainerState extends ConsumerState<CoreManager>
               // it over.
               force:
                   prev != null &&
-                  prev.patchConfig.testUrl != next.patchConfig.testUrl,
+                  (prev.patchConfig.testUrl != next.patchConfig.testUrl ||
+                      prev.networkTunnel != next.networkTunnel),
             );
       }
     });

@@ -1,4 +1,5 @@
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/common/common.dart' show system;
 import 'package:fl_clash/views/navigation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,6 +18,7 @@ void main() {
       PageLabel.routing,
       PageLabel.requests,
       PageLabel.tools,
+      if (system.isWindows) PageLabel.networkTunnel,
       PageLabel.settings,
     ]);
   });

@@ -12,6 +12,8 @@ abstract class SetupParams with _$SetupParams {
     @JsonKey(name: 'test-url') required String testUrl,
     @Default(false) @JsonKey(name: 'skip-cert-verify') bool skipCertVerify,
     @JsonKey(includeIfNull: false) SetupBase? base,
+    @JsonKey(name: 'network-tunnel', includeIfNull: false)
+    NetworkTunnelSettings? networkTunnel,
   }) = _SetupParams;
 
   factory SetupParams.fromJson(Map<String, dynamic> json) =>

@@ -20,6 +20,10 @@ mixin CoreInterface {
 
   Future<bool> get isInit;
 
+  Future<Map<String, dynamic>> getNetworkTunnelStatus();
+
+  Future<bool> refreshNetworkTunnel();
+
   Future<bool> forceGc();
 
   Future<String> validateConfig(String path);
@@ -124,9 +128,7 @@ abstract class CoreHandlerInterface with CoreInterface {
   }) async {
     return await handleWatch(
       onStart: () {
-        commonPrint.log(
-          'Invoke method ${method.name} ${DateTime.now()} $arguments',
-        );
+        commonPrint.log('Invoke method ${method.name} ${DateTime.now()}');
       },
       function: () async {
         return invokeMethod<T>(
@@ -180,6 +182,20 @@ abstract class CoreHandlerInterface with CoreInterface {
   @override
   Future<bool> get isInit async {
     return await _invokeMethod<bool>(method: CoreMethod.getIsInit) ?? false;
+  }
+
+  @override
+  Future<Map<String, dynamic>> getNetworkTunnelStatus() async {
+    return await _invokeMethod<Map<String, dynamic>>(
+          method: CoreMethod.getNetworkTunnelStatus,
+        ) ??
+        const {};
+  }
+
+  @override
+  Future<bool> refreshNetworkTunnel() async {
+    return await _invokeMethod<bool>(method: CoreMethod.refreshNetworkTunnel) ??
+        false;
   }
 
   @override

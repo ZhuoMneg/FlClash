@@ -39,6 +39,7 @@ Widget _sidebar({
   int selectedIndex = 0,
   bool expanded = true,
   bool docked = false,
+  double height = 400,
   ValueChanged<int>? onSelected,
   VoidCallback? onToggle,
   Size windowControls = Size.zero,
@@ -49,7 +50,7 @@ Widget _sidebar({
       body: Row(
         children: [
           SizedBox(
-            height: 400,
+            height: height,
             child: Builder(
               builder: (context) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(padding: safePadding),
@@ -110,6 +111,42 @@ Finder _rowTooltip(String message) => find.byWidgetPredicate(
 );
 
 void main() {
+  testWidgets('eight dock destinations keep the final label fully visible', (
+    tester,
+  ) async {
+    const destinations = [
+      SidebarDestination(glyph: AppGlyphs.dashboard, label: 'Dashboard'),
+      SidebarDestination(glyph: AppGlyphs.proxies, label: 'Proxies'),
+      SidebarDestination(glyph: AppGlyphs.profiles, label: 'Profiles'),
+      SidebarDestination(glyph: AppGlyphs.filter, label: 'Routing'),
+      SidebarDestination(glyph: AppGlyphs.requests, label: 'Activity'),
+      SidebarDestination(glyph: AppGlyphs.tools, label: 'Tools'),
+      SidebarDestination(glyph: AppGlyphs.connections, label: 'Network Tunnel'),
+      SidebarDestination(
+        glyph: AppGlyphs.settings,
+        label: 'Settings',
+        isFooter: true,
+      ),
+    ];
+    for (final height in [594.0, 400.0]) {
+      await tester.pumpWidget(
+        _sidebar(
+          docked: true,
+          height: height,
+          windowControls: const Size(0, 32),
+          destinations: destinations,
+          selectedIndex: 6,
+        ),
+      );
+      await tester.pumpAndSettle();
+      final viewport = tester.getRect(find.byType(SingleChildScrollView));
+      final label = tester.getRect(find.text('Network Tunnel'));
+      expect(label.bottom, lessThanOrEqualTo(viewport.bottom));
+      expect(label.top, greaterThanOrEqualTo(viewport.top));
+      expect(tester.takeException(), isNull);
+    }
+  });
+
   testWidgets('the dock keeps labels and a footer while selecting pages', (
     tester,
   ) async {
