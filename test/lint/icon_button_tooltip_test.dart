@@ -20,7 +20,7 @@ Iterable<File> _dartFilesIn(String root) sync* {
         entity.path.endsWith('.dart') &&
         !entity.path.endsWith('.g.dart') &&
         !entity.path.endsWith('.freezed.dart') &&
-        !entity.path.contains('/generated/')) {
+        !entity.path.replaceAll(r'\', '/').contains('/generated/')) {
       yield entity;
     }
   }
@@ -45,7 +45,7 @@ void main() {
       for (final root in sourceRoots) ..._dartFilesIn(root),
     ]) {
       final source = file.readAsStringSync();
-      if (file.path == _wrappedInTooltip) continue;
+      if (file.path.replaceAll(r'\', '/') == _wrappedInTooltip) continue;
 
       for (final match in _iconButton.allMatches(source)) {
         final arguments = _arguments(source, match.end);

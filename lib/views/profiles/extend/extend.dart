@@ -53,6 +53,12 @@ class _ExtendViewState extends ConsumerState<ExtendView> {
     }
   }
 
+  @override
+  void dispose() {
+    if (widget.showApplyAction) _setupAction.autoApplyProfile();
+    super.dispose();
+  }
+
   Future<void> _checkUnappliedOnOpen() async {
     final applied = await _setupAction.inputsApplied();
     if (!applied && mounted) {

@@ -202,8 +202,9 @@ void main() {
     expect(find.byType(ShapeBadge), findsNothing);
     expect(find.byType(DashboardSwitch), findsOneWidget);
     expect(
-      tester.getTopLeft(find.text('System proxy')).dx,
-      dashboardCardPadding(DashboardDensity.compact).left,
+      tester.getTopLeft(find.text('System proxy')).dx -
+          tester.getTopLeft(find.byType(NetworkTakeoverTile)).dx,
+      dashboardCardPadding(DashboardDensity.compact).left + 1,
     );
     expect(tester.takeException(), isNull);
 

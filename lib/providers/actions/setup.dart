@@ -735,14 +735,38 @@ class SetupAction extends _$SetupAction {
   }) async {
     var profile = ref.read(currentProfileProvider) ?? recoverMissingProfile();
     // A refresh failure is surfaced by safeRun; setup keeps the old profile.
-    final nextProfile = await globalState.safeRun(
-      () => profile?.checkAndUpdateAndCopy(
-        validate: (path, key) => _core.validateProfile(path, key),
-      ),
-    );
+    final nextProfile = await globalState.safeRun(() async {
+      final source = profile;
+      if (source == null) return null;
+      bool isCurrent() {
+        final latest = ref.read(profilesProvider).getProfile(source.id);
+        return latest != null &&
+            latest.url == source.url &&
+            latest.ageSecretKey == source.ageSecretKey;
+      }
+
+      try {
+        return await source.checkAndUpdateAndCopy(
+          validate: (path, key) => _core.validateProfile(path, key),
+          shouldCommit: isCurrent,
+        );
+      } on ProfileWriteSuperseded {
+        return null;
+      }
+    });
     if (nextProfile != null) {
-      profile = nextProfile;
-      ref.read(profilesProvider.notifier).put(nextProfile);
+      final latest = ref.read(profilesProvider).getProfile(nextProfile.id);
+      if (latest != null &&
+          latest.url == nextProfile.url &&
+          latest.ageSecretKey == nextProfile.ageSecretKey) {
+        final merged = latest.copyWith(
+          label: latest.label.takeFirstValid([nextProfile.label]),
+          subscriptionInfo: nextProfile.subscriptionInfo,
+          lastUpdateDate: nextProfile.lastUpdateDate,
+        );
+        profile = merged;
+        ref.read(profilesProvider.notifier).put(merged);
+      }
     }
     commonPrint.log('setup ===> ${profile?.realLabel}');
     final patchConfig = ref.read(patchClashConfigProvider);

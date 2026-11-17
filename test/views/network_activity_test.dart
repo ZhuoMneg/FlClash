@@ -3,6 +3,7 @@ import 'package:fl_clash/core/interface.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/connection/network_activity.dart';
 import 'package:fl_clash/views/connection/requests.dart';
 import 'package:fl_clash/views/dns_queries.dart';
@@ -48,7 +49,20 @@ void main() {
         expect(find.text('Network activity'), findsOneWidget);
         expect(find.byType(RequestsView), findsOneWidget);
         expect(container.read(appSettingProvider).networkActivityTab, 1);
+        expect(
+          tester.widget<Scaffold>(find.byType(Scaffold)).titleMenuItems,
+          isEmpty,
+        );
         verifyNever(core.getConnections);
+        await tester.tap(find.byKey(const ValueKey('network-activity-tab-0')));
+        await tester.pumpAndSettle();
+        final liveScaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+        expect(liveScaffold.titleMenuItems, isEmpty);
+        expect(
+          liveScaffold.iconActions.map((action) => action.glyph),
+          contains(AppGlyphs.clearAll),
+        );
+        expect(container.read(appSettingProvider).networkActivityTab, 0);
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-1')));
         await tester.pumpAndSettle();
         expect(find.byType(RequestsView), findsOneWidget);

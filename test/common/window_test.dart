@@ -103,8 +103,12 @@ void main() {
     expect(first, isNull);
     expect(second, 0.5);
     expect(
-      methodCalls.where((call) => call.method == 'isEffectSupported'),
-      hasLength(Platform.isWindows ? 4 : 3),
+      methodCalls
+          .where((call) => call.method == 'isEffectSupported')
+          .map((call) => call.arguments['effect']),
+      Platform.isWindows
+          ? ['mica', 'blur', 'mica']
+          : ['glass', 'blur', 'glass'],
     );
     expect(methodCalls.last.arguments['effect'], isNot('none'));
   });

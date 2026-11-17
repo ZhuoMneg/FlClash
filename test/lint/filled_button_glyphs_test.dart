@@ -40,7 +40,7 @@ void main() {
     for (final entity in sourceEntities()) {
       if (entity is! File ||
           !entity.path.endsWith('.dart') ||
-          entity.path.contains('/generated/')) {
+          entity.path.replaceAll(r'\', '/').contains('/generated/')) {
         continue;
       }
       final source = entity.readAsStringSync();

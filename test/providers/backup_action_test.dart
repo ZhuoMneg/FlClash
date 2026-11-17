@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:drift/native.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/database/database.dart';
@@ -87,6 +88,177 @@ void main() {
       expect(delivered, isTrue);
       return keptPath;
     }
+
+    test('missing local files fail backup before delivery', () async {
+      await testDatabase.profilesDao.putAll([
+        _profile(923011, 'Missing').toCompanion(),
+      ]);
+      var delivered = false;
+      await expectLater(
+        actionOf(buildContainer()).backup((_) async {
+          delivered = true;
+          return true;
+        }),
+        throwsStateError,
+      );
+      expect(delivered, isFalse);
+    });
+
+    test(
+      'missing local script, provider, module or attachment fails',
+      () async {
+        final module = MitmModule(
+          id: 923020,
+          name: 'Local',
+          lastUpdateTime: DateTime(2026),
+          resources: const {'local.txt': 'backup-test-resource.txt'},
+        );
+        const provider = ClashProvider(id: 923021, label: 'Local');
+        await testDatabase.scriptsDao.setAll([
+          Script(id: 923022, label: 'Local', lastUpdateTime: DateTime(2026)),
+        ]);
+        await testDatabase.clashProvidersDao.putAll([provider.toCompanion()]);
+        await testDatabase.mitmModulesDao.putAll([module.toCompanion()]);
+        final entries = [
+          BackupEntries.script(923022),
+          BackupEntries.provider(provider),
+          BackupEntries.mitmModule(module),
+          BackupEntries.mitmResource('backup-test-resource.txt'),
+        ];
+        final files = [
+          for (final entry in entries)
+            File(BackupEntries.resolve(home.path, entry)),
+        ];
+        for (final file in files) {
+          await file.create(recursive: true);
+          await file.writeAsString('local');
+        }
+        addTearDown(() async {
+          for (final file in files) {
+            if (await file.exists()) await file.delete();
+          }
+        });
+        for (final file in files) {
+          await file.delete();
+          var delivered = false;
+          await expectLater(
+            actionOf(buildContainer()).backup((_) async {
+              delivered = true;
+              return true;
+            }),
+            throwsStateError,
+            reason: file.path,
+          );
+          expect(delivered, isFalse);
+          await file.writeAsString('local');
+        }
+      },
+    );
+
+    test('custom profiles need no local file', () async {
+      await testDatabase.profilesDao.putAll([
+        _profile(
+          923012,
+          'Custom',
+        ).copyWith(type: ProfileType.custom).toCompanion(),
+      ]);
+      expect(await backupToKept(actionOf(buildContainer())), isNotEmpty);
+    });
+
+    test(
+      'remote profiles and scripts still require their saved files',
+      () async {
+        await testDatabase.profilesDao.putAll([
+          _profile(923013, 'Remote')
+              .copyWith(
+                type: ProfileType.url,
+                url: 'https://example.com/profile',
+              )
+              .toCompanion(),
+        ]);
+        await testDatabase.scriptsDao.setAll([
+          Script(
+            id: 923014,
+            label: 'Remote',
+            url: 'https://example.com/script',
+            lastUpdateTime: DateTime(2026),
+          ),
+        ]);
+        final profileFile = File(await appPath.getProfilePath('923013'));
+        final scriptFile = File(await appPath.getScriptPath('923014'));
+        addTearDown(() async {
+          if (await profileFile.exists()) await profileFile.delete();
+          if (await scriptFile.exists()) await scriptFile.delete();
+        });
+        await expectLater(
+          backupToKept(actionOf(buildContainer())),
+          throwsStateError,
+        );
+        await profileFile.create(recursive: true);
+        await expectLater(
+          backupToKept(actionOf(buildContainer())),
+          throwsStateError,
+        );
+        await scriptFile.create(recursive: true);
+        expect(await backupToKept(actionOf(buildContainer())), isNotEmpty);
+      },
+    );
+
+    test(
+      'a settings-only archive preserves existing database on override',
+      () async {
+        await testDatabase.profilesDao.putAll([
+          _profile(923015, 'Keep').toCompanion(),
+        ]);
+        final source = buildContainer();
+        source
+            .read(patchClashConfigProvider.notifier)
+            .update((state) => state.copyWith(mixedPort: 7899));
+        for (final version in [0, 1]) {
+          final config = configMapOf(source)..['version'] = version;
+          final archivePath = join(kept.path, 'settings-$version.zip');
+          final encoder = ZipFileEncoder()..create(archivePath);
+          encoder.addArchiveFile(
+            ArchiveFile.string(configJsonName, jsonEncode(config)),
+          );
+          await encoder.close();
+          final target = buildContainer();
+
+          expect(
+            await actionOf(target).restore(
+              RestoreOption.all,
+              (_) async => archivePath,
+              strategy: RestoreStrategy.override,
+            ),
+            isTrue,
+          );
+          expect(
+            (await testDatabase.profilesDao.query().get()).single.label,
+            'Keep',
+          );
+          expect(target.read(patchClashConfigProvider).mixedPort, 7899);
+        }
+      },
+    );
+
+    test(
+      'an empty database archive clears existing rows on override',
+      () async {
+        final archivePath = await backupToKept(actionOf(buildContainer()));
+        await testDatabase.profilesDao.putAll([
+          _profile(923016, 'Remove').toCompanion(),
+        ]);
+        expect(
+          await actionOf(buildContainer()).restore(
+            RestoreOption.all,
+            (_) async => archivePath,
+            strategy: RestoreStrategy.override,
+          ),
+          isTrue,
+        );
+        expect(await testDatabase.profilesDao.query().get(), isEmpty);
+      },
+    );
 
     test('restores the rows, files and settings a backup carries', () async {
       await testDatabase.profilesDao.putAll([

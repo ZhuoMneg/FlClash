@@ -796,6 +796,27 @@ void main() {
     expect(await database.rulesDao.profileIdsUsingRuleProvider('Ads'), {1});
   });
 
+  test('an empty override removes existing profiles and rules', () async {
+    const profile = Profile(id: 1, autoUpdateDuration: Duration.zero);
+    await database.restore(
+      [profile],
+      const [],
+      const [Rule(id: 10, content: 'example.com')],
+      const [],
+      const [],
+    );
+    await database.restore(
+      const [],
+      const [],
+      const [],
+      const [],
+      const [],
+      isOverride: true,
+    );
+    expect(await database.profilesDao.query().get(), isEmpty);
+    expect(await database.rules.all().get(), isEmpty);
+  });
+
   test('a restore drops the orphans an older backup carries', () async {
     const profile = Profile(id: 1, autoUpdateDuration: Duration.zero);
     const rule = Rule(

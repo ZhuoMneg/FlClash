@@ -154,9 +154,10 @@ class _RequestsViewState extends ConsumerState<RequestsView>
       child: body,
       builder: (context, body) {
         final pinned = !ViewScope.isMobileOf(context);
+        final activityTitle = NetworkActivitySection.titleOf(context);
         return Scaffold(
-          title: NetworkActivitySection.titleOf(context) ?? _labelOf(_feed),
-          titleMenuItems: _buildFeedMenu(),
+          title: activityTitle ?? _labelOf(_feed),
+          titleMenuItems: activityTitle == null ? _buildFeedMenu() : const [],
           searchState: _feed == RequestFeed.live
               ? AppBarSearchState(onSearch: _search)
               : null,

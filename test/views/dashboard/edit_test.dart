@@ -12,7 +12,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/test_app.dart';
 import '../../helpers/test_profiles.dart';
-import 'package:prism_ui/prism_ui.dart';
 
 void main() {
   late ProviderContainer container;
@@ -63,7 +62,11 @@ void main() {
   }
 
   Future<void> edit(WidgetTester tester) async {
-    await tester.tap(find.byTooltip('Edit dashboard'));
+    final action = tester
+        .widget<Scaffold>(find.byType(Scaffold).first)
+        .iconActions
+        .singleWhere((item) => item.tooltip == 'Edit dashboard');
+    action.onPressed!();
     await settle(tester);
   }
 
@@ -224,8 +227,13 @@ void main() {
     ]);
     await pumpEditor(tester, size: const Size(412, 700));
     final position = positionOf(tester);
-    position.jumpTo(position.maxScrollExtent - 330);
+    position.jumpTo(position.maxScrollExtent);
     await tester.pump();
+    await tester.scrollUntilVisible(
+      find.byTooltip('Add Network speed'),
+      -100,
+      scrollable: find.byType(Scrollable).first,
+    );
     final before = position.pixels;
     final speed = find.byType(NetworkSpeedCard);
 
@@ -234,7 +242,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(opacityOf(tester, speed), 0);
-    expect(position.pixels, greaterThan(before));
+    expect(position.pixels, lessThan(before));
 
     await settle(tester);
 
@@ -303,13 +311,20 @@ void main() {
     await teardown(tester);
   });
 
-  testWidgets('editing leaves done as the only way out in the bar', (
+  testWidgets('editing can finish with back or done in the bar', (
     tester,
   ) async {
     await pumpEditor(tester);
 
     expect(find.byTooltip('Done'), findsOneWidget);
-    expect(find.byTooltip('Back'), findsNothing);
+    expect(find.byTooltip('Back'), findsOneWidget);
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pump();
+    expect(find.byType(DashboardEditor), findsNothing);
+    await edit(tester);
+    await tester.tap(find.byTooltip('Done'));
+    await tester.pump();
+    expect(find.byType(DashboardEditor), findsNothing);
 
     await teardown(tester);
   });
@@ -439,7 +454,7 @@ void main() {
     await teardown(tester);
   });
 
-  testWidgets('turning to the fixed grid ends editing for good', (
+  testWidgets('resizing keeps editing until done, then shows the grid', (
     tester,
   ) async {
     seed(const [DashboardWidget.currentOutbound, DashboardWidget.profiles]);
@@ -453,6 +468,9 @@ void main() {
     }
 
     await resize(const Size(915, 412));
+    expect(find.byType(DashboardEditor), findsOneWidget);
+    await tester.tap(find.byTooltip('Done'));
+    await tester.pump();
     expect(find.byType(DashboardEditor), findsNothing);
     await resize(const Size(412, 1400));
     expect(find.byType(DashboardEditor), findsNothing);

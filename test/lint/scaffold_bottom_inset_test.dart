@@ -69,10 +69,10 @@ void main() {
     for (final entity in sourceEntities()) {
       if (entity is! File ||
           !entity.path.endsWith('.dart') ||
-          entity.path.contains('/generated/')) {
+          entity.path.replaceAll(r'\', '/').contains('/generated/')) {
         continue;
       }
-      final path = p.relative(entity.path);
+      final path = p.relative(entity.path).replaceAll(r'\', '/');
       final lines = entity.readAsLinesSync();
       for (final (index, line) in lines.indexed) {
         if (_scopeRead.hasMatch(line)) {

@@ -93,3 +93,20 @@ together with these customizations.
   exclusions, versioned backups and profile-scoped Windows network tunnel.
 - Publish an installer and SHA256SUMS in this repository for the official verified
   updater, retaining the portable ZIP and credential-free update checks.
+
+## Reliability fixes — 2026-11-17
+
+- Discard superseded subscription downloads before replacing profile files, and
+  prevent delayed edits from restoring a deleted profile.
+- Restore an empty database according to the selected replacement strategy while
+  keeping settings-only backups compatible.
+- Derive backup attachments from the database snapshot and reject missing or
+  changing files instead of reporting an incomplete backup as successful.
+- Keep network activity tabs in control of their feed type.
+- Apply profile extension changes when leaving the standalone editor, while
+  leaving embedded routing sessions in charge of their own apply action.
+- Restrict Windows installer cleanup to the target installation and stop safely
+  when its application or helper cannot exit.
+- Run the complete root test suite and coverage gate before Windows packaging.
+- Keep test paths portable and align UI assertions with the customized surfaces
+  and dashboard layout.

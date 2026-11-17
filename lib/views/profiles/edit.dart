@@ -123,9 +123,19 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
       });
       return;
     }
-    final current =
-        ref.read(profilesProvider).getProfile(widget.profile.id) ??
-        widget.profile;
+    final container = ProviderScope.containerOf(context, listen: false);
+    final current = container
+        .read(profilesProvider)
+        .getProfile(widget.profile.id);
+    if (current == null) return;
+    bool isCurrent(Profile expected) {
+      final latest = container.read(profilesProvider).getProfile(expected.id);
+      return latest != null &&
+          latest.type == expected.type &&
+          latest.url == expected.url &&
+          latest.ageSecretKey == expected.ageSecretKey;
+    }
+
     final interval = int.tryParse(_autoUpdateDurationController.text);
     var profile = current.copyWith(
       url: _urlController.text,
@@ -151,25 +161,35 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
           profile = profile.copyWith(autoUpdate: false);
         }
       }
-      final savedProfile = await globalState.safeRun(
-        () => profile.saveFile(
-          _fileData!,
-          validate: (path, key) =>
-              ref.read(coreHandlerProvider).validateProfile(path, key),
-        ),
-      );
-      if (savedProfile == null) {
+      if (!isCurrent(current)) return;
+      final savedProfile = await globalState.safeRun(() async {
+        try {
+          return await profile.saveFile(
+            _fileData!,
+            validate: (path, key) =>
+                container.read(coreHandlerProvider).validateProfile(path, key),
+            shouldCommit: () => isCurrent(current),
+          );
+        } on ProfileWriteSuperseded {
+          return null;
+        }
+      });
+      if (savedProfile == null || !isCurrent(current)) {
         return;
       }
       profilesAction.putProfile(savedProfile);
     } else if (!hasUpdate) {
       profilesAction.putProfile(profile);
     } else {
+      profilesAction.putProfile(profile);
       unawaited(
         globalState.safeRun(() async {
           await Future.delayed(commonDuration);
-          if (hasUpdate) {
-            await profilesAction.updateProfile(profile);
+          if (isCurrent(profile)) {
+            final latest = container
+                .read(profilesProvider)
+                .getProfile(profile.id)!;
+            await profilesAction.updateProfile(latest);
           }
         }),
       );

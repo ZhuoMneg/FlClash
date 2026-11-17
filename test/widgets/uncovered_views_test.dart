@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/common/l10n_labels.dart';
 import 'package:fl_clash/common/request.dart';
 import 'package:fl_clash/enum/enum.dart';
@@ -290,6 +291,12 @@ void main() {
     );
     await tester.pump();
     expect(tester.widget<LoadingBar>(find.byType(LoadingBar)).active, isFalse);
+
+    if (updateRepository.isEmpty) {
+      expect(find.text('Check for updates'), findsNothing);
+      expect(adapter.requests, 0);
+      return;
+    }
 
     await tester.tap(find.text('Check for updates'));
     await tester.pump();

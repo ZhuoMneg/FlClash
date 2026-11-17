@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -76,6 +77,45 @@ void main() {
       );
 
       expect(ageSecretKey, 'AGE-SECRET-KEY-1A');
+    });
+
+    test(
+      'a later save wins when the earlier validation is still pending',
+      () async {
+        final profile = Profile.normal(label: 'race');
+        final started = Completer<void>();
+        final release = Completer<void>();
+        final first = profile.saveFile(
+          Uint8List.fromList(utf8.encode('old')),
+          validate: (_, _) async {
+            started.complete();
+            await release.future;
+            return null;
+          },
+        );
+        await started.future;
+        await profile.saveFile(
+          Uint8List.fromList(utf8.encode('new')),
+          validate: (_, _) async => null,
+        );
+        release.complete();
+        await expectLater(first, throwsA(isA<ProfileWriteSuperseded>()));
+        expect(await (await profile.file).readAsString(), 'new');
+      },
+    );
+
+    test('an invalidated save does not recreate a removed file', () async {
+      final profile = Profile.normal(label: 'removed');
+      await expectLater(
+        profile.saveFile(
+          Uint8List.fromList(utf8.encode('old')),
+          validate: (_, _) async => null,
+          shouldCommit: () => false,
+        ),
+        throwsA(isA<ProfileWriteSuperseded>()),
+      );
+      final file = File(await appPath.getProfilePath(profile.id.toString()));
+      expect(await file.exists(), isFalse);
     });
   });
 }

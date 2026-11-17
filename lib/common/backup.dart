@@ -2,12 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive_io.dart';
+import 'package:crypto/crypto.dart';
 import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/migration.dart';
 import 'package:fl_clash/common/mitm_module.dart';
 import 'package:fl_clash/database/database.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
@@ -86,7 +89,6 @@ typedef BackupArchiveRequest = ({
   Map<String, Object?> configMap,
   String databaseSnapshotPath,
   String homeDirPath,
-  List<String> entries,
 });
 
 typedef RestoreArchiveRequest = ({String archivePath, String stagingDirPath});
@@ -95,13 +97,36 @@ Future<void> backupTask(BackupArchiveRequest request) {
   return compute(_backupTask, request);
 }
 
-Future<void> _backupTask(BackupArchiveRequest request) {
-  return writeBackupArchive(
+Future<void> _backupTask(BackupArchiveRequest request) async {
+  final snapshot = Database(NativeDatabase(File(request.databaseSnapshotPath)));
+  final List<Profile> profiles;
+  final List<Script> scripts;
+  final List<ClashProvider> providers;
+  final List<MitmModule> modules;
+  try {
+    profiles = await snapshot.profilesDao.query().get();
+    scripts = await snapshot.scriptsDao.query().get();
+    providers = await snapshot.clashProvidersDao.query().get();
+    modules = await snapshot.mitmModulesDao.query().get();
+  } finally {
+    await snapshot.close();
+  }
+  final entries = BackupEntries.of(
+    profileIds: profiles
+        .where((p) => p.type != ProfileType.custom)
+        .map((p) => p.id),
+    scriptIds: scripts.map((s) => s.id),
+    providers: providers,
+    mitmModules: modules,
+  );
+  final requiredEntries = entries.toSet();
+  await writeBackupArchive(
     archivePath: request.archivePath,
     configMap: request.configMap,
     databaseSnapshotPath: request.databaseSnapshotPath,
     homeDirPath: request.homeDirPath,
-    entries: request.entries,
+    entries: entries,
+    requiredEntries: requiredEntries,
   );
 }
 
@@ -123,6 +148,7 @@ Future<void> writeBackupArchive({
   required String databaseSnapshotPath,
   required String homeDirPath,
   required Iterable<String> entries,
+  Set<String> requiredEntries = const {},
 }) async {
   final encoder = ZipFileEncoder()..create(archivePath);
   try {
@@ -130,10 +156,25 @@ Future<void> writeBackupArchive({
       ArchiveFile.string(configJsonName, json.encode(configMap)),
     );
     await encoder.addFile(File(databaseSnapshotPath), backupDatabaseName);
-    for (final entry in entries) {
+    final captured = <String, Digest>{};
+    for (final entry in entries.toSet()) {
       final file = File(BackupEntries.resolve(homeDirPath, entry));
       if (await file.exists()) {
-        await encoder.addFile(file, entry);
+        final bytes = await file.readAsBytes();
+        captured[entry] = sha256.convert(bytes);
+        encoder.addArchiveFile(ArchiveFile.bytes(entry, bytes));
+      } else if (requiredEntries.contains(entry)) {
+        throw StateError('Backup file missing: $entry');
+      }
+    }
+    for (final entry in entries.toSet()) {
+      final file = File(BackupEntries.resolve(homeDirPath, entry));
+      final digest = captured[entry];
+      if (digest == null
+          ? await file.exists()
+          : !await file.exists() ||
+                digest != await sha256.bind(file.openRead()).first) {
+        throw StateError('Backup file changed: $entry');
       }
     }
   } finally {
@@ -162,15 +203,22 @@ Future<MigrationData> readBackupArchive({
     throw const BackupException(BackupFailure.newerVersion);
   }
   if (version == 0) {
-    return migrateLegacyConfig(
+    final data = await migrateLegacyConfig(
       configMap: configMap,
       sourcePath: stagingDirPath,
       targetPath: stagingDirPath,
     );
+    return data.copyWith(
+      hasDatabase:
+          data.profiles.isNotEmpty ||
+          data.scripts.isNotEmpty ||
+          data.rules.isNotEmpty ||
+          data.disabledRules.isNotEmpty,
+    );
   }
   final databaseFile = File(join(stagingDirPath, backupDatabaseName));
   if (!await databaseFile.exists()) {
-    return MigrationData(configMap: configMap);
+    return MigrationData(configMap: configMap, hasDatabase: false);
   }
   final schemaVersion = await _readSchemaVersion(databaseFile);
   final database = Database(

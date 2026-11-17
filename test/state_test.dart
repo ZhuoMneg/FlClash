@@ -1,5 +1,6 @@
 import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/ui/app_surfaces.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -36,18 +37,22 @@ void main() {
 
     expect(
       container.read(genColorSchemeProvider(Brightness.light)),
-      seededColorScheme(
-        seedColor: lightSeed,
-        brightness: Brightness.light,
-        style: style,
+      appSurfaceColors(
+        seededColorScheme(
+          seedColor: lightSeed,
+          brightness: Brightness.light,
+          style: style,
+        ),
       ),
     );
     expect(
       container.read(genColorSchemeProvider(Brightness.dark)),
-      seededColorScheme(
-        seedColor: darkSeed,
-        brightness: Brightness.dark,
-        style: style,
+      appSurfaceColors(
+        seededColorScheme(
+          seedColor: darkSeed,
+          brightness: Brightness.dark,
+          style: style,
+        ),
       ),
     );
   });
@@ -88,10 +93,12 @@ void main() {
 
     expect(
       container.read(genColorSchemeProvider(Brightness.light)),
-      seededColorScheme(
-        seedColor: accent,
-        brightness: Brightness.light,
-        style: container.read(themeSettingProvider).colorStyle,
+      appSurfaceColors(
+        seededColorScheme(
+          seedColor: accent,
+          brightness: Brightness.light,
+          style: container.read(themeSettingProvider).colorStyle,
+        ),
       ),
     );
   });

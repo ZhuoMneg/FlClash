@@ -75,12 +75,6 @@ class BackupAction extends _$BackupAction {
   Future<String> _createArchive(String workDir) async {
     final databaseSnapshotPath = join(workDir, backupDatabaseName);
     await database.customStatement('VACUUM INTO ?', [databaseSnapshotPath]);
-    final (profileIds, scriptIds, providers, mitmModules) = await (
-      database.profilesDao.query().map((item) => item.id).get(),
-      database.scriptsDao.query().map((item) => item.id).get(),
-      database.clashProvidersDao.query().get(),
-      database.mitmModulesDao.query().get(),
-    ).wait;
     final configMap = ref.read(configProvider).toJson();
     configMap['version'] = await preferences.getVersion();
     final archivePath = join(workDir, 'backup.zip');
@@ -89,12 +83,6 @@ class BackupAction extends _$BackupAction {
       configMap: configMap,
       databaseSnapshotPath: databaseSnapshotPath,
       homeDirPath: await appPath.homeDirPath,
-      entries: BackupEntries.of(
-        profileIds: profileIds,
-        scriptIds: scriptIds,
-        providers: providers,
-        mitmModules: mitmModules,
-      ),
     ));
     return archivePath;
   }
@@ -114,36 +102,38 @@ class BackupAction extends _$BackupAction {
     final effectiveStrategy =
         strategy ?? ref.read(appSettingProvider).restoreStrategy;
     final isOverride = effectiveStrategy == RestoreStrategy.override;
-    final previousProviders = await database.clashProvidersDao.query().get();
-    final putBack = stagingDirPath == null
-        ? null
-        : await _copyStagedFiles(data, stagingDirPath);
-    try {
-      await database.restore(
-        data.profiles,
-        data.scripts,
-        data.rules,
-        data.disabledRules,
-        data.proxyGroups,
-        clashProviders: data.clashProviders,
-        customProxies: data.customProxies,
-        proxyDialers: data.proxyDialers,
-        mitmModules: data.mitmModules,
-        isOverride: isOverride,
-      );
-    } catch (_) {
-      await putBack?.call();
-      rethrow;
+    if (data.hasDatabase) {
+      final previousProviders = await database.clashProvidersDao.query().get();
+      final putBack = stagingDirPath == null
+          ? null
+          : await _copyStagedFiles(data, stagingDirPath);
+      try {
+        await database.restore(
+          data.profiles,
+          data.scripts,
+          data.rules,
+          data.disabledRules,
+          data.proxyGroups,
+          clashProviders: data.clashProviders,
+          customProxies: data.customProxies,
+          proxyDialers: data.proxyDialers,
+          mitmModules: data.mitmModules,
+          isOverride: isOverride,
+        );
+      } catch (_) {
+        await putBack?.call();
+        rethrow;
+      }
+      await _clearReplacedProviderCaches(previousProviders);
+      await _clearOutdatedCompiledRuleSets(data.clashProviders);
     }
-    await _clearReplacedProviderCaches(previousProviders);
-    await _clearOutdatedCompiledRuleSets(data.clashProviders);
     if (config == null) {
       ref
           .read(appSettingProvider.notifier)
           .update(
             (state) => state.copyWith(restoreStrategy: effectiveStrategy),
           );
-      await _restoreMitmModules();
+      if (data.hasDatabase) await _restoreMitmModules();
       return;
     }
     // A desktop backup carries no package lists; the apps picked here stay.
@@ -164,7 +154,7 @@ class BackupAction extends _$BackupAction {
         ),
       ),
     );
-    await _restoreMitmModules();
+    if (data.hasDatabase) await _restoreMitmModules();
   }
 
   Future<void> _restoreMitmModules() async {

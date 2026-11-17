@@ -24,6 +24,18 @@ class _NoopSetupAction extends SetupAction {
   void autoApplyProfile() {}
 }
 
+class _CaptureProfilesAction extends ProfilesAction {
+  Profile? updated;
+
+  @override
+  Future<void> updateProfile(
+    Profile profile, {
+    bool showLoading = false,
+  }) async {
+    updated = profile;
+  }
+}
+
 Profile _urlProfile() =>
     Profile.normal(label: 'test', url: 'https://example.com/sub');
 
@@ -196,5 +208,83 @@ void main() {
     final saved = globalState.container.read(profilesProvider).single;
     expect(saved.autoUpdate, isFalse);
     expect(saved.autoUpdateDuration, profile.autoUpdateDuration);
+  });
+
+  testWidgets(
+    'saving an editor after its profile was deleted does not restore it',
+    (tester) async {
+      final profile = _urlProfile();
+      await pumpEditProfile(
+        tester,
+        profile: profile,
+        overrides: [
+          profilesProvider.overrideWith(() => TestProfiles([profile])),
+        ],
+      );
+      await globalState.container
+          .read(profilesProvider.notifier)
+          .del(profile.id);
+      await tester.tap(find.byTooltip('Save'));
+      await tester.pump();
+      expect(globalState.container.read(profilesProvider), isEmpty);
+    },
+  );
+
+  testWidgets(
+    'deleting before a delayed subscription update does not restore it',
+    (tester) async {
+      final profile = _urlProfile();
+      await pumpEditProfile(
+        tester,
+        profile: profile,
+        overrides: [
+          profilesProvider.overrideWith(() => TestProfiles([profile])),
+        ],
+      );
+      final url = find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField && widget.controller?.text == profile.url,
+      );
+      await tester.enterText(url, 'https://example.com/new');
+      await tester.tap(find.byTooltip('Save'));
+      await tester.pump();
+      await globalState.container
+          .read(profilesProvider.notifier)
+          .del(profile.id);
+      await tester.pump(commonDuration + const Duration(milliseconds: 50));
+      expect(globalState.container.read(profilesProvider), isEmpty);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('delayed subscription update retains newer non-source edits', (
+    tester,
+  ) async {
+    final profile = _urlProfile();
+    await pumpEditProfile(
+      tester,
+      profile: profile,
+      overrides: [
+        profilesProvider.overrideWith(() => TestProfiles([profile])),
+        profilesActionProvider.overrideWith(_CaptureProfilesAction.new),
+      ],
+    );
+    final url = find.byWidgetPredicate(
+      (widget) => widget is TextField && widget.controller?.text == profile.url,
+    );
+    await tester.enterText(url, 'https://example.com/new');
+    await tester.tap(find.byTooltip('Save'));
+    await tester.pump();
+    final profiles = globalState.container.read(profilesProvider.notifier);
+    final saved = globalState.container.read(profilesProvider).single;
+    expect(saved.url, 'https://example.com/new');
+    profiles.put(saved.copyWith(label: 'new label', autoUpdate: false));
+    await tester.pump(commonDuration + const Duration(milliseconds: 50));
+    final action =
+        globalState.container.read(profilesActionProvider.notifier)
+            as _CaptureProfilesAction;
+    expect(action.updated?.url, 'https://example.com/new');
+    expect(action.updated?.label, 'new label');
+    expect(action.updated?.autoUpdate, isFalse);
   });
 }

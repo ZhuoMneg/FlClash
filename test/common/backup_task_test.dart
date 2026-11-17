@@ -569,6 +569,59 @@ void main() {
       });
     });
 
+    test('attachment requirements come from the database snapshot', () async {
+      await seedDatabase();
+      final snapshotPath = join(root.path, 'archive', '$uniqueId.sqlite');
+      await File(databasePath).copy(snapshotPath);
+      final live = db.Database(NativeDatabase(File(databasePath)));
+      await live.restore(
+        const [],
+        const [],
+        const [],
+        const [],
+        const [],
+        isOverride: true,
+      );
+      await live.close();
+
+      await expectLater(
+        backupTask((
+          archivePath: join(root.path, 'archive', '$uniqueId.zip'),
+          configMap: <String, Object?>{'version': 1},
+          databaseSnapshotPath: snapshotPath,
+          homeDirPath: home.path,
+        )),
+        throwsA(
+          isA<StateError>().having(
+            (error) => error.message,
+            'message',
+            contains('profiles/1.yaml'),
+          ),
+        ),
+      );
+    });
+
+    test('a file changed during capture fails the backup', () async {
+      await seedDatabase();
+      final file = writeFile(join(home.path, 'profiles', '1.yaml'), 'before');
+      var iterations = 0;
+      final entries = Iterable<String>.generate(1, (_) {
+        if (++iterations == 2) file.writeAsStringSync('after');
+        return 'profiles/1.yaml';
+      });
+      await expectLater(
+        writeBackupArchive(
+          archivePath: join(root.path, 'archive', '$uniqueId.zip'),
+          configMap: const {'version': 1},
+          databaseSnapshotPath: databasePath,
+          homeDirPath: home.path,
+          entries: entries,
+          requiredEntries: const {'profiles/1.yaml'},
+        ),
+        throwsStateError,
+      );
+    });
+
     test('restoring returns the rows and stages the files', () async {
       await seedDatabase();
       writeFile(join(home.path, 'profiles', '1.yaml'), 'proxies: []');

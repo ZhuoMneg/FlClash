@@ -14,6 +14,12 @@ part 'generated/profile.g.dart';
 typedef ValidateConfig =
     Future<String?> Function(String path, String ageSecretKey);
 
+class ProfileWriteSuperseded implements Exception {
+  const ProfileWriteSuperseded();
+}
+
+final _profileWrites = <int, Object>{};
+
 @freezed
 abstract class SubscriptionInfo with _$SubscriptionInfo {
   const factory SubscriptionInfo({
@@ -158,6 +164,7 @@ extension ProfileExtension on Profile {
 
   Future<Profile?> checkAndUpdateAndCopy({
     required ValidateConfig validate,
+    bool Function()? shouldCommit,
   }) async {
     if (type != ProfileType.url) {
       return null;
@@ -166,7 +173,7 @@ extension ProfileExtension on Profile {
     if (await mFile.exists()) {
       return null;
     }
-    return update(validate: validate);
+    return update(validate: validate, shouldCommit: shouldCommit);
   }
 
   Future<File> _getFile([bool autoCreate = true]) async {
@@ -183,35 +190,78 @@ extension ProfileExtension on Profile {
     return _getFile();
   }
 
-  Future<Profile> update({required ValidateConfig validate}) async {
-    final response = await request.getFileResponseForUrl(url);
-    final disposition = response.headers.value('content-disposition');
-    final userinfo = response.headers.value('subscription-userinfo');
-    return copyWith(
-      label: label.takeFirstValid([
-        getFileNameForDisposition(disposition),
-        defaultLabel,
-      ]),
-      subscriptionInfo: SubscriptionInfo.formHString(userinfo),
-    ).saveFile(
-      decompressUnlabeled(response.data ?? Uint8List(0)),
-      validate: validate,
-    );
+  Future<Profile> update({
+    required ValidateConfig validate,
+    bool Function()? shouldCommit,
+  }) async {
+    final token = Object();
+    _profileWrites[id] = token;
+    try {
+      final response = await request.getFileResponseForUrl(url);
+      final disposition = response.headers.value('content-disposition');
+      final userinfo = response.headers.value('subscription-userinfo');
+      return await copyWith(
+        label: label.takeFirstValid([
+          getFileNameForDisposition(disposition),
+          defaultLabel,
+        ]),
+        subscriptionInfo: SubscriptionInfo.formHString(userinfo),
+      )._saveFile(
+        decompressUnlabeled(response.data ?? Uint8List(0)),
+        validate: validate,
+        shouldCommit: shouldCommit,
+        writeToken: token,
+      );
+    } finally {
+      if (identical(_profileWrites[id], token)) _profileWrites.remove(id);
+    }
   }
 
   Future<Profile> saveFile(
     Uint8List bytes, {
     required ValidateConfig validate,
+    bool Function()? shouldCommit,
+  }) => _saveFile(bytes, validate: validate, shouldCommit: shouldCommit);
+
+  Future<Profile> _saveFile(
+    Uint8List bytes, {
+    required ValidateConfig validate,
+    bool Function()? shouldCommit,
+    Object? writeToken,
   }) async {
-    final path = await appPath.tempFilePath;
-    final tempFile = File(path);
-    await tempFile.safeWriteAsBytes(bytes);
-    if (await validate(path, ageSecretKey) case final issue?) {
-      throw MessageException(issue);
+    final token = writeToken ?? Object();
+    if (writeToken == null) _profileWrites[id] = token;
+    File? tempFile;
+    File? staged;
+    try {
+      final path = await appPath.tempFilePath;
+      tempFile = File(path);
+      await tempFile.safeWriteAsBytes(bytes);
+      if (await validate(path, ageSecretKey) case final issue?) {
+        throw MessageException(issue);
+      }
+      final target = File(await appPath.getProfilePath(id.toString()));
+      await target.parent.create(recursive: true);
+      staged = File('${target.path}.$uniqueId.tmp');
+      await tempFile.copy(staged.path);
+      if (!identical(_profileWrites[id], token) ||
+          !(shouldCommit?.call() ?? true)) {
+        throw const ProfileWriteSuperseded();
+      }
+      staged.renameSync(target.path);
+      return copyWith(lastUpdateDate: DateTime.now());
+    } finally {
+      try {
+        await tempFile?.safeDelete();
+      } finally {
+        try {
+          await staged?.safeDelete();
+        } finally {
+          if (writeToken == null && identical(_profileWrites[id], token)) {
+            _profileWrites.remove(id);
+          }
+        }
+      }
     }
-    final mFile = await file;
-    await tempFile.copy(mFile.path);
-    await tempFile.safeDelete();
-    return copyWith(lastUpdateDate: DateTime.now());
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
@@ -8,6 +9,7 @@ import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
+import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/core.dart';
 import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/state.dart';
@@ -15,6 +17,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:yaml/yaml.dart';
 
 import '../helpers/app_paths.dart';
@@ -22,6 +25,15 @@ import '../helpers/test_app.dart';
 import '../helpers/test_profiles.dart';
 
 class _MockCoreHandlerInterface extends Mock implements CoreHandlerInterface {}
+
+class _NoApply extends SetupAction {
+  @override
+  void applyProfileDebounce({bool silence = false, bool force = false}) {}
+
+  @override
+  Future<bool> setRunning(bool running, {bool initialize = false}) async =>
+      true;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -76,6 +88,97 @@ void main() {
   Future<List<Map>> savedProxies(Profile profile) async {
     final config = loadYaml(await (await profile.file).readAsString()) as Map;
     return [for (final proxy in config['proxies'] as List) proxy as Map];
+  }
+
+  for (final status in [200, 500]) {
+    test(
+      'a slow old subscription cannot replace the new source ($status)',
+      () async {
+        final oldOverrides = HttpOverrides.current;
+        HttpOverrides.global = null;
+        addTearDown(() => HttpOverrides.global = oldOverrides);
+        PackageInfo? previousPackageInfo;
+        try {
+          previousPackageInfo = globalState.packageInfo;
+        } on Error {
+          // The first test to use package information initializes the late field.
+        }
+        addTearDown(() {
+          if (previousPackageInfo != null) {
+            globalState.packageInfo = previousPackageInfo;
+          }
+          globalState.container = container;
+        });
+        globalState.packageInfo = PackageInfo(
+          appName: 'FlClash',
+          packageName: 'test',
+          version: '1',
+          buildNumber: '1',
+        );
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        addTearDown(() => server.close(force: true));
+        final arrived = Completer<void>();
+        final release = Completer<void>();
+        final deleteArrived = Completer<void>();
+        final deleteRelease = Completer<void>();
+        server.listen((request) async {
+          if (request.uri.path == '/old') {
+            arrived.complete();
+            await release.future;
+            request.response.statusCode = status;
+            request.response.write('source: old\n');
+          } else if (request.uri.path == '/delete') {
+            deleteArrived.complete();
+            await deleteRelease.future;
+            request.response.write('source: deleted\n');
+          } else {
+            request.response.write('source: new\n');
+          }
+          await request.response.close();
+        });
+        final old = Profile.normal(
+          label: 'race',
+          url: 'http://127.0.0.1:${server.port}/old',
+        );
+        final next = old.copyWith(url: 'http://127.0.0.1:${server.port}/new');
+        final testContainer = ProviderContainer(
+          overrides: [
+            profilesProvider.overrideWith(() => TestProfiles([old])),
+            currentProfileIdProvider.overrideWithBuild((_, _) => old.id),
+            coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+            setupActionProvider.overrideWith(_NoApply.new),
+          ],
+        );
+        addTearDown(testContainer.dispose);
+        globalState.container = testContainer;
+        final action = testContainer.read(profilesActionProvider.notifier);
+        final first = action.updateProfile(old);
+        await arrived.future;
+        await action.updateProfile(next);
+        release.complete();
+        await first;
+        expect(testContainer.read(profilesProvider).single.url, next.url);
+        expect(await (await next.file).readAsString(), 'source: new\n');
+
+        final deleted = next.copyWith(
+          url: 'http://127.0.0.1:${server.port}/delete',
+        );
+        when(() => core.clearEffect(any())).thenAnswer((_) async {});
+        final pending = action.updateProfile(deleted);
+        await deleteArrived.future;
+        testContainer.read(currentProfileIdProvider.notifier).value = null;
+        await action.deleteProfile(deleted.id);
+        deleteRelease.complete();
+        await pending;
+        expect(testContainer.read(profilesProvider), isEmpty);
+        expect(
+          await File(
+            await appPath.getProfilePath(deleted.id.toString()),
+          ).exists(),
+          isFalse,
+        );
+      },
+    );
   }
 
   group('addProfileFromLink with a share link', () {

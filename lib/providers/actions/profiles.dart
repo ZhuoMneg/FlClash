@@ -3,6 +3,7 @@ part of '../action.dart';
 @Riverpod(keepAlive: true)
 class ProfilesAction extends _$ProfilesAction {
   CoreController get _core => ref.read(coreHandlerProvider);
+  final _updates = <int, Object>{};
 
   @override
   void build() {}
@@ -139,6 +140,17 @@ class ProfilesAction extends _$ProfilesAction {
     Profile profile, {
     bool showLoading = false,
   }) async {
+    final token = Object();
+    _updates[profile.id] = token;
+    bool isCurrent() {
+      if (!ref.mounted) return false;
+      final latest = ref.read(profilesProvider).getProfile(profile.id);
+      return identical(_updates[profile.id], token) &&
+          latest != null &&
+          latest.url == profile.url &&
+          latest.ageSecretKey == profile.ageSecretKey;
+    }
+
     final operation = showLoading
         ? ref.read(updatingKeysProvider.notifier).start(profile.updatingKey)
         : null;
@@ -146,13 +158,12 @@ class ProfilesAction extends _$ProfilesAction {
       ref.read(profilesProvider.notifier).put(profile);
       final updated = await profile.update(
         validate: (path, key) => _core.validateProfile(path, key),
+        shouldCommit: isCurrent,
       );
+      if (!isCurrent()) return;
       // The download can take minutes; edits and deletes made meanwhile win.
       final latest = ref.read(profilesProvider).getProfile(profile.id);
-      if (latest == null) {
-        await clearEffect(profile.id);
-        return;
-      }
+      if (latest == null) return;
       final newProfile = latest.copyWith(
         label: latest.label.takeFirstValid([updated.label]),
         subscriptionInfo: updated.subscriptionInfo,
@@ -176,8 +187,13 @@ class ProfilesAction extends _$ProfilesAction {
           ),
         );
       }
+    } on ProfileWriteSuperseded {
+      return;
+    } catch (_) {
+      if (isCurrent()) rethrow;
     } finally {
-      if (operation != null) {
+      if (identical(_updates[profile.id], token)) _updates.remove(profile.id);
+      if (ref.mounted && operation != null) {
         ref
             .read(updatingKeysProvider.notifier)
             .stop(profile.updatingKey, operation);

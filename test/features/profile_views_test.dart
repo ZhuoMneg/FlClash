@@ -149,6 +149,7 @@ void main() {
       WidgetTester tester, {
       bool current = true,
       bool applied = true,
+      bool showApplyAction = true,
     }) async {
       setViewport(tester);
       final profile = Profile.normal();
@@ -188,7 +189,10 @@ void main() {
                 builder: (context) => TextButton(
                   onPressed: () => Navigator.of(context).push(
                     CardPageRoute<void>(
-                      builder: (_) => ExtendView(profileId: profile.id),
+                      builder: (_) => ExtendView(
+                        profileId: profile.id,
+                        showApplyAction: showApplyAction,
+                      ),
                     ),
                   ),
                   child: const Text('open'),
@@ -270,6 +274,17 @@ void main() {
       expect(find.text('open'), findsOneWidget);
       expect(find.byType(AlertDialog), findsNothing);
       expect(setupAction.autoApplyCalls, 1);
+    });
+
+    testWidgets('embedded routing leaves applying to its owner', (
+      tester,
+    ) async {
+      final setupAction = await pumpExtendView(tester, showApplyAction: false);
+      await switchToScript(tester);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text('open'), findsOneWidget);
+      expect(setupAction.autoApplyCalls, 0);
     });
 
     testWidgets('offers no apply for a profile not in use', (tester) async {

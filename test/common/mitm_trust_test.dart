@@ -9,6 +9,7 @@ import 'package:fl_clash/plugins/app.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:path/path.dart' as p;
 
 const _pem = '''-----BEGIN CERTIFICATE-----
 MIIBxjCCAW2gAwIBAgIUE7mKNCkR6iuATGzZPqCqjJNFbKswCgYIKoZIzj0EAwIw
@@ -92,7 +93,7 @@ void main() {
   late List<String> written;
 
   setUp(() async {
-    root = await Directory.systemTemp.createTemp('mitm_trust_test');
+    root = await Directory.current.createTemp('mitm_trust_test');
     processes = _Processes();
     written = [];
   });
@@ -361,14 +362,17 @@ void main() {
       await File('${root.path}$path').create(recursive: true);
     }
 
+    String certutilPath() =>
+        p.join(p.relative(p.join(root.path, 'bin')), 'certutil');
+
     LinuxMitmTrustStore store({bool certutil = true}) {
       final bin = Directory('${root.path}/bin')..createSync(recursive: true);
       if (certutil) {
         File('${bin.path}/certutil').createSync();
       }
       return LinuxMitmTrustStore(
-        home: '${root.path}/home',
-        searchPath: '/nonexistent:${bin.path}',
+        home: p.join(root.path, 'home'),
+        searchPath: '/nonexistent:${p.relative(bin.path)}',
         run: processes.run,
         elevate: (command) async {
           elevated.add(command);
@@ -380,12 +384,16 @@ void main() {
       );
     }
 
-    String database(String path) => '${root.path}/home$path';
+    String database(String path) => p.joinAll([
+      root.path,
+      'home',
+      ...path.split('/').where((part) => part.isNotEmpty),
+    ]);
 
     group('removing', () {
       void listDatabases({required bool stays}) {
         var deleted = false;
-        processes.handle('${root.path}/bin/certutil', (arguments) {
+        processes.handle(certutilPath(), (arguments) {
           if (arguments.contains('-D')) {
             deleted = true;
             return ProcessResult(0, 0, '', '');
@@ -438,13 +446,13 @@ void main() {
     test('a CA in the system bundle and every browser is trusted', () async {
       files[LinuxMitmTrustStore.bundles.first] = 'other\n$_pem';
       await touch('/home/.pki/nssdb/cert9.db');
-      processes.stub('${root.path}/bin/certutil', stdout: _pem);
+      processes.stub(certutilPath(), stdout: _pem);
 
       final check = await store().check(_ca, issueLeaf);
 
       expect(check.trust, MitmTrust.ready);
       expect(check.missingStores, isEmpty);
-      expect(processes.argumentsOf('${root.path}/bin/certutil').single, [
+      expect(processes.argumentsOf(certutilPath()).single, [
         '-d',
         'sql:${database('/.pki/nssdb')}',
         '-L',
@@ -457,9 +465,9 @@ void main() {
     test('a browser without the CA leaves it partly trusted', () async {
       files[LinuxMitmTrustStore.bundles.last] = _pem;
       final profiles = database('/.mozilla/firefox');
-      directories[profiles] = ['$profiles/abc.default-release'];
+      directories[profiles] = [p.join(profiles, 'abc.default-release')];
       await touch('/home/.mozilla/firefox/abc.default-release/cert9.db');
-      processes.stub('${root.path}/bin/certutil', exitCode: 255);
+      processes.stub(certutilPath(), exitCode: 255);
 
       final check = await store().check(_ca, issueLeaf);
 
@@ -502,7 +510,7 @@ void main() {
         ],
       ]);
       final db = 'sql:${database('/.pki/nssdb')}';
-      expect(processes.argumentsOf('${root.path}/bin/certutil'), [
+      expect(processes.argumentsOf(certutilPath()), [
         ['-d', db, '-D', '-n', LinuxMitmTrustStore.nickname],
         [
           '-d',

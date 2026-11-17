@@ -20,7 +20,7 @@ String _resolve(String uri, String from) {
     return 'lib/${uri.substring('package:fl_clash/'.length)}';
   }
   if (uri.startsWith('dart:') || uri.startsWith('package:')) return uri;
-  return p.normalize(p.join(p.dirname(from), uri));
+  return p.posix.normalize(p.posix.join(p.posix.dirname(from), uri));
 }
 
 bool _isStateManagement(String uri) =>
@@ -67,7 +67,7 @@ void main() {
     final offenders = <String>[];
     for (final entity in directory.listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
-      final chain = _escape(p.relative(entity.path));
+      final chain = _escape(p.relative(entity.path).replaceAll(r'\', '/'));
       if (chain != null) offenders.add(chain.join(' -> '));
     }
     expect(
