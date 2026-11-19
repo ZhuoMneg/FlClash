@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/glyph_finders.dart';
 import '../helpers/test_app.dart';
+import '../helpers/test_profiles.dart';
 import '../helpers/host_scaffold.dart';
 
 final _start = DateTime.utc(2026, 10, 28, 0, 0, 5);
@@ -82,6 +83,7 @@ Future<ProviderContainer> _pumpDetail(
   final container = ProviderContainer(
     retry: retry ? null : (_, _) => null,
     overrides: [
+      profilesProvider.overrideWith(TestProfiles.new),
       mitmExchangesProvider(
         _decrypted.id,
       ).overrideWith((ref) async => listError == null ? list : throw listError),
