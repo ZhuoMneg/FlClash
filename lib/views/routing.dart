@@ -73,9 +73,8 @@ class _RoutingEditorState extends ConsumerState<_RoutingEditor> {
         final profile = profiles.getProfile(profileId);
         return (
           profile?.type,
-          profile?.extendType,
           profile?.scriptId,
-          profile?.matchTarget,
+          profile?.exitTargets,
           profile?.overrides,
         );
       }),
@@ -85,11 +84,9 @@ class _RoutingEditorState extends ConsumerState<_RoutingEditor> {
       _watchChanges(
         database.scriptsDao.query().watch().map((scripts) {
           final profile = ref.read(profileProvider(profileId));
-          return profile?.extendType == ExtendType.script
-              ? scripts
-                    .where((script) => script.id == profile?.scriptId)
-                    .firstOrNull
-              : null;
+          return scripts
+              .where((script) => script.id == profile?.scriptId)
+              .firstOrNull;
         }),
         (a, b) => a == b,
       );

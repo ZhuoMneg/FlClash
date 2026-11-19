@@ -1,13 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/widgets.dart';
 
@@ -15,7 +13,6 @@ import 'edit.dart';
 import 'layout.dart';
 import 'style.dart';
 import 'widget_registry.dart';
-import 'widgets/core_status_button.dart';
 import 'widgets/widgets.dart';
 
 const _memoryColumnMin = 290.0;
@@ -35,6 +32,19 @@ class DashboardView extends ConsumerStatefulWidget {
 class _DashboardViewState extends ConsumerState<DashboardView> {
   var _editing = false;
   final _cardKeys = <DashboardWidget, GlobalKey>{};
+  late final ScrollController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = sheetScrollController(context);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _setEditing(bool editing) {
     setState(() => _editing = editing);
@@ -62,11 +72,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
           ? appLocalizations.editDashboard
           : appLocalizations.dashboard,
       backAction: editing ? () => _setEditing(false) : null,
-      actions: [
-        if (!editing && !ViewScope.isMobileOf(context))
-          const UpdateStatusButton(),
-        if (!editing && coreLib == null) const CoreStatusButton(),
-      ],
+      actions: [if (!editing) const LiveStatusButton()],
       confirmationAction: editing
           ? IconButtonData(
               glyph: AppGlyphs.check,
@@ -125,6 +131,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                           gap: gap,
                         )
                 : _MobileDashboard(
+                    controller: _controller,
                     platform: platform,
                     gap: gap,
                     editing: editing,
@@ -264,6 +271,7 @@ class _DesktopDashboard extends StatelessWidget {
 
 class _MobileDashboard extends ConsumerWidget {
   const _MobileDashboard({
+    required this.controller,
     required this.platform,
     required this.gap,
     required this.editing,
@@ -271,6 +279,7 @@ class _MobileDashboard extends ConsumerWidget {
     required this.onDone,
   });
 
+  final ScrollController controller;
   final SupportPlatform platform;
   final double gap;
   final bool editing;
@@ -285,6 +294,7 @@ class _MobileDashboard extends ConsumerWidget {
     final top = context.contentTopPadding;
     final bottom = 16 + context.bottomInset;
     return CustomScrollView(
+      controller: controller,
       // A viewport per card lays them all out and holds the scroll end still.
       scrollCacheExtent: editing
           ? ScrollCacheExtent.viewport(DashboardWidget.values.length.toDouble())
@@ -314,18 +324,13 @@ class _MobileDashboard extends ConsumerWidget {
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: gap,
                   children: [
-                    UpdateStatusSlot(gap: gap),
-                    Column(
-                      spacing: gap,
-                      children: [
-                        for (final widget in widgets)
-                          RepaintBoundary(
-                            key: cardKeyOf(widget),
-                            child: widget.card,
-                          ),
-                      ],
-                    ),
+                    for (final widget in widgets)
+                      RepaintBoundary(
+                        key: cardKeyOf(widget),
+                        child: widget.card,
+                      ),
                   ],
                 ),
               ),

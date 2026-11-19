@@ -68,6 +68,7 @@ func handleStopListener() {
 	_ = reconcileNetworkTunnel()
 	listener.StopListener()
 	resolver.ResetConnection()
+	bumpRouteEpoch()
 }
 
 func updateListeners(cfg *config.Config) {

@@ -29,7 +29,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.6'
+          flutter-version: '3.50.0'
           channel: stable
           cache: true
       - uses: dtolnay/rust-toolchain@1.99.0
@@ -43,6 +43,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: plugins/rust_api/rust
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev
       - name: Verify Rust editor and IPC
         run: cargo test --manifest-path plugins/rust_api/rust/Cargo.toml
       - name: Resolve dependencies
@@ -50,6 +54,8 @@ jobs:
         run: flutter pub get
       - name: Verify release package validation
         run: python3 -m unittest discover -s tool/update-channel -p 'test_*.py'
+      - name: Check format
+        run: dart format --output=none --set-exit-if-changed lib test tool plugins
       - name: Analyze
         run: flutter analyze --no-fatal-infos
       - name: Skip unused Go build hook in UI tests
@@ -86,7 +92,7 @@ jobs:
           cache-dependency-path: core/go.sum
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.6'
+          flutter-version: '3.50.0'
           channel: stable
           cache: true
       - uses: dtolnay/rust-toolchain@1.99.0
@@ -94,23 +100,22 @@ jobs:
         run: flutter pub get
       - name: Analyze
         run: flutter analyze --no-fatal-infos
-      - name: Build
+      - name: Fetch verified CA certificates
+        shell: bash
         run: |
-          flutter build windows --release --build-number=$env:GITHUB_RUN_NUMBER --dart-define=APP_ENV=stable "--dart-define=UPDATE_REPOSITORY=$env:GITHUB_REPOSITORY"
-      - name: Include license and modification notice
+          bundle=core/Clash.Meta/component/ca/ca-certificates.crt
+          curl -fsSL --retry 3 -o "$bundle" https://curl.se/ca/cacert-2026-09-25.pem
+          echo "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505  $bundle" | sha256sum -c -
+      - name: Build and package
+        env:
+          UPDATE_REPOSITORY: ${{ github.repository }}
         run: |
-          Copy-Item LICENSE build/windows/x64/runner/Release/LICENSE.txt
-          Copy-Item MODIFICATIONS.md build/windows/x64/runner/Release/MODIFICATIONS.md
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Package the official Windows installer
-        run: |
-          python -m pip install jinja2==3.1.6
           $version = (Select-String '^version: ([^+]+)' pubspec.yaml).Matches.Groups[1].Value
-          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          if (-not (Test-Path -LiteralPath $compiler)) { throw 'Inno Setup is missing' }
-          python tool/windows_installer.py "$version+$env:GITHUB_RUN_NUMBER" build/windows/x64/runner/Release dist-installer --compiler "$compiler"
+          (Get-Content pubspec.yaml -Raw) -replace '(?m)^version: .*$', "version: $version+$env:GITHUB_RUN_NUMBER" | Set-Content pubspec.yaml -NoNewline
+          dart tool/package.dart windows --env stable --tag "v$version" --targets exe,zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Force dist-installer | Out-Null
+          Copy-Item "dist/FlClash-dev-$version-windows-amd64-setup.exe" "dist-installer/FlClash-$version+$env:GITHUB_RUN_NUMBER-windows-amd64-setup.exe"
       - uses: actions/upload-artifact@v4
         with:
           name: FlClash-windows-installer

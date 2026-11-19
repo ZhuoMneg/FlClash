@@ -441,15 +441,14 @@ void main() {
     await teardown(tester);
   });
 
-  testWidgets('a landscape phone gets the fixed grid without an edit mode', (
-    tester,
-  ) async {
+  testWidgets('a landscape phone can edit the dashboard', (tester) async {
     seed(const [DashboardWidget.currentOutbound, DashboardWidget.profiles]);
     await pumpDashboard(tester, size: const Size(915, 412));
 
-    expect(find.byTooltip('Edit dashboard'), findsNothing);
-    expect(find.byType(DashboardEditor), findsNothing);
     expect(find.byType(OutboundModeBar), findsOneWidget);
+    await tester.tap(find.byTooltip('Edit dashboard'));
+    await settle(tester);
+    expect(find.byType(DashboardEditor), findsOneWidget);
 
     await teardown(tester);
   });
@@ -479,17 +478,16 @@ void main() {
     await teardown(tester);
   });
 
-  testWidgets('the desktop grid keeps its fixed layout without an edit mode', (
-    tester,
-  ) async {
+  testWidgets('the desktop grid can enter edit mode', (tester) async {
     await pumpDashboard(
       tester,
       platform: SupportPlatform.MacOS,
       size: const Size(1220, 900),
     );
 
-    expect(find.byTooltip('Edit dashboard'), findsNothing);
-    expect(find.byType(DashboardEditor), findsNothing);
+    await tester.tap(find.byTooltip('Edit dashboard'));
+    await settle(tester);
+    expect(find.byType(DashboardEditor), findsOneWidget);
 
     await teardown(tester);
   });

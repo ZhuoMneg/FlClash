@@ -6,6 +6,7 @@ import 'package:fl_clash/models/models.dart';
 
 import 'desktop/model.dart';
 import 'method.dart';
+import 'spill.dart';
 
 /// A method answers its result or throws: a [CoreMethodException] for what the
 /// Core reports or a Core out of reach, a [TimeoutException] for no answer.
@@ -28,19 +29,25 @@ abstract class CoreHandlerInterface {
     required CoreMethod method,
     Object? arguments,
     Duration? timeout,
+    CoreResultModel? model,
   });
 
   Future<Object?> _call(
     CoreMethod method, {
     Object? arguments,
     Duration? timeout,
+    CoreResultModel? model,
   }) async {
     return await handleWatch(
       onStart: () {
         commonPrint.log('Invoke method ${method.wireName} ${DateTime.now()}');
       },
-      function: () =>
-          invokeMethod(method: method, arguments: arguments, timeout: timeout),
+      function: () => invokeMethod(
+        method: method,
+        arguments: arguments,
+        timeout: timeout,
+        model: model,
+      ),
       onEnd: (result, elapsedMilliseconds) {
         commonPrint.log(
           'Invoke method ${method.wireName} completed in '
@@ -55,8 +62,14 @@ abstract class CoreHandlerInterface {
     R Function(Object data) decode, {
     Object? arguments,
     Duration? timeout,
+    CoreResultModel? model,
   }) async {
-    final data = await _call(method, arguments: arguments, timeout: timeout);
+    final data = await _call(
+      method,
+      arguments: arguments,
+      timeout: timeout,
+      model: model,
+    );
     if (data == null) {
       throw CoreMethodException(
         code: 'empty_result',
@@ -305,10 +318,12 @@ abstract class CoreHandlerInterface {
 
   Future<void> resetTraffic() => _commandUnobserved(CoreMethod.trafficReset);
 
-  Future<List<TrackerInfo>> getConnections() {
+  /// Runs [present] where the list is decoded, possibly in another isolate.
+  Future<R> getConnectionsWith<R>(R Function(List<TrackerInfo>) present) {
     return _query(
       CoreMethod.connectionList,
-      (data) => data is List<TrackerInfo> ? data : trackerInfosOf(data),
+      (data) => data as R,
+      model: _presentConnections(present),
     );
   }
 
@@ -473,3 +488,7 @@ Map<int, String> _issues(Object data) => {
     if (item case {'index': final num index, 'message': final String message})
       index.toInt(): message,
 };
+
+CoreResultModel _presentConnections<R>(R Function(List<TrackerInfo>) present) {
+  return (result) => present(trackerInfosOf(result));
+}

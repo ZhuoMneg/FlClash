@@ -1,5 +1,6 @@
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/providers/mitm.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/dashboard/dashboard.dart';
@@ -43,7 +44,10 @@ void main() {
         tester,
       ) async {
         final container = ProviderContainer(
-          overrides: [profilesProvider.overrideWith(TestProfiles.new)],
+          overrides: [
+            profilesProvider.overrideWith(TestProfiles.new),
+            mitmModulesToAgreeProvider.overrideWith((ref) => []),
+          ],
         );
         globalState.container = container;
         container.listen(groupsProvider, (_, _) {});
@@ -90,6 +94,7 @@ void main() {
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump(const Duration(seconds: 5));
         container.dispose();
+        await tester.pump();
       });
     }
   }

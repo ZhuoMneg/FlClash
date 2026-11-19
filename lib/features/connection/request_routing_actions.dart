@@ -33,9 +33,7 @@ Future<RequestRuleSaveResult> saveRequestRule(
   final container = ProviderScope.containerOf(ref.context, listen: false);
   final profile = container.read(profileProvider(profileId));
   if (container.read(currentProfileIdProvider) != profileId ||
-      profile == null ||
-      (profile.type != ProfileType.custom &&
-          profile.extendType != ExtendType.standard)) {
+      profile == null) {
     return RequestRuleSaveResult.inactive;
   }
   final rules = await database.rulesDao.queryProfileRules(profileId).get();
@@ -49,9 +47,7 @@ Future<RequestRuleSaveResult> saveRequestRule(
   }
   bool canApply() {
     final current = container.read(currentProfileProvider);
-    return current?.id == profileId &&
-        (current?.type == ProfileType.custom ||
-            current?.extendType == ExtendType.standard);
+    return current?.id == profileId;
   }
 
   if (!canApply()) {
@@ -91,11 +87,6 @@ class _RequestRoutingActionsState extends ConsumerState<RequestRoutingActions> {
     final profile = ref.read(currentProfileProvider);
     final domain = requestDomain(widget.request);
     if (profile == null || domain == null) return;
-    if (profile.type != ProfileType.custom &&
-        profile.extendType != ExtendType.standard) {
-      setState(() => _error = l.requestRuleNeedsStandard);
-      return;
-    }
     final targets = <String>{
       RuleTarget.DIRECT.value,
       RuleTarget.REJECT.value,

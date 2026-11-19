@@ -5,13 +5,14 @@ import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/common/release_asset.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:path/path.dart';
 
-const releaseChecksumsName = 'SHA256SUMS';
+const appReleaseLine = ReleaseLine.dev;
 
 sealed class UpdateDownload {
   const UpdateDownload(this.tag);
@@ -34,33 +35,67 @@ final class UpdateReady extends UpdateDownload {
   final String path;
 }
 
+typedef SelfUpdateAsset = ({
+  ReleaseOs os,
+  ReleaseArch arch,
+  ReleaseForm? form,
+  String extension,
+});
+
 @visibleForTesting
-String? Function() resolveSelfUpdateSuffix = () => selfUpdateAssetSuffix(
+SelfUpdateAsset? Function() resolveSelfUpdateAsset = () => selfUpdateAssetFor(
   Abi.current(),
   windowsInstalled: system.isWindows && isInstalledWindowsBuild,
 );
 
-String? get selfUpdateSuffix => resolveSelfUpdateSuffix();
+SelfUpdateAsset? get selfUpdateAsset => resolveSelfUpdateAsset();
 
-// The names follow the release matrix in .github/workflows/build.yaml.
-String? selfUpdateAssetSuffix(Abi abi, {required bool windowsInstalled}) {
+// The release matrix in .github/workflows/build.yaml builds each of these.
+SelfUpdateAsset? selfUpdateAssetFor(Abi abi, {required bool windowsInstalled}) {
+  SelfUpdateAsset apk(ReleaseArch arch) =>
+      (os: ReleaseOs.android, arch: arch, form: null, extension: 'apk');
+  SelfUpdateAsset setup(ReleaseArch arch) => (
+    os: ReleaseOs.windows,
+    arch: arch,
+    form: ReleaseForm.setup,
+    extension: 'exe',
+  );
   return switch (abi) {
-    Abi.androidArm64 => 'android-arm64-v8a.apk',
-    Abi.androidArm => 'android-armeabi-v7a.apk',
-    Abi.androidX64 => 'android-x86_64.apk',
-    Abi.windowsX64 when windowsInstalled => 'windows-amd64-setup.exe',
-    Abi.windowsArm64 when windowsInstalled => 'windows-arm64-setup.exe',
+    Abi.androidArm64 => apk(ReleaseArch.arm64),
+    Abi.androidArm => apk(ReleaseArch.armv7),
+    Abi.androidX64 => apk(ReleaseArch.amd64),
+    Abi.windowsX64 when windowsInstalled => setup(ReleaseArch.amd64),
+    Abi.windowsArm64 when windowsInstalled => setup(ReleaseArch.arm64),
     _ => null,
   };
 }
 
-String releaseAssetName(String tag, String suffix) {
-  final version = tag.startsWith('build-v')
-      ? tag.substring(7)
-      : tag.startsWith('v')
-      ? tag.substring(1)
-      : tag;
-  return '$appName-$version-$suffix';
+String updateAssetName(String tag, SelfUpdateAsset asset) {
+  if (tag.startsWith('build-v')) {
+    final version = tag.substring(7);
+    final suffix = switch ((asset.os, asset.arch)) {
+      (ReleaseOs.windows, ReleaseArch.amd64) => 'windows-amd64-setup.exe',
+      (ReleaseOs.windows, ReleaseArch.arm64) => 'windows-arm64-setup.exe',
+      (ReleaseOs.android, ReleaseArch.arm64) => 'android-arm64-v8a.apk',
+      (ReleaseOs.android, ReleaseArch.armv7) => 'android-armeabi-v7a.apk',
+      (ReleaseOs.android, ReleaseArch.amd64) => 'android-x86_64.apk',
+      _ => throw ArgumentError('Unsupported update asset'),
+    };
+    return '$appName-$version-$suffix';
+  }
+  return releaseAssetName(
+    line: appReleaseLine,
+    version: releaseVersionOfTag(tag),
+    os: asset.os,
+    arch: asset.arch,
+    form: asset.form,
+    extension: asset.extension,
+  );
+}
+
+String updateChecksumsName(String tag) {
+  if (tag.startsWith('build-v')) return 'SHA256SUMS';
+  return releaseChecksumsName(appReleaseLine, releaseVersionOfTag(tag));
 }
 
 Uri releaseAssetUri(String tag, String name) {

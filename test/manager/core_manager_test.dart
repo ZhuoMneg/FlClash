@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:fl_clash/common/app_localizations.dart';
 import 'package:fl_clash/core/core.dart';
 import 'package:fl_clash/core/interface.dart';
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/core_manager.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/action.dart';
@@ -32,7 +32,6 @@ const _nullProfileSetupState = SetupState(
   profileId: null,
   profileLastUpdateDate: null,
   profileType: ProfileType.file,
-  extendType: ExtendType.standard,
   rules: [],
   proxyGroups: [],
   addedRules: [],
@@ -77,6 +76,13 @@ class _ApplyRecordingSetupAction extends SetupAction {
     applies++;
     appliedForce.add(force);
   }
+}
+
+class _LostRecordingSetupAction extends SetupAction {
+  int lostCount = 0;
+
+  @override
+  void onCoreLost() => lostCount++;
 }
 
 _MockCoreHandlerInterface _coreInterface() {
@@ -150,7 +156,7 @@ void main() {
         options: CoreOptions(testUrl: ''),
       ),
     );
-    await AppLocalizations.load(const Locale('en'));
+    loadAppLocalizations(const Locale('en'));
     profileSwitchTempDir = Directory.systemTemp.createTempSync(
       'core_manager_test',
     );
@@ -218,6 +224,30 @@ void main() {
     expect(find.text('boom'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('a crash ends the run here without telling the Core to stop', (
+    tester,
+  ) async {
+    final coreInterface = _coreInterface();
+    final setup = _LostRecordingSetupAction();
+    final container = await _pumpCoreManager(
+      tester,
+      coreInterface,
+      overrides: [setupActionProvider.overrideWith(() => setup)],
+    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    container.read(coreStatusProvider.notifier).value = CoreStatus.connected;
+
+    coreEventManager.sendEvent(_crash);
+    await tester.pump();
+
+    expect(container.read(coreStatusProvider), CoreStatus.disconnected);
+    expect(setup.lostCount, 1);
+    verifyNever(() => coreInterface.stopListener());
+
+    await tester.pumpWidget(const SizedBox());
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
   });
 
   testWidgets('a crash is ignored when the core is not connected', (

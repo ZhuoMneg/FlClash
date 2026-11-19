@@ -295,6 +295,38 @@ void main() {
     });
 
     test(
+      'migrates legacy MATCH placeholders in global and profile rules',
+      () async {
+        writeFile(join(source.path, 'profiles', 'p1.yaml'), '');
+        final data = await migrateLegacyConfig(
+          configMap: legacyConfig(
+            rules: [
+              <String, Object?>{'id': 'g1', 'value': 'DOMAIN,global.com,match'},
+            ],
+            profiles: [
+              {
+                'id': 'p1',
+                'autoUpdateDuration': 0,
+                'overwrite': {
+                  'type': 'standard',
+                  'standardOverwrite': {
+                    'addedRules': [
+                      {'id': 'r1', 'value': 'DOMAIN,own.com,MATCH'},
+                    ],
+                  },
+                },
+              },
+            ],
+          ),
+          sourcePath: source.path,
+          targetPath: target.path,
+        );
+        expect(data.rules.map((rule) => rule.customExit), [true, true]);
+        expect(data.rules.map((rule) => rule.ruleTarget), ['MATCH', 'MATCH']);
+      },
+    );
+
+    test(
       'keeps a disabled rule only for a rule id it has already seen',
       () async {
         writeFile(join(source.path, 'profiles', 'p1.yaml'), '');
@@ -374,19 +406,29 @@ void main() {
       );
 
       expect(data.profiles.single.scriptId, data.scripts.single.id);
-      expect(data.profiles.single.extendType, ExtendType.script);
     });
 
-    test('falls a custom overwrite back to a standard one', () async {
+    test('keeps the global rules out of a script overwrite', () async {
       writeFile(join(source.path, 'profiles', 'p1.yaml'), '');
 
       final data = await migrateLegacyConfig(
         configMap: legacyConfig(
+          rules: [
+            <String, Object?>{'id': 'g1', 'value': 'DOMAIN,global.com,DIRECT'},
+          ],
           profiles: [
             {
               'id': 'p1',
               'autoUpdateDuration': 0,
-              'overwrite': {'type': 'custom'},
+              'overwrite': {
+                'type': 'script',
+                'standardOverwrite': {
+                  'addedRules': [
+                    {'id': 'r1', 'value': 'DOMAIN,own.com,DIRECT'},
+                  ],
+                  'disabledRuleIds': ['r1'],
+                },
+              },
             },
           ],
         ),
@@ -394,7 +436,36 @@ void main() {
         targetPath: target.path,
       );
 
-      expect(data.profiles.single.extendType, ExtendType.standard);
+      expect(
+        data.disabledRules.map((rule) => rule.ruleId).toSet(),
+        data.rules.map((rule) => rule.id).toSet(),
+      );
+    });
+
+    test('drops the script a standard overwrite left unused', () async {
+      writeFile(join(source.path, 'profiles', 'p1.yaml'), '');
+
+      final data = await migrateLegacyConfig(
+        configMap: legacyConfig(
+          scripts: [
+            {'id': 's1', 'label': 'S', 'content': 'body'},
+          ],
+          profiles: [
+            {
+              'id': 'p1',
+              'autoUpdateDuration': 0,
+              'overwrite': {
+                'type': 'standard',
+                'scriptOverwrite': {'scriptId': 's1'},
+              },
+            },
+          ],
+        ),
+        sourcePath: source.path,
+        targetPath: target.path,
+      );
+
+      expect(data.profiles.single.scriptId, isNull);
     });
 
     test('remaps currentProfileId and nulls it when there is none', () async {

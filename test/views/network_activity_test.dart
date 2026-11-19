@@ -1,6 +1,7 @@
 import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/core/interface.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/features/features.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../helpers/core_connections.dart';
 import '../helpers/test_app.dart';
 import '../helpers/test_profiles.dart';
 
@@ -24,9 +26,7 @@ void main() {
       'activity tabs preserve search and stop hidden polling at $width',
       (tester) async {
         final core = _Core();
-        when(
-          core.getConnections,
-        ).thenAnswer((_) async => const <TrackerInfo>[]);
+        whenConnections<RankedTrackerInfos>(core, () async => const []);
         final container = ProviderContainer(
           overrides: [
             profilesProvider.overrideWith(TestProfiles.new),
@@ -34,6 +34,8 @@ void main() {
           ],
         );
         globalState.container = container;
+        container.read(coreStatusProvider.notifier).value =
+            CoreStatus.connected;
         tester.view.physicalSize = Size(width, 1000);
         tester.view.devicePixelRatio = 1;
         container.read(viewSizeProvider.notifier).value = Size(width, 1000);
@@ -53,7 +55,7 @@ void main() {
           tester.widget<Scaffold>(find.byType(Scaffold)).titleMenuItems,
           isEmpty,
         );
-        verifyNever(core.getConnections);
+        verifyNever(() => core.getConnectionsWith<RankedTrackerInfos>(any()));
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-0')));
         await tester.pumpAndSettle();
         final liveScaffold = tester.widget<Scaffold>(find.byType(Scaffold));
@@ -63,6 +65,8 @@ void main() {
           contains(AppGlyphs.clearAll),
         );
         expect(container.read(appSettingProvider).networkActivityTab, 0);
+        await tester.pump(const Duration(seconds: 1));
+        verify(() => core.getConnectionsWith<RankedTrackerInfos>(any()));
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-1')));
         await tester.pumpAndSettle();
         expect(find.byType(RequestsView), findsOneWidget);
@@ -70,7 +74,7 @@ void main() {
         await tester.pumpAndSettle();
         clearInteractions(core);
         await tester.pump(const Duration(seconds: 3));
-        verifyNever(core.getConnections);
+        verifyNever(() => core.getConnectionsWith<RankedTrackerInfos>(any()));
         await tester.tap(find.byKey(const ValueKey('network-activity-tab-2')));
         await tester.pumpAndSettle();
         expect(find.byType(DnsQueriesView), findsOneWidget);

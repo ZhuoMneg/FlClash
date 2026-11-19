@@ -46,7 +46,7 @@ void main() {
     Profile(
       id: 3,
       type: ProfileType.url,
-      extendType: ExtendType.script,
+      scriptId: 10,
       autoUpdateDuration: Duration.zero,
     ),
   ];
@@ -66,6 +66,7 @@ void main() {
         setupActionProvider.overrideWith(() => action),
       ],
     );
+    container.listen(currentProfileIdProvider, (_, _) {});
     globalState.container = container;
   });
 
@@ -130,19 +131,17 @@ void main() {
     },
   );
 
-  testWidgets(
-    'script extensions cannot silently save an unused standard rule',
-    (tester) async {
-      await mount(tester);
-      container.read(currentProfileIdProvider.notifier).value = 3;
-      final result = await tester.runAsync(
-        () => saveRequestRule(ref, profileId: 3, rule: rule),
-      );
-      expect(result, RequestRuleSaveResult.inactive);
-      expect(action.applied, isEmpty);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+  testWidgets('script extensions can save an added rule', (tester) async {
+    await mount(tester);
+    container.read(currentProfileIdProvider.notifier).value = 3;
+    final result = await tester.runAsync(
+      () => saveRequestRule(ref, profileId: 3, rule: rule),
+    );
+    expect(result, RequestRuleSaveResult.applied);
+    expect(action.persistedAtApply.single.single.content, 'example.com');
+    expect(action.applied, [3]);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets(
     'apply failure keeps the saved rule and reports retryable failure',

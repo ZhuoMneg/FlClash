@@ -110,3 +110,10 @@ together with these customizations.
 - Run the complete root test suite and coverage gate before Windows packaging.
 - Keep test paths portable and align UI assertions with the customized surfaces
   and dashboard layout.
+
+## Official 0.9.4 integration
+
+- Merge the official 0.9.4 build and packaging updates while retaining the custom
+  interface, data migrations, Windows installation identity and update channel.
+- Run the custom Linux checks and Windows build with the current toolchain, and
+  keep verified existing build-v release names for updates.

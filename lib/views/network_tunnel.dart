@@ -100,7 +100,10 @@ class _NetworkTunnelViewState extends ConsumerState<NetworkTunnelView> {
     try {
       final file = await picker.pickerFile();
       if (file == null) return;
-      if (await file.length() > 65536) throw const FormatException();
+      final size = await file.length();
+      if (size == null || size == 0 || size > 65536) {
+        throw const FormatException();
+      }
       final bytes = await file.readBytes();
       if (bytes.length > 65536) throw const FormatException();
       final settings = parseNetworkTunnelImport(utf8.decode(bytes), profileId);
