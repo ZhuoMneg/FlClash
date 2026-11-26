@@ -6,7 +6,6 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/dashboard/dashboard.dart';
 import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/views/dashboard/widgets/widgets.dart';
 import 'package:flutter/gestures.dart';
@@ -81,7 +80,17 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: const TestApp(
-          child: DashboardView(platform: SupportPlatform.MacOS),
+          child: HostScaffold(
+            body: SizedBox(
+              width: 960,
+              height: 600,
+              child: DashboardDensityScope(
+                density: DashboardDensity.standard,
+                scale: 1,
+                child: ConnectionsTableCard(),
+              ),
+            ),
+          ),
         ),
       ),
     );
