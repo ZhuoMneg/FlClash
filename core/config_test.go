@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/netip"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
@@ -278,7 +279,25 @@ func TestUpdateConfigLeavesTheControllerAloneWhenTheAddressIsUnchanged(t *testin
 	}
 }
 
+func controllerTestInSubprocess(t *testing.T) bool {
+	t.Helper()
+	const key = "FLCLASH_CONTROLLER_TEST"
+	if os.Getenv(key) == t.Name() {
+		return false
+	}
+	// Mihomo's asynchronous controller owns process-wide listeners.
+	command := exec.Command(os.Args[0], "-test.run=^"+t.Name()+"$")
+	command.Env = append(os.Environ(), key+"="+t.Name())
+	if output, err := command.CombinedOutput(); err != nil {
+		t.Fatalf("isolated controller test: %v\n%s", err, output)
+	}
+	return true
+}
+
 func TestUpdateConfigReplacesTheSecretTheProfileCarried(t *testing.T) {
+	if controllerTestInSubprocess(t) {
+		return
+	}
 	withCurrentConfig(t, &config.Config{
 		General:    &config.General{},
 		Controller: &config.Controller{Secret: "from-the-profile"},
@@ -295,6 +314,9 @@ func TestUpdateConfigReplacesTheSecretTheProfileCarried(t *testing.T) {
 }
 
 func TestUpdateConfigServesTheControllerBehindTheSecretItWasGiven(t *testing.T) {
+	if controllerTestInSubprocess(t) {
+		return
+	}
 	probe, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("reserve a port: %v", err)
