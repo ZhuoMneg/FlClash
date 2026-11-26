@@ -239,6 +239,189 @@ void main() {
     },
   );
 
+  for (final brightness in Brightness.values) {
+    for (final direction in TextDirection.values) {
+      testWidgets(
+        'sidebar blur masks the dock exterior in $brightness and $direction',
+        (tester) async {
+          tester.view.physicalSize = const Size(1200, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          FakeDesktopWindow().install();
+
+          final container = ProviderContainer(
+            overrides: [
+              navigationItemsStateProvider.overrideWithValue(
+                NavigationItemsState(
+                  value: [
+                    NavigationItem(
+                      glyph: AppGlyphs.dashboard,
+                      label: PageLabel.dashboard,
+                      builder: (_) => const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+          addTearDown(container.dispose);
+          globalState.container = container;
+          container.read(viewSizeProvider.notifier).value = const Size(
+            1200,
+            800,
+          );
+          container.read(windowBlurProvider.notifier).value = 0.5;
+
+          await tester.pumpWidget(
+            UncontrolledProviderScope(
+              container: container,
+              child: TestApp(
+                includeNavigatorKey: false,
+                theme: ThemeData(brightness: brightness),
+                homeBuilder: (child) => Directionality(
+                  textDirection: direction,
+                  child: Column(
+                    children: [
+                      const WindowHeader(),
+                      Expanded(child: child),
+                    ],
+                  ),
+                ),
+                child: const HomePage(),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final sidebar = find.byType(NavigationSidebar);
+          final shell = find.byType(AppSidebarContainer);
+          final surface = find
+              .ancestor(of: sidebar, matching: find.byType(Surface))
+              .first;
+
+          void expectBackdrop({required double width, required double height}) {
+            final scheme = tester.element(shell).colorScheme;
+            final page = SurfaceLevel.page.colorOf(scheme);
+            expect(scheme.brightness, brightness);
+            expect(tester.getSize(sidebar).width, width);
+            expect(
+              tester.widget<Surface>(surface).color,
+              scheme.appChromeSurface.withValues(alpha: 0.5),
+            );
+            final shape =
+                tester.widget<Surface>(surface).shape!
+                    as RoundedSuperellipseBorder;
+            expect(shape.borderRadius, AppRadius.all(32));
+            expect(shape.side, scheme.cardEdge);
+            final outer = tester.getRect(shell);
+            final dock = tester.getRect(surface).shift(-outer.topLeft);
+            expect(dock.top, 14);
+            expect(dock.height, height);
+            expect(
+              direction == TextDirection.ltr
+                  ? dock.left
+                  : outer.width - dock.right,
+              18,
+            );
+            final bounds = Rect.fromLTRB(
+              dock.left - 18,
+              0,
+              dock.right + 18,
+              outer.height,
+            );
+            final corners = [
+              dock.topLeft + const Offset(1, 1),
+              dock.topRight + const Offset(-1, 1),
+              dock.bottomLeft + const Offset(1, -1),
+              dock.bottomRight + const Offset(-1, -1),
+            ];
+            Path? mask;
+            expect(
+              tester.renderObject(shell),
+              paints..something((method, arguments) {
+                if (method != #drawPath ||
+                    (arguments[1] as Paint).color.toARGB32() !=
+                        page.toARGB32()) {
+                  return false;
+                }
+                mask = arguments[0] as Path;
+                return true;
+              }),
+            );
+            expect(mask!.getBounds(), bounds);
+            for (final point in [
+              ...corners,
+              Offset(dock.left - 9, dock.center.dy),
+              Offset(dock.right + 9, dock.center.dy),
+              Offset(dock.center.dx, 7),
+              Offset(dock.center.dx, outer.height - 7),
+            ]) {
+              expect(
+                mask!.contains(point),
+                isTrue,
+                reason: '$point outside dock',
+              );
+            }
+            expect(mask!.contains(dock.center), isFalse);
+            expect(
+              mask!.contains(dock.centerLeft + const Offset(2, 0)),
+              isFalse,
+            );
+            final background = find
+                .descendant(
+                  of: shell,
+                  matching: find.byWidgetPredicate(
+                    (widget) => widget is Container && widget.child is Row,
+                  ),
+                )
+                .first;
+            expect(
+              tester.widget<Container>(background).color,
+              Colors.transparent,
+            );
+            expect(
+              tester
+                  .widget<WindowHeaderBar>(find.byType(WindowHeaderBar))
+                  .backdropOpacity,
+              isNull,
+            );
+            expect(tester.takeException(), isNull);
+          }
+
+          expectBackdrop(width: 220, height: 610);
+          await tester.tap(find.byTooltip('Collapse'));
+          await tester.pumpAndSettle();
+          expectBackdrop(width: 48, height: 610);
+          await tester.tap(find.byTooltip('Expand'));
+          await tester.pumpAndSettle();
+          expectBackdrop(width: 220, height: 610);
+
+          tester.view.physicalSize = const Size(1200, 400);
+          container.read(viewSizeProvider.notifier).value = const Size(
+            1200,
+            400,
+          );
+          await tester.pumpAndSettle();
+          final availableHeight = tester.getSize(shell).height - 28;
+          expectBackdrop(width: 220, height: availableHeight);
+
+          container.read(windowBlurProvider.notifier).value = null;
+          await tester.pumpAndSettle();
+          final scheme = tester.element(shell).colorScheme;
+          expect(
+            tester.widget<Surface>(surface).color,
+            scheme.appChromeSurface,
+          );
+          expect(tester.takeException(), isNull);
+          container.read(windowBlurProvider.notifier).value = 0.5;
+          await tester.pumpAndSettle();
+          expectBackdrop(width: 220, height: availableHeight);
+        },
+      );
+    }
+  }
+
   testWidgets('the sidebar widens in place only at desktop width', (
     tester,
   ) async {

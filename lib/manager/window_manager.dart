@@ -487,12 +487,9 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final backdropOpacity = ref.watch(isMobileViewProvider)
-        ? null
-        : ref.watch(windowBlurProvider);
     return WindowHeaderBar(
       height: kHeaderHeight,
-      backdropOpacity: backdropOpacity,
+      backdropOpacity: null,
       onDragStart: desktopWindow.startDragging,
       // rust_api answers title-bar double clicks on macOS by the system setting.
       onDoubleTap: system.isMacOS ? null : caption.toggleMaximized,

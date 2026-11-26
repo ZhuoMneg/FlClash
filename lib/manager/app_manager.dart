@@ -10,6 +10,7 @@ import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/widgets/icon.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -227,6 +228,9 @@ class AppSidebarContainer extends ConsumerWidget {
     final backdropOpacity = ref.watch(windowBlurProvider);
     final page = SurfaceLevel.page.colorOf(context.colorScheme);
     final chrome = context.colorScheme.appChromeSurface;
+    final dockShape = AppShape.all(
+      _dockPanelCorner,
+    ).copyWith(side: context.colorScheme.cardEdge);
     final horizontalMargin =
         (MediaQuery.sizeOf(context).width - maxMobileWidth).clamp(
           0.0,
@@ -245,35 +249,31 @@ class AppSidebarContainer extends ConsumerWidget {
         children: [
           AnimatedVisibility.sidebar(
             visible: hasSidebar,
-            child: Padding(
+            child: _SidebarBackdropCutout(
               padding: EdgeInsets.symmetric(
                 horizontal: horizontalMargin,
                 vertical: 14,
               ),
-              child: Align(
-                alignment: AlignmentDirectional.topStart,
-                widthFactor: 1,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 610),
-                  child: Surface(
-                    color: backdropOpacity != null
-                        ? chrome.withValues(alpha: backdropOpacity)
-                        : chrome,
-                    shape: AppShape.all(
-                      _dockPanelCorner,
-                    ).copyWith(side: context.colorScheme.cardEdge),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: MediaQuery.removePadding(
-                        context: context,
-                        removeLeft: !isLtr,
-                        removeRight: isLtr,
-                        child: _Sidebar(
-                          items: navigationItems,
-                          currentIndex: currentIndex,
-                          viewMode: viewMode,
-                          onSelected: onSelected,
-                        ),
+              shape: dockShape,
+              pageColor: backdropOpacity != null ? page : null,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 610),
+                child: Surface(
+                  color: backdropOpacity != null
+                      ? chrome.withValues(alpha: backdropOpacity)
+                      : chrome,
+                  shape: dockShape,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeLeft: !isLtr,
+                      removeRight: isLtr,
+                      child: _Sidebar(
+                        items: navigationItems,
+                        currentIndex: currentIndex,
+                        viewMode: viewMode,
+                        onSelected: onSelected,
                       ),
                     ),
                   ),
@@ -300,5 +300,113 @@ class AppSidebarContainer extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _SidebarBackdropCutout extends SingleChildRenderObjectWidget {
+  const _SidebarBackdropCutout({
+    required this.padding,
+    required this.shape,
+    required this.pageColor,
+    required super.child,
+  });
+
+  final EdgeInsets padding;
+  final RoundedSuperellipseBorder shape;
+  final Color? pageColor;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSidebarBackdropCutout(this, Directionality.of(context));
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderSidebarBackdropCutout renderObject,
+  ) {
+    renderObject
+      ..configuration = this
+      ..textDirection = Directionality.of(context);
+  }
+}
+
+class _RenderSidebarBackdropCutout extends RenderAligningShiftedBox {
+  _RenderSidebarBackdropCutout(this._configuration, TextDirection textDirection)
+    : super(
+        alignment: AlignmentDirectional.topStart,
+        textDirection: textDirection,
+      );
+
+  _SidebarBackdropCutout _configuration;
+
+  set configuration(_SidebarBackdropCutout value) {
+    final previous = _configuration;
+    _configuration = value;
+    if (previous.padding != value.padding) {
+      markNeedsLayout();
+    }
+    if (previous.shape != value.shape ||
+        previous.pageColor != value.pageColor) {
+      markNeedsPaint();
+    }
+  }
+
+  Size _sizeForChild(BoxConstraints constraints, Size childSize) {
+    final padding = _configuration.padding;
+    return constraints.constrain(
+      Size(
+        childSize.width + padding.horizontal,
+        constraints.hasBoundedHeight
+            ? constraints.maxHeight
+            : childSize.height + padding.vertical,
+      ),
+    );
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) => _sizeForChild(
+    constraints,
+    child?.getDryLayout(constraints.deflate(_configuration.padding).loosen()) ??
+        Size.zero,
+  );
+
+  @override
+  void performLayout() {
+    final padding = _configuration.padding;
+    final child = this.child;
+    child?.layout(constraints.deflate(padding).loosen(), parentUsesSize: true);
+    size = _sizeForChild(constraints, child?.size ?? Size.zero);
+    if (child == null) {
+      return;
+    }
+    final parentData = child.parentData! as BoxParentData;
+    parentData.offset =
+        Offset(padding.left, padding.top) +
+        resolvedAlignment.alongOffset(
+          Offset(
+            size.width - padding.horizontal - child.size.width,
+            size.height - padding.vertical - child.size.height,
+          ),
+        );
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final child = this.child;
+    final pageColor = _configuration.pageColor;
+    if (child != null && pageColor != null) {
+      final parentData = child.parentData! as BoxParentData;
+      final dockRect = (offset + parentData.offset) & child.size;
+      final mask = Path.combine(
+        PathOperation.difference,
+        Path()..addRect(offset & size),
+        _configuration.shape.getOuterPath(
+          dockRect,
+          textDirection: textDirection,
+        ),
+      );
+      context.canvas.drawPath(mask, Paint()..color = pageColor);
+    }
+    super.paint(context, offset);
   }
 }
