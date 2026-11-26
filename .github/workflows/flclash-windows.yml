@@ -3,7 +3,7 @@ name: FlClash Windows
 on:
   workflow_dispatch:
   push:
-    branches: ['feat/v0.9.5-wg']
+    branches: ['main']
 
 permissions:
   contents: read
