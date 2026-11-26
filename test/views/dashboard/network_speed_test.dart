@@ -5,6 +5,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/views/dashboard/widgets/traffic.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/widgets.dart';
@@ -137,6 +138,87 @@ void main() {
 
     await teardownCard(tester);
   });
+
+  testWidgets('overview shows latest speeds and totals without a chart', (
+    tester,
+  ) async {
+    addTraffic(const Traffic(up: 2048, down: 4096));
+    addTraffic(const Traffic(up: 1024, down: 3072));
+    container.read(totalTrafficProvider.notifier).value = const Traffic(
+      up: 5120,
+      down: 6144,
+    );
+    await pumpCard(
+      tester,
+      const Center(
+        child: SizedBox(width: 370, height: 144, child: TrafficOverviewCard()),
+      ),
+    );
+    expect(find.text('Upload'), findsOneWidget);
+    expect(find.text('Download'), findsOneWidget);
+    expect(find.textContaining('${_traffic(1024)}/s'), findsOneWidget);
+    expect(find.textContaining('${_traffic(3072)}/s'), findsOneWidget);
+    expect(find.text('Total ${_traffic(5120)}'), findsOneWidget);
+    expect(find.text('Total ${_traffic(6144)}'), findsOneWidget);
+    expect(find.byType(LineChart), findsNothing);
+    expect(tester.takeException(), isNull);
+    await teardownCard(tester);
+  });
+
+  for (final scale in [1.0, 1.5]) {
+    testWidgets('overview fits a short desktop card at scale $scale', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      addTraffic(const Traffic(up: 1 << 50, down: 1 << 45));
+      await pumpCard(
+        tester,
+        Center(
+          child: SizedBox(
+            width: 240,
+            height: 124 * scale,
+            child: DashboardDensityScope(
+              density: DashboardDensity.compact,
+              scale: scale,
+              child: const TrafficOverviewCard(),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('Upload'), findsOneWidget);
+      expect(find.text('Download'), findsOneWidget);
+      expect(find.textContaining('${_traffic(1 << 50)}/s'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await teardownCard(tester);
+    });
+
+    testWidgets('overview fits empty narrow card at scale $scale', (
+      tester,
+    ) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpCard(
+        tester,
+        Center(
+          child: SizedBox(
+            width: 190,
+            height: 176 * scale,
+            child: DashboardDensityScope(
+              density: DashboardDensity.compact,
+              scale: scale,
+              child: const TrafficOverviewCard(),
+            ),
+          ),
+        ),
+      );
+      expect(find.textContaining('${_traffic(0)}/s'), findsNWidgets(2));
+      expect(find.text('Total ${_traffic(0)}'), findsNWidgets(2));
+      expect(find.byType(LineChart), findsNothing);
+      expect(tester.takeException(), isNull);
+      await teardownCard(tester);
+    });
+  }
 
   testWidgets('a desktop card keeps its peak to the window it charts', (
     tester,

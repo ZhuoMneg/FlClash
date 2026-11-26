@@ -192,6 +192,107 @@ class SpeedCard extends ConsumerWidget {
   }
 }
 
+class TrafficOverviewCard extends ConsumerWidget {
+  const TrafficOverviewCard({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final traffics = ref.watch(trafficsProvider);
+    final total = ref.watch(totalTrafficProvider);
+    final latest = traffics.list.safeLast(const Traffic());
+    return DashboardCard(
+      semanticLabel: context.appLocalizations.networkSpeed,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            for (final direction in TrafficDirection.values)
+              _TrafficOverviewRow(
+                direction: direction,
+                speed: direction.of(latest),
+                total: direction.of(total),
+                compact:
+                    constraints.maxWidth < 240 &&
+                    constraints.maxHeight >=
+                        110 * DashboardDensityScope.scaleOf(context),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TrafficOverviewRow extends StatelessWidget {
+  const _TrafficOverviewRow({
+    required this.direction,
+    required this.speed,
+    required this.total,
+    required this.compact,
+  });
+
+  final TrafficDirection direction;
+  final num speed;
+  final num total;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final title = Row(
+      spacing: 6,
+      children: [
+        GlyphIcon(
+          direction.glyph,
+          size: 18,
+          color: direction.glyphColorOf(context),
+        ),
+        Flexible(
+          child: Text(
+            direction.labelOf(context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: DashboardText.cardTitle(context),
+          ),
+        ),
+      ],
+    );
+    final totalText = Text(
+      context.appLocalizations.trafficTotal(dashboardTraffic(total)),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: DashboardText.label(context),
+    );
+    final show = speed.traffic;
+    final figure = FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: _Figure(
+        show: show,
+        unit: _speedUnit(show),
+        style: AppTextStyle.title1,
+        unitStyle: AppTextStyle.footnote,
+      ),
+    );
+    if (compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [title, figure, totalText],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [title, totalText],
+          ),
+        ),
+        Flexible(child: figure),
+      ],
+    );
+  }
+}
+
 /// The phone's single card: both directions side by side.
 class NetworkSpeedCard extends ConsumerWidget {
   const NetworkSpeedCard({super.key});

@@ -148,7 +148,8 @@ class _DesktopDashboard extends StatelessWidget {
     );
     final topHeight = (compact ? 176 : 208) * scale;
     final controlHeight = (compact ? 56 : 64) * scale;
-    final middleHeight = (compact ? 152 : 176) * scale;
+    final pairHeight = controlHeight * 2 + gap;
+    final showTunnel = platform == SupportPlatform.Windows;
     return LayoutBuilder(
       builder: (context, constraints) {
         final room =
@@ -175,11 +176,16 @@ class _DesktopDashboard extends StatelessWidget {
             SizedBox(height: height, child: child);
         final switches =
             DashboardWidget.networkTakeover.platforms.contains(platform)
-            ? const [
-                (1, NetworkTakeoverTile(TakeoverSwitch.systemProxy)),
-                (1, NetworkTakeoverTile(TakeoverSwitch.tun)),
-              ]
-            : const [(2, VpnTile())];
+            ? Column(
+                spacing: gap,
+                children: const [
+                  Expanded(
+                    child: NetworkTakeoverTile(TakeoverSwitch.systemProxy),
+                  ),
+                  Expanded(child: NetworkTakeoverTile(TakeoverSwitch.tun)),
+                ],
+              )
+            : const VpnTile();
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: padding,
@@ -192,37 +198,33 @@ class _DesktopDashboard extends StatelessWidget {
                   const RepaintBoundary(child: CurrentOutboundCard()),
                 ),
                 sized(
-                  topHeight,
-                  row(const [
-                    (1, SpeedCard(direction: TrafficDirection.upload)),
-                    (1, SpeedCard(direction: TrafficDirection.download)),
-                  ]),
+                  pairHeight,
+                  row([(1, const TrafficOverviewCard()), (1, switches)]),
                 ),
                 sized(
                   controlHeight,
                   const RepaintBoundary(child: OutboundModeBar()),
                 ),
-                sized(controlHeight, row(switches)),
-                sized(
-                  middleHeight,
-                  row(const [(1, IntranetIpCard()), (1, MemoryInfo())]),
-                ),
+                if (showTunnel)
+                  sized(
+                    controlHeight,
+                    const RepaintBoundary(child: NetworkTunnelTile()),
+                  ),
               ] else ...[
                 sized(
                   topHeight,
-                  row(const [
-                    (2, CurrentOutboundCard()),
-                    (1, SpeedCard(direction: TrafficDirection.upload)),
-                    (1, SpeedCard(direction: TrafficDirection.download)),
+                  row([
+                    (2, const CurrentOutboundCard()),
+                    (1, const TrafficOverviewCard()),
+                    (1, switches),
                   ]),
                 ),
                 sized(
                   controlHeight,
-                  row([(2, const OutboundModeBar()), ...switches]),
-                ),
-                sized(
-                  middleHeight,
-                  row(const [(2, IntranetIpCard()), (2, MemoryInfo())]),
+                  row([
+                    (2, const OutboundModeBar()),
+                    if (showTunnel) (2, const NetworkTunnelTile()),
+                  ]),
                 ),
               ],
             ],
