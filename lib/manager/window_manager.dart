@@ -497,6 +497,7 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
       // rust_api answers title-bar double clicks on macOS by the system setting.
       onDoubleTap: system.isMacOS ? null : caption.toggleMaximized,
       title: system.isMacOS ? const Text(appName) : null,
+      leading: system.isMacOS ? null : const WindowHeaderBrand(),
       actions: system.isMacOS
           ? null
           : WindowHeaderActions(
@@ -512,6 +513,25 @@ class _WindowHeaderState extends ConsumerState<WindowHeader> {
   }
 }
 
+class WindowHeaderBrand extends StatelessWidget {
+  const WindowHeaderBrand({super.key});
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    spacing: 8,
+    children: [
+      Image.asset('assets/images/icon.png', width: 17, height: 17),
+      Text(
+        appName,
+        style: AppTextStyle.caption1
+            .of(context)
+            .copyWith(color: context.colorScheme.onSurfaceVariant),
+      ),
+    ],
+  );
+}
+
 class WindowHeaderBar extends StatelessWidget {
   const WindowHeaderBar({
     super.key,
@@ -520,6 +540,7 @@ class WindowHeaderBar extends StatelessWidget {
     this.onDoubleTap,
     this.backdropOpacity,
     this.title,
+    this.leading,
     this.actions,
   });
 
@@ -528,6 +549,7 @@ class WindowHeaderBar extends StatelessWidget {
   final VoidCallback? onDoubleTap;
   final double? backdropOpacity;
   final Widget? title;
+  final Widget? leading;
   final Widget? actions;
 
   @override
@@ -536,7 +558,9 @@ class WindowHeaderBar extends StatelessWidget {
     final backdropOpacity = this.backdropOpacity;
     return Surface(
       color: backdropOpacity != null ? Colors.transparent : colorScheme.surface,
-      shape: Border(bottom: Divider.createBorderSide(context)),
+      shape: colorScheme.brightness == Brightness.dark
+          ? Border(bottom: Divider.createBorderSide(context))
+          : null,
       child: SizedBox(
         height: height,
         child: Stack(
@@ -550,13 +574,20 @@ class WindowHeaderBar extends StatelessWidget {
                 onDoubleTap: onDoubleTap,
                 child: ColoredBox(
                   color: backdropOpacity != null
-                      ? colorScheme.chromeSurface.withValues(
+                      ? colorScheme.appChromeSurface.withValues(
                           alpha: backdropOpacity,
                         )
-                      : colorScheme.chromeSurface,
+                      : colorScheme.appChromeSurface,
                 ),
               ),
             ),
+            if (leading != null)
+              PositionedDirectional(
+                top: 0,
+                bottom: 0,
+                start: 16,
+                child: IgnorePointer(child: leading),
+              ),
             if (title != null)
               Positioned.fill(
                 child: IgnorePointer(child: Center(child: title)),

@@ -175,13 +175,11 @@ void main() {
             )
             .first,
       );
-      expect(sidebarSurface.color, colorScheme.chromeSurface);
-      expect(sidebarSurface.color, isNot(sidebarContainer.color));
+      expect(sidebarSurface.color, colorScheme.appChromeSurface);
+
       expect(
         (sidebarSurface.shape! as BorderDirectional).end,
-        Divider.createBorderSide(
-          tester.element(find.byType(NavigationSidebar)),
-        ),
+        colorScheme.cardEdge,
       );
 
       await tester.tap(find.text('count: 0'));

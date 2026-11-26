@@ -1,5 +1,6 @@
 export 'package:prism_ui/prism_ui.dart';
 
+export 'app_surfaces.dart';
 export 'delay_color.dart';
 export 'emoji.dart';
 export 'fonts.dart';

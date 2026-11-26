@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui' show ClipOp;
 
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/views/dashboard/style.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prism_ui/shapes/shapes.dart';
-import 'package:prism_ui/prism_ui.dart';
 
 EdgeInsets dashboardCardPadding(DashboardDensity density) => switch (density) {
   DashboardDensity.standard => const EdgeInsets.symmetric(
@@ -57,7 +57,9 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final density = DashboardDensityScope.of(context);
-    final shape = AppShape.all(dashboardCardRadius(density));
+    final shape = AppShape.all(
+      dashboardCardRadius(density),
+    ).copyWith(side: context.colorScheme.cardEdge);
     final content = Padding(
       padding: padding ?? dashboardCardPadding(density),
       child: child,

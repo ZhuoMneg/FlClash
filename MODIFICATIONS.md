@@ -5,6 +5,11 @@ Windows WireGuard tunnel support from the custom v0.9.4 branch. Tunnel credentia
 are excluded from new backups; restoring a backup without tunnel credentials
 preserves the tunnel configured on the current device.
 
+The light theme uses the custom white page and desktop chrome surfaces, cool
+near-white cards, thin card edges and softer dashboard shadows. Existing
+dashboard layouts and navigation remain those of v0.9.5. Dark theme surface
+colors and shadows follow upstream.
+
 The personal Windows workflow builds installer and portable artifacts using the
 upstream packager. It runs manually or on the feature branch and does not publish
 releases. The Windows installer retains the custom Chinese messages and checks

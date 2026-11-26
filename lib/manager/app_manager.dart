@@ -224,7 +224,7 @@ class AppSidebarContainer extends ConsumerWidget {
     final currentIndex = navigationState.currentIndex;
     final backdropOpacity = ref.watch(windowBlurProvider);
     final page = SurfaceLevel.page.colorOf(context.colorScheme);
-    final chrome = context.colorScheme.chromeSurface;
+    final chrome = context.colorScheme.appChromeSurface;
     void onSelected(int index) {
       _handleToPage(ref, navigationItems[index].label);
     }
@@ -241,7 +241,11 @@ class AppSidebarContainer extends ConsumerWidget {
               color: backdropOpacity != null
                   ? chrome.withValues(alpha: backdropOpacity)
                   : chrome,
-              shape: BorderDirectional(end: Divider.createBorderSide(context)),
+              shape: BorderDirectional(
+                end: context.colorScheme.brightness == Brightness.dark
+                    ? Divider.createBorderSide(context)
+                    : context.colorScheme.cardEdge,
+              ),
               child: MediaQuery.removePadding(
                 context: context,
                 removeLeft: !isLtr,
