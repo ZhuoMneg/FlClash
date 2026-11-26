@@ -60,6 +60,7 @@ func handleClearDnsCache() {
 // closed, give up their slots and their answers.
 func handleNetworkChanged() {
 	handleClearDnsCache()
+	handleNetworkTunnelNetworkChanged()
 	bumpRouteEpoch()
 }
 

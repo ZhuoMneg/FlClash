@@ -19,6 +19,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/metacubex/mihomo/adapter/outboundgroup"
@@ -112,10 +113,10 @@ type networkTunnelSession struct {
 	interfaceName string
 	home          netip.AddrPort
 	client        netip.AddrPort
-	sent          uint64
-	received      uint64
+	sent          atomic.Uint64
+	received      atomic.Uint64
 	lastQuery     time.Time
-	lastReply     time.Time
+	lastReply     atomic.Int64
 	lastError     string
 }
 
@@ -186,13 +187,13 @@ func handleNetworkTunnelStatus() map[string]any {
 		result["running"] = true
 		result["home"] = s.home.String()
 		result["physical"] = s.physical
-		result["sent"] = s.sent
-		result["received"] = s.received
+		result["sent"] = s.sent.Load()
+		result["received"] = s.received.Load()
 		if !s.lastQuery.IsZero() {
 			result["lastQuery"] = s.lastQuery.Unix()
 		}
-		if !s.lastReply.IsZero() {
-			result["lastReply"] = s.lastReply.Unix()
+		if lastReply := s.lastReply.Load(); lastReply > 0 {
+			result["lastReply"] = lastReply
 		}
 		result["error"] = s.lastError
 	}
@@ -210,6 +211,15 @@ func handleRefreshNetworkTunnel() bool {
 		return true
 	}
 	return false
+}
+
+func handleNetworkTunnelNetworkChanged() {
+	networkTunnelState.Lock()
+	s := networkTunnelState.session
+	networkTunnelState.Unlock()
+	if s != nil {
+		s.forceRebind()
+	}
 }
 
 func startNetworkTunnel(c NetworkTunnelConfig) (*networkTunnelSession, error) {
@@ -264,8 +274,12 @@ func tunnelPhysicalInterface(preferred, host string) (string, string, error) {
 		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 || len(iface.HardwareAddr) == 0 {
 			continue
 		}
+		blocked := []string{"wireguard", "wintun", "flclash", "tailscale", "virtual", "vmware", "vethernet", "atrust"}
+		if preferred != "" {
+			blocked = []string{"wintun", "flclash"}
+		}
 		virtual := false
-		for _, word := range []string{"wireguard", "wintun", "flclash", "tailscale", "virtual", "vmware", "vethernet", "atrust"} {
+		for _, word := range blocked {
 			if strings.Contains(name, word) {
 				virtual = true
 				break
@@ -433,9 +447,9 @@ func (s *networkTunnelSession) receiveLocal() {
 		s.mu.Unlock()
 		if outer != nil && home.IsValid() {
 			if _, err = outer.WriteTo(buffer[:n], net.UDPAddrFromAddrPort(home)); err == nil {
-				s.mu.Lock()
-				s.sent += uint64(n)
-				s.mu.Unlock()
+				s.sent.Add(uint64(n))
+			} else {
+				s.resetOuter(outer, err)
 			}
 		}
 	}
@@ -453,15 +467,40 @@ func (s *networkTunnelSession) receiveOuter(outer net.PacketConn) {
 		home, client := s.home, s.client
 		current := s.outer == outer
 		s.mu.Unlock()
-		if !current || !client.IsValid() || from.String() != home.String() {
+		var fromAddr netip.AddrPort
+		if udpAddr, ok := from.(*net.UDPAddr); ok {
+			ap := udpAddr.AddrPort()
+			fromAddr = netip.AddrPortFrom(ap.Addr().Unmap(), ap.Port())
+		} else if parsed, parseErr := netip.ParseAddrPort(from.String()); parseErr == nil {
+			fromAddr = netip.AddrPortFrom(parsed.Addr().Unmap(), parsed.Port())
+		}
+		if !current || !client.IsValid() || !fromAddr.IsValid() || fromAddr != home {
 			continue
 		}
 		if _, err = s.local.WriteToUDPAddrPort(buffer[:n], client); err == nil {
-			s.mu.Lock()
-			s.received += uint64(n)
-			s.lastReply = time.Now()
-			s.mu.Unlock()
+			s.received.Add(uint64(n))
+			s.lastReply.Store(time.Now().Unix())
 		}
+	}
+}
+
+func (s *networkTunnelSession) forceRebind() {
+	s.mu.Lock()
+	if s.ctx.Err() != nil {
+		s.mu.Unlock()
+		return
+	}
+	old := s.outer
+	s.outer = nil
+	s.physical = ""
+	s.interfaceName = ""
+	select {
+	case s.refresh <- struct{}{}:
+	default:
+	}
+	s.mu.Unlock()
+	if old != nil {
+		_ = old.Close()
 	}
 }
 
@@ -472,7 +511,7 @@ func (s *networkTunnelSession) resetOuter(outer net.PacketConn, err error) {
 		return
 	}
 	s.outer = nil
-	s.lastError = fmt.Sprintf("network tunnel UDP receive: %v", err)
+	s.lastError = fmt.Sprintf("network tunnel UDP: %v", err)
 	select {
 	case s.refresh <- struct{}{}:
 	default:
@@ -555,7 +594,7 @@ func loadNetworkTunnelConfig(params *SetupParams) (*config.Config, error) {
 	if err = document.Encode(raw); err != nil {
 		return nil, err
 	}
-	if err = writeConfigDocument(runningConfigPath(), &document); err != nil {
+	if err = writeConfigDocumentWithMode(runningConfigPath(), &document, 0o600); err != nil {
 		return nil, err
 	}
 	accepted = true

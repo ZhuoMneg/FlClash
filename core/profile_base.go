@@ -252,7 +252,11 @@ func isNull(node *yaml.Node) bool {
 // config.yaml is read again without this process: by the Android service
 // starting on its own and by mihomo's own reload through the controller.
 func writeConfigDocument(path string, document *yaml.Node) error {
-	temporary, err := writeDocumentFile(filepath.Dir(path), ".config-*.yaml", document)
+	return writeConfigDocumentWithMode(path, document, 0o644)
+}
+
+func writeConfigDocumentWithMode(path string, document *yaml.Node, mode os.FileMode) error {
+	temporary, err := writeDocumentFileWithMode(filepath.Dir(path), ".config-*.yaml", document, mode)
 	if err != nil {
 		return err
 	}
@@ -265,6 +269,10 @@ func writeConfigDocument(path string, document *yaml.Node) error {
 }
 
 func writeDocumentFile(dir, pattern string, document *yaml.Node) (string, error) {
+	return writeDocumentFileWithMode(dir, pattern, document, 0o644)
+}
+
+func writeDocumentFileWithMode(dir, pattern string, document *yaml.Node, mode os.FileMode) (string, error) {
 	mapping, err := documentMapping(document)
 	if err != nil {
 		return "", err
@@ -279,7 +287,7 @@ func writeDocumentFile(dir, pattern string, document *yaml.Node) (string, error)
 		encodeConfigMapping(writer, mapping),
 		writer.Flush(),
 		file.Close(),
-		os.Chmod(file.Name(), 0o644),
+		os.Chmod(file.Name(), mode),
 	)
 	if err != nil {
 		_ = os.Remove(file.Name())

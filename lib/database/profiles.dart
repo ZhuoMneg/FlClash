@@ -147,9 +147,12 @@ class ProfilesDao extends DatabaseAccessor<Database> with _$ProfilesDaoMixin {
     return query.map((row) => row.read(profiles.id)!);
   }
 
-  Future<Profile?> get(int id) => profiles
-      .readable((row) => row.toProfile(), where: (t) => t.id.equals(id))
-      .getSingleOrNull();
+  Selectable<Profile> queryById(int id) => profiles.readable(
+    (row) => row.toProfile(),
+    where: (t) => t.id.equals(id),
+  );
+
+  Future<Profile?> get(int id) => queryById(id).getSingleOrNull();
 
   Selectable<String> fileNames() => ids().map((id) => '$id.yaml');
 

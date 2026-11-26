@@ -13,6 +13,7 @@ import (
 	"net/netip"
 	"os"
 	"reflect"
+	"runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -244,6 +245,15 @@ func TestTunnelLoadPersistsCompleteConfig(t *testing.T) {
 				t.Fatalf("load tunnel config: %v", err)
 			}
 			t.Cleanup(func() { closeNetworkTunnelCandidate(cfg) })
+			if runtime.GOOS != "windows" {
+				info, err := os.Stat(runningConfigPath())
+				if err != nil {
+					t.Fatalf("stat persisted tunnel config: %v", err)
+				}
+				if info.Mode().Perm() != 0o600 {
+					t.Fatalf("persisted tunnel config mode = %v, want 0600", info.Mode().Perm())
+				}
+			}
 			persisted, err := handleReadConfig(PathParams{Path: runningConfigPath()})
 			if err != nil {
 				t.Fatalf("read persisted tunnel config: %v", err)
@@ -340,9 +350,7 @@ func TestTunnelUDPBridgeStopsAndRejectsOtherSenders(t *testing.T) {
 	if _, _, err = client.ReadFromUDP(buffer); err != nil {
 		t.Fatal(err)
 	}
-	s.mu.Lock()
-	received := s.received
-	s.mu.Unlock()
+	received := s.received.Load()
 	if received != 32 {
 		t.Fatalf("reply count %d", received)
 	}
@@ -364,9 +372,90 @@ func (c *tunnelReadErrorPacketConn) ReadFrom([]byte) (int, net.Addr, error) {
 	return 0, nil, c.err
 }
 
+func (c *tunnelReadErrorPacketConn) WriteTo([]byte, net.Addr) (int, error) {
+	return 0, c.err
+}
+
 func (c *tunnelReadErrorPacketConn) Close() error {
 	c.closed = true
 	return nil
+}
+
+func TestTunnelUDPWriteErrorSchedulesRebind(t *testing.T) {
+	local, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	client, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		_ = local.Close()
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { _ = client.Close() })
+	ctx, cancel := context.WithCancel(context.Background())
+	outer := &tunnelReadErrorPacketConn{err: errors.New("adapter write failed")}
+	s := &networkTunnelSession{
+		ctx:     ctx,
+		cancel:  cancel,
+		local:   local,
+		outer:   outer,
+		home:    netip.MustParseAddrPort("119.39.89.123:15140"),
+		refresh: make(chan struct{}, 1),
+	}
+	s.launch("test local write error", s.receiveLocal)
+	defer s.stop()
+	packet := make([]byte, 32)
+	packet[0] = 4
+	if _, err := client.WriteToUDP(packet, local.LocalAddr().(*net.UDPAddr)); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case <-s.refresh:
+	case <-time.After(time.Second):
+		t.Fatal("failed write did not request immediate rebind")
+	}
+	s.stop()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.outer != nil || !outer.closed {
+		t.Fatal("failed socket remained active after write error")
+	}
+	if !strings.Contains(s.lastError, "adapter write failed") {
+		t.Fatalf("write error was not reported: %q", s.lastError)
+	}
+}
+
+func TestTunnelNetworkChangedForcesRebind(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	outer := &tunnelReadErrorPacketConn{}
+	s := &networkTunnelSession{
+		ctx:           ctx,
+		outer:         outer,
+		physical:      "192.168.1.2",
+		interfaceName: "Ethernet",
+		refresh:       make(chan struct{}, 1),
+	}
+	networkTunnelState.Lock()
+	previous := networkTunnelState.session
+	networkTunnelState.session = s
+	networkTunnelState.Unlock()
+	t.Cleanup(func() {
+		networkTunnelState.Lock()
+		networkTunnelState.session = previous
+		networkTunnelState.Unlock()
+	})
+
+	handleNetworkChanged()
+
+	if s.outer != nil || !outer.closed || s.physical != "" || s.interfaceName != "" {
+		t.Fatal("network change did not reset tunnel outer socket")
+	}
+	select {
+	case <-s.refresh:
+	default:
+		t.Fatal("network change did not trigger tunnel refresh")
+	}
 }
 
 func TestTunnelUDPReceiveErrorSchedulesRebind(t *testing.T) {

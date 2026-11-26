@@ -145,9 +145,10 @@ func applyConfig(params *SetupParams) error {
 	defer configMu.Unlock()
 
 	applyOptions(params.Options)
-	cfg, err := loadSetupConfig(params)
+	var cfg *config.Config
+	err := configureNetworkTunnel(params.NetworkTunnel)
 	if err == nil {
-		err = configureNetworkTunnel(params.NetworkTunnel)
+		cfg, err = loadSetupConfig(params)
 	}
 	if err != nil {
 		// The fallback is what keeps the listeners serving while the host

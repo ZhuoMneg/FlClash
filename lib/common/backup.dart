@@ -160,9 +160,8 @@ Future<void> writeBackupArchive({
     for (final entry in entries.toSet()) {
       final file = File(BackupEntries.resolve(homeDirPath, entry));
       if (await file.exists()) {
-        final bytes = await file.readAsBytes();
-        captured[entry] = sha256.convert(bytes);
-        encoder.addArchiveFile(ArchiveFile.bytes(entry, bytes));
+        captured[entry] = await sha256.bind(file.openRead()).first;
+        await encoder.addFile(file, entry);
       } else if (requiredEntries.contains(entry)) {
         throw StateError('Backup file missing: $entry');
       }

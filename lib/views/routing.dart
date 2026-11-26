@@ -68,16 +68,16 @@ class _RoutingEditorState extends ConsumerState<_RoutingEditor> {
         ? database.rulesDao.queryProfileRules(profileId)
         : database.rulesDao.queryAddedRules(profileId);
     _watchChanges(rules.watch(), listEquals);
+    final profile = database.profilesDao.queryById(profileId);
     _watchChanges(
-      database.profilesDao.query().watch().map((profiles) {
-        final profile = profiles.getProfile(profileId);
-        return (
-          profile?.type,
-          profile?.scriptId,
-          profile?.exitTargets,
-          profile?.overrides,
-        );
-      }),
+      profile.watchSingleOrNull().map(
+        (item) => (
+          item?.type,
+          item?.scriptId,
+          item?.exitTargets,
+          item?.overrides,
+        ),
+      ),
       (a, b) => a == b,
     );
     if (widget.profile.type != ProfileType.custom) {

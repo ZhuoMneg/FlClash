@@ -75,7 +75,14 @@ class BackupAction extends _$BackupAction {
   Future<String> _createArchive(String workDir) async {
     final databaseSnapshotPath = join(workDir, backupDatabaseName);
     await database.customStatement('VACUUM INTO ?', [databaseSnapshotPath]);
-    final configMap = ref.read(configProvider).toJson();
+    final config = ref.read(configProvider);
+    final configMap = config
+        .copyWith(
+          networkProps: config.networkProps.copyWith(
+            networkTunnel: const NetworkTunnelSettings(),
+          ),
+        )
+        .toJson();
     configMap['version'] = await preferences.getVersion();
     final archivePath = join(workDir, 'backup.zip');
     await backupTask((
@@ -140,12 +147,19 @@ class BackupAction extends _$BackupAction {
     final accessControlProps = config.vpnProps.accessControlProps.hasPackages
         ? config.vpnProps.accessControlProps
         : ref.read(vpnSettingProvider).accessControlProps;
+    // Tunnel keys stay on the device unless an older backup carries them.
+    final networkProps = config.networkProps.networkTunnel.configured
+        ? config.networkProps
+        : config.networkProps.copyWith(
+            networkTunnel: ref.read(networkSettingProvider).networkTunnel,
+          );
     writeConfig(
       ref,
       config.copyWith(
         davProps: keepWebDAV
             ? ref.read(davSettingProvider)
             : config.davProps ?? ref.read(davSettingProvider),
+        networkProps: networkProps,
         appSettingProps: config.appSettingProps.copyWith(
           restoreStrategy: effectiveStrategy,
         ),

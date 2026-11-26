@@ -34,6 +34,8 @@ def main():
         SETUP_ICON_FILE=str(root / 'windows/runner/resources/app_icon.ico'),
         PRIVILEGES_REQUIRED='admin', ARCH='x64compatible',
         EXECUTABLE_NAME='FlClash.exe', SOURCE_DIR=str(source),
+        CHINESE_SIMPLIFIED_MESSAGES=str(
+            root / 'windows/packaging/exe/ChineseSimplified.isl'),
         CREATE_DESKTOP_ICON=False,
         LOCALES=[dict(lang='en', file=''), dict(
             lang='zh', file='"' + str(root / 'windows/packaging/exe/ChineseSimplified.isl') + '"')],

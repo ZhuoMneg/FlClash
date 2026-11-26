@@ -93,17 +93,21 @@ begin
   if Result then Result := ResultCode = 0;
 end;
 
-function InstalledAppClosed: Boolean;
+function FileWritable(FilePath: String): Boolean;
 var
-  AppPath: String;
   Handle: THandle;
 begin
-  AppPath := ExpandConstant('{app}\{{EXECUTABLE_NAME}}');
-  Result := not FileExists(AppPath);
+  Result := not FileExists(FilePath);
   if Result then Exit;
-  Handle := CreateFile(AppPath, GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+  Handle := CreateFile(FilePath, GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
   Result := Handle <> THandle(-1);
   if Result then CloseHandle(Handle);
+end;
+
+function InstalledAppClosed: Boolean;
+begin
+  Result := FileWritable(ExpandConstant('{app}\{{EXECUTABLE_NAME}}')) and
+    FileWritable(ExpandConstant('{app}\FlClashCore.exe'));
 end;
 
 procedure ClearStaleProxy;
@@ -211,6 +215,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [CustomMessages]
 english.RemoveUserData=Also delete your profiles and settings?
+chineseSimplified.RemoveUserData=是否同时删除您的配置和设置？
 english.UpdateAppStillRunning=FlClash did not exit. Close it and try again.
 chineseSimplified.UpdateAppStillRunning=FlClash 尚未退出。请关闭后重试。
 english.CloseAppFirst=Close FlClash and try again.
