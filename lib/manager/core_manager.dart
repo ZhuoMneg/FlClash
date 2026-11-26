@@ -55,7 +55,10 @@ class _CoreContainerState extends ConsumerState<CoreManager>
       if (prev != next) {
         ref
             .read(setupActionProvider.notifier)
-            .applyProfileDebounce(silence: true);
+            .applyProfileDebounce(
+              silence: true,
+              force: prev != null && prev.networkTunnel != next.networkTunnel,
+            );
       }
     });
     ref.listenManual(globalRulesProvider, (prev, next) {

@@ -280,6 +280,11 @@ _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
           : AuthenticationProps.fromJson(
               json['authentication'] as Map<String, dynamic>?,
             ),
+      networkTunnel: json['networkTunnel'] == null
+          ? const NetworkTunnelSettings()
+          : NetworkTunnelSettings.fromJson(
+              json['networkTunnel'] as Map<String, dynamic>,
+            ),
     );
 
 Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
@@ -291,7 +296,44 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'bypassPrivateRoute': instance.bypassPrivateRoute,
       'appendSystemDns': instance.appendSystemDns,
       'authentication': instance.authentication,
+      'networkTunnel': instance.networkTunnel,
     };
+
+_NetworkTunnelSettings _$NetworkTunnelSettingsFromJson(
+  Map<String, dynamic> json,
+) => _NetworkTunnelSettings(
+  enabled: json['enabled'] as bool? ?? true,
+  extension: json['extension'] as bool? ?? true,
+  host: json['host'] as String? ?? '',
+  port: (json['port'] as num?)?.toInt() ?? 27034,
+  pin: json['pin'] as String? ?? '',
+  token: json['token'] as String? ?? '',
+  privateKey: json['privateKey'] as String? ?? '',
+  publicKey: json['publicKey'] as String? ?? '',
+  ip: json['ip'] as String? ?? '',
+  ipv6: json['ipv6'] as String? ?? '',
+  dns: json['dns'] as String? ?? '',
+  interfaceName: json['interface'] as String? ?? '',
+  profileId: (json['profileId'] as num?)?.toInt(),
+);
+
+Map<String, dynamic> _$NetworkTunnelSettingsToJson(
+  _NetworkTunnelSettings instance,
+) => <String, dynamic>{
+  'enabled': instance.enabled,
+  'extension': instance.extension,
+  'host': instance.host,
+  'port': instance.port,
+  'pin': instance.pin,
+  'token': instance.token,
+  'privateKey': instance.privateKey,
+  'publicKey': instance.publicKey,
+  'ip': instance.ip,
+  'ipv6': instance.ipv6,
+  'dns': instance.dns,
+  'interface': instance.interfaceName,
+  'profileId': instance.profileId,
+};
 
 _ProxiesStyleProps _$ProxiesStylePropsFromJson(Map<String, dynamic> json) =>
     _ProxiesStyleProps(

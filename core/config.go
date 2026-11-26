@@ -129,6 +129,9 @@ func runningConfigPath() string {
 }
 
 func loadSetupConfig(params *SetupParams) (*config.Config, error) {
+	if params.NetworkTunnel.configured() && params.NetworkTunnel.Extension {
+		return loadNetworkTunnelConfig(params)
+	}
 	path := runningConfigPath()
 	if params.Base != nil {
 		return loadConfigWithBase(params.Base, path)
@@ -142,8 +145,13 @@ func applyConfig(params *SetupParams) error {
 	defer configMu.Unlock()
 
 	applyOptions(params.Options)
-	cfg, err := loadSetupConfig(params)
+	var cfg *config.Config
+	err := configureNetworkTunnel(params.NetworkTunnel)
+	if err == nil {
+		cfg, err = loadSetupConfig(params)
+	}
 	if err != nil {
+		_ = configureNetworkTunnel(nil)
 		// The fallback is what keeps the listeners serving while the host
 		// reports the error, but it applies a config with no proxies in it.
 		// From the UI that is indistinguishable from a subscription that went
@@ -153,13 +161,16 @@ func applyConfig(params *SetupParams) error {
 			"config apply failed, falling back to the built-in default - no proxies will be available: %v",
 			err,
 		)
-		fallback, fallbackErr := config.ParseRawConfig(config.DefaultRawConfig())
+		rawFallback := config.DefaultRawConfig()
+		if params.NetworkTunnel.configured() && params.NetworkTunnel.Extension {
+			rawFallback.Rule = []string{"MATCH,REJECT"}
+		}
+		fallback, fallbackErr := config.ParseRawConfig(rawFallback)
 		if fallbackErr != nil {
 			return err
 		}
 		cfg = fallback
 	}
-
 	currentConfig = cfg
 	hub.ApplyConfig(cfg)
 	currentRuleTable.observe()

@@ -4288,4 +4288,84 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get httpConditionTip =>
       'Conditions on one field match any of them, on different fields all.';
+
+  @override
+  String get networkTunnel => 'Network Tunnel';
+
+  @override
+  String get tunnelExtension => 'Extension script';
+
+  @override
+  String get tunnelImport => 'Import tunnel configuration';
+
+  @override
+  String get tunnelSelectProfile => 'Select the office subscription first.';
+
+  @override
+  String get tunnelImportDone =>
+      'Imported for the current subscription. Both switches are enabled.';
+
+  @override
+  String get tunnelImportFailed =>
+      'Import failed. Check the configuration file.';
+
+  @override
+  String get tunnelImportHelp =>
+      'Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.';
+
+  @override
+  String get tunnelDisableAll => 'Disable both';
+
+  @override
+  String get tunnelRoutingHelp =>
+      'The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.';
+
+  @override
+  String get tunnelStatus => 'Status';
+
+  @override
+  String get tunnelUnconfigured => 'Configuration required';
+
+  @override
+  String get tunnelProfileMismatch =>
+      'Configuration belongs to another subscription';
+
+  @override
+  String get tunnelCoreStopped => 'Core is stopped';
+
+  @override
+  String get tunnelDependencyOff =>
+      'WireGuard is off; the extension cannot connect';
+
+  @override
+  String get tunnelDisabled => 'Disabled';
+
+  @override
+  String get tunnelWaiting => 'Waiting for tunnel traffic';
+
+  @override
+  String get tunnelReceiving => 'Encrypted replies received recently';
+
+  @override
+  String get tunnelEndpoint => 'Home endpoint';
+
+  @override
+  String get tunnelTraffic => 'Encrypted UDP traffic';
+
+  @override
+  String get tunnelDirectory => 'Endpoint directory';
+
+  @override
+  String get tunnelDirectoryReady => 'Query available';
+
+  @override
+  String get tunnelDirectoryFailed =>
+      'Query unavailable; retaining the last known endpoint';
+
+  @override
+  String get tunnelRefresh => 'Refresh endpoint';
+
+  @override
+  String get tunnelStatusHelp =>
+      'A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access.';
 }

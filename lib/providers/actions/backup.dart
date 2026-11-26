@@ -70,7 +70,14 @@ class BackupAction extends _$BackupAction {
       database.clashProvidersDao.query().get(),
       database.mitmModulesDao.query().get(),
     ).wait;
-    final configMap = ref.read(configProvider).toJson();
+    final config = ref.read(configProvider);
+    final configMap = config
+        .copyWith(
+          networkProps: config.networkProps.copyWith(
+            networkTunnel: const NetworkTunnelSettings(),
+          ),
+        )
+        .toJson();
     configMap['version'] = await preferences.getVersion();
     final archivePath = join(workDir, 'backup.zip');
     await backupTask((
@@ -136,6 +143,11 @@ class BackupAction extends _$BackupAction {
       ref,
       config.copyWith(
         davProps: config.davProps ?? ref.read(davSettingProvider),
+        networkProps: config.networkProps.networkTunnel.configured
+            ? config.networkProps
+            : config.networkProps.copyWith(
+                networkTunnel: ref.read(networkSettingProvider).networkTunnel,
+              ),
         vpnProps: config.vpnProps.copyWith(
           accessControlProps: accessControlProps,
         ),

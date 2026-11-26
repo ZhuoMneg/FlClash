@@ -427,6 +427,54 @@ void main() {
       expect(target.read(davSettingProvider), dav);
     });
 
+    test(
+      'strips tunnel secrets on backup and keeps local tunnel on restore',
+      () async {
+        final localTunnel = NetworkTunnelSettings(
+          enabled: true,
+          extension: true,
+          host: '179.253.249.97',
+          port: 27034,
+          pin: 'a' * 64,
+          token: 't' * 48,
+          privateKey: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+          publicKey: 'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=',
+          ip: '10.203.77.2',
+          dns: '10.203.77.1',
+          profileId: 1,
+        );
+        final tempDir = Directory.systemTemp.createTempSync('flclash-tunnel-');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final source = buildContainer();
+        source
+            .read(networkSettingProvider.notifier)
+            .update((state) => state.copyWith(networkTunnel: localTunnel));
+        final archivePath = join(tempDir.path, 'tunnel-stripped.zip');
+        final delivered = await actionOf(source).backup((path) async {
+          File(path).copySync(archivePath);
+          return true;
+        });
+        expect(delivered, isTrue);
+
+        final data = await readBackupArchive(
+          archivePath: archivePath,
+          stagingDirPath: join(tempDir.path, 'staging'),
+        );
+        final restoredConfig = Config.fromJson(data.configMap!);
+        final backupTunnel = restoredConfig.networkProps.networkTunnel;
+        expect(backupTunnel.configured, isFalse);
+        expect(backupTunnel.privateKey, isEmpty);
+        expect(backupTunnel.token, isEmpty);
+
+        final target = buildContainer();
+        target
+            .read(networkSettingProvider.notifier)
+            .update((state) => state.copyWith(networkTunnel: localTunnel));
+        await actionOf(target).applyRestore(data, RestoreOption.all);
+        expect(target.read(networkSettingProvider).networkTunnel, localTunnel);
+      },
+    );
+
     test('keeps the picked apps when the backup lists none', () async {
       final configMap = configMapOf(buildContainer());
       const picked = AccessControlProps(

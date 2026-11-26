@@ -4,6 +4,8 @@ import 'package:fl_clash/enum/enum.dart';
 
 /// A Core method by its wire name, `area.verb` as `core/protocol.go` names it.
 enum CoreMethod {
+  networkTunnelStatus('networkTunnel.status'),
+  networkTunnelRefresh('networkTunnel.refresh'),
   coreInit('core.init'),
   coreInitialized('core.initialized'),
   coreGc('core.gc'),

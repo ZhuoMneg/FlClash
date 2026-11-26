@@ -76,10 +76,20 @@ class SetupAction extends _$SetupAction {
           !ref.read(safeModeProvider) &&
           ref.read(appSettingProvider).showTrayTitle);
 
-  SetupParams get _setupParams => SetupParams(
-    selectedMap: ref.read(selectedMapProvider),
-    options: ref.read(coreOptionsProvider),
-  );
+  SetupParams get _setupParams {
+    final selectedMap = ref.read(selectedMapProvider);
+    final tunnel = ref.read(networkSettingProvider).networkTunnel;
+    return SetupParams(
+      selectedMap: selectedMap,
+      options: ref.read(coreOptionsProvider),
+      networkTunnel:
+          !ref.read(safeModeProvider) &&
+              system.isWindows &&
+              tunnel.appliesTo(ref.read(currentProfileIdProvider))
+          ? tunnel
+          : null,
+    );
+  }
 
   // The selection reaches the Core through changeProxy, not through an apply.
   SetupParams get _appliedParams =>

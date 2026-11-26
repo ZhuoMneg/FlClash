@@ -12,6 +12,8 @@ abstract class SetupParams with _$SetupParams {
     @JsonKey(includeIfNull: false) SetupBase? base,
     @JsonKey(name: 'selected-map') required Map<String, String> selectedMap,
     required CoreOptions options,
+    @JsonKey(name: 'network-tunnel', includeIfNull: false)
+    NetworkTunnelSettings? networkTunnel,
   }) = _SetupParams;
 
   factory SetupParams.fromJson(Map<String, dynamic> json) =>

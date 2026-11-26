@@ -7529,6 +7529,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Conditions on one field match any of them, on different fields all.'**
   String get httpConditionTip;
+
+  /// No description provided for @networkTunnel.
+  ///
+  /// In en, this message translates to:
+  /// **'Network Tunnel'**
+  String get networkTunnel;
+
+  /// No description provided for @tunnelExtension.
+  ///
+  /// In en, this message translates to:
+  /// **'Extension script'**
+  String get tunnelExtension;
+
+  /// No description provided for @tunnelImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import tunnel configuration'**
+  String get tunnelImport;
+
+  /// No description provided for @tunnelSelectProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the office subscription first.'**
+  String get tunnelSelectProfile;
+
+  /// No description provided for @tunnelImportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported for the current subscription. Both switches are enabled.'**
+  String get tunnelImportDone;
+
+  /// No description provided for @tunnelImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Import failed. Check the configuration file.'**
+  String get tunnelImportFailed;
+
+  /// No description provided for @tunnelImportHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.'**
+  String get tunnelImportHelp;
+
+  /// No description provided for @tunnelDisableAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable both'**
+  String get tunnelDisableAll;
+
+  /// No description provided for @tunnelRoutingHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.'**
+  String get tunnelRoutingHelp;
+
+  /// No description provided for @tunnelStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get tunnelStatus;
+
+  /// No description provided for @tunnelUnconfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration required'**
+  String get tunnelUnconfigured;
+
+  /// No description provided for @tunnelProfileMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration belongs to another subscription'**
+  String get tunnelProfileMismatch;
+
+  /// No description provided for @tunnelCoreStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Core is stopped'**
+  String get tunnelCoreStopped;
+
+  /// No description provided for @tunnelDependencyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'WireGuard is off; the extension cannot connect'**
+  String get tunnelDependencyOff;
+
+  /// No description provided for @tunnelDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get tunnelDisabled;
+
+  /// No description provided for @tunnelWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for tunnel traffic'**
+  String get tunnelWaiting;
+
+  /// No description provided for @tunnelReceiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted replies received recently'**
+  String get tunnelReceiving;
+
+  /// No description provided for @tunnelEndpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Home endpoint'**
+  String get tunnelEndpoint;
+
+  /// No description provided for @tunnelTraffic.
+  ///
+  /// In en, this message translates to:
+  /// **'Encrypted UDP traffic'**
+  String get tunnelTraffic;
+
+  /// No description provided for @tunnelDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Endpoint directory'**
+  String get tunnelDirectory;
+
+  /// No description provided for @tunnelDirectoryReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Query available'**
+  String get tunnelDirectoryReady;
+
+  /// No description provided for @tunnelDirectoryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Query unavailable; retaining the last known endpoint'**
+  String get tunnelDirectoryFailed;
+
+  /// No description provided for @tunnelRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh endpoint'**
+  String get tunnelRefresh;
+
+  /// No description provided for @tunnelStatusHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access.'**
+  String get tunnelStatusHelp;
 }
 
 class _AppLocalizationsDelegate

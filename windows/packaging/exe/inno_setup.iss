@@ -17,10 +17,17 @@ WizardStyle=modern
 PrivilegesRequired=admin
 ArchitecturesAllowed={{ARCH}}
 ArchitecturesInstallIn64BitMode={{ARCH}}
+CloseApplications=yes
+RestartApplications=no
 
 [Code]
 const
   SYNCHRONIZE = $00100000;
+  WAIT_OBJECT_0 = 0;
+  ERROR_INVALID_PARAMETER = 87;
+  GENERIC_WRITE = $40000000;
+  OPEN_EXISTING = 3;
+  ServiceKey = 'SYSTEM\CurrentControlSet\Services\FlClashHelperService';
 
 function OpenProcess(dwDesiredAccess: DWORD; bInheritHandle: BOOL; dwProcessId: DWORD): THandle;
   external 'OpenProcess@kernel32.dll stdcall';
@@ -28,6 +35,12 @@ function WaitForSingleObject(hHandle: THandle; dwMilliseconds: DWORD): DWORD;
   external 'WaitForSingleObject@kernel32.dll stdcall';
 function CloseHandle(hObject: THandle): BOOL;
   external 'CloseHandle@kernel32.dll stdcall';
+function GetLastError: DWORD;
+  external 'GetLastError@kernel32.dll stdcall';
+function CreateFile(lpFileName: String; dwDesiredAccess, dwShareMode: DWORD;
+  lpSecurityAttributes: LongWord; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
+  hTemplateFile: THandle): THandle;
+  external 'CreateFileW@kernel32.dll stdcall';
 
 // The app passes /updatefrom=<pid> (windowsUpdateArguments in lib/common)
 // and exits on its own, stopping the Core and clearing the system proxy.
@@ -41,45 +54,60 @@ begin
   Result := UpdatingAppPid > 0;
 end;
 
-procedure WaitForUpdatingApp;
+function WaitForUpdatingApp: Boolean;
 var
   Handle: THandle;
 begin
+  Result := True;
   if not IsAppUpdate then
     Exit;
   Handle := OpenProcess(SYNCHRONIZE, False, UpdatingAppPid);
-  if Handle <> 0 then
+  if Handle = 0 then
   begin
-    WaitForSingleObject(Handle, 15000);
-    CloseHandle(Handle);
+    Result := GetLastError = ERROR_INVALID_PARAMETER;
+    Exit;
   end;
+  Result := WaitForSingleObject(Handle, 15000) = WAIT_OBJECT_0;
+  CloseHandle(Handle);
 end;
 
-// FlClash and FlClash rs ship processes of the same names, so a name alone
-// would also end the other installation's.
-procedure KillProcesses;
+function UnregisterHelperService: Boolean;
 var
-  AppDir: String;
+  HelperPath, ImagePath: String;
   ResultCode: Integer;
 begin
-  AppDir := AddBackslash(ExpandConstant('{app}'));
-  StringChangeEx(AppDir, '''', '''''', True);
-  Exec('powershell.exe',
-    '-NoProfile -NonInteractive -Command "Get-Process -Name FlClash,FlClashCore,FlClashHelperService -ErrorAction SilentlyContinue | ' +
-    'Where-Object { $_.Path -and $_.Path.StartsWith(''' + AppDir + ''', [StringComparison]::OrdinalIgnoreCase) } | Stop-Process -Force"',
-    '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-end;
-
-procedure UnregisterHelperService;
-var
-  HelperPath: String;
-  ResultCode: Integer;
-begin
-  HelperPath := ExpandConstant('{app}\\FlClashHelperService.exe');
-  if FileExists(HelperPath) then
+  Result := True;
+  if not RegKeyExists(HKLM, ServiceKey) then Exit;
+  if not RegQueryStringValue(HKLM, ServiceKey, 'ImagePath', ImagePath) then
   begin
+    Result := False;
+    Exit;
+  end;
+  HelperPath := ExpandConstant('{app}\FlClashHelperService.exe');
+  ImagePath := Lowercase(Trim(ImagePath));
+  HelperPath := Lowercase(HelperPath);
+  if (Pos('"' + HelperPath + '"', ImagePath) <> 1) and
+     (ImagePath <> HelperPath) and (Pos(HelperPath + ' ', ImagePath) <> 1) then Exit;
+  Result := FileExists(HelperPath) and
     Exec(HelperPath, 'uninstall', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-  end;
+  if Result then Result := ResultCode = 0;
+end;
+
+function FileWritable(FilePath: String): Boolean;
+var
+  Handle: THandle;
+begin
+  Result := not FileExists(FilePath);
+  if Result then Exit;
+  Handle := CreateFile(FilePath, GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+  Result := Handle <> THandle(-1);
+  if Result then CloseHandle(Handle);
+end;
+
+function InstalledAppClosed: Boolean;
+begin
+  Result := FileWritable(ExpandConstant('{app}\{{EXECUTABLE_NAME}}')) and
+    FileWritable(ExpandConstant('{app}\FlClashCore.exe'));
 end;
 
 procedure ClearStaleProxy;
@@ -125,14 +153,20 @@ end;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
-  WaitForUpdatingApp;
-  UnregisterHelperService;
-  KillProcesses;
   Result := '';
+  if not WaitForUpdatingApp then
+    Result := CustomMessage('UpdateAppStillRunning');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
+  if CurStep = ssInstall then
+  begin
+    if not InstalledAppClosed then
+      RaiseException(CustomMessage('CloseAppFirst'));
+    if not UnregisterHelperService then
+      RaiseException(CustomMessage('HelperStopFailed'));
+  end;
   if CurStep = ssPostInstall then
   begin
     ClearStaleProxy;
@@ -141,10 +175,16 @@ end;
 
 function InitializeUninstall(): Boolean;
 begin
-  UnregisterHelperService;
-  KillProcesses;
-  ClearStaleProxy;
-  Result := True;
+  Result := InstalledAppClosed;
+  if not Result then
+    MsgBox(CustomMessage('CloseAppFirst'), mbError, MB_OK)
+  else begin
+    Result := UnregisterHelperService;
+    if not Result then
+      MsgBox(CustomMessage('HelperStopFailed'), mbError, MB_OK)
+    else
+      ClearStaleProxy;
+  end;
 end;
 
 // path_provider names these folders after CompanyName and ProductName in
@@ -175,6 +215,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [CustomMessages]
 english.RemoveUserData=Also delete your profiles and settings?
+chineseSimplified.RemoveUserData=是否同时删除您的配置和设置？
+english.UpdateAppStillRunning=FlClash did not exit. Close it and try again.
+chineseSimplified.UpdateAppStillRunning=FlClash 尚未退出。请关闭后重试。
+english.CloseAppFirst=Close FlClash and try again.
+chineseSimplified.CloseAppFirst=请关闭 FlClash 后重试。
+english.HelperStopFailed=Could not stop the FlClash helper service.
+chineseSimplified.HelperStopFailed=无法停止 FlClash 辅助服务。
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked

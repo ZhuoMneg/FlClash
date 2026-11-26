@@ -1,0 +1,91 @@
+name: FlClash Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ['feat/v0.9.5-wg']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flclash-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: core/go.sum
+      - name: Test Go core with race detector
+        working-directory: core
+        run: go test -race ./...
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: plugins/rust_api/rust
+          cache-directories: .dart_tool/hooks_runner
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.1'
+          channel: stable
+          cache: true
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Check installer helper syntax
+        run: python3 -m py_compile tool/windows_installer.py
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Skip Go build hook for UI tests
+        run: yq -i '.hooks.user_defines.setup.build_assets = false' pubspec.yaml
+      - name: Run all Flutter tests
+        run: dart run tool/test.dart -- --reporter expanded --coverage --concurrency 2
+
+  windows:
+    needs: checks
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Enable long paths
+        run: git config --global core.longpaths true
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.27.1'
+          cache-dependency-path: core/go.sum
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.50.1'
+          channel: stable
+          cache: true
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Fetch CA certificates
+        shell: bash
+        run: |
+          bundle=core/Clash.Meta/component/ca/ca-certificates.crt
+          curl -fsSL --retry 3 -o "$bundle" https://curl.se/ca/cacert-2026-09-25.pem
+          echo "a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505  $bundle" | sha256sum -c -
+      - name: Build and package
+        shell: pwsh
+        run: |
+          $version = (Select-String '^version: ([^+]+)' pubspec.yaml).Matches.Groups[1].Value
+          dart tool/package.dart windows --env stable --tag "v$version" --targets exe,zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FlClash-windows-amd64
+          path: dist/*
+          if-no-files-found: error

@@ -1421,5 +1421,29 @@
       }
     }
   },
-  "httpConditionTip": "Conditions on one field match any of them, on different fields all."
+  "httpConditionTip": "Conditions on one field match any of them, on different fields all.",
+  "networkTunnel": "Network Tunnel",
+  "tunnelExtension": "Extension script",
+  "tunnelImport": "Import tunnel configuration",
+  "tunnelSelectProfile": "Select the office subscription first.",
+  "tunnelImportDone": "Imported for the current subscription. Both switches are enabled.",
+  "tunnelImportFailed": "Import failed. Check the configuration file.",
+  "tunnelImportHelp": "Import the private JSON configuration for this office computer. Disable the old home WG extension script in the profile first. Keep office TUN off. This file contains a private key; do not share it.",
+  "tunnelDisableAll": "Disable both",
+  "tunnelRoutingHelp": "The extension routes subscription nodes through WireGuard and keeps existing DIRECT rules. Disable it to restore the original subscription. With WireGuard off and the extension on, proxy connections fail instead of silently using the office exit.",
+  "tunnelStatus": "Status",
+  "tunnelUnconfigured": "Configuration required",
+  "tunnelProfileMismatch": "Configuration belongs to another subscription",
+  "tunnelCoreStopped": "Core is stopped",
+  "tunnelDependencyOff": "WireGuard is off; the extension cannot connect",
+  "tunnelDisabled": "Disabled",
+  "tunnelWaiting": "Waiting for tunnel traffic",
+  "tunnelReceiving": "Encrypted replies received recently",
+  "tunnelEndpoint": "Home endpoint",
+  "tunnelTraffic": "Encrypted UDP traffic",
+  "tunnelDirectory": "Endpoint directory",
+  "tunnelDirectoryReady": "Query available",
+  "tunnelDirectoryFailed": "Query unavailable; retaining the last known endpoint",
+  "tunnelRefresh": "Refresh endpoint",
+  "tunnelStatusHelp": "A successful directory query does not prove WireGuard connectivity. Reply counters show encrypted UDP activity; use an actual website or router test to verify access."
 }

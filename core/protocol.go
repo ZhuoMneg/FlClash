@@ -16,11 +16,13 @@ type CoreMethod string
 // Named area.verb. A method's arguments are an object or nothing, and a
 // command answers null: whatever goes wrong is a MethodError.
 const (
-	coreInitMethod        CoreMethod = "core.init"
-	coreInitializedMethod CoreMethod = "core.initialized"
-	coreGCMethod          CoreMethod = "core.gc"
-	coreMemoryMethod      CoreMethod = "core.memory"
-	coreCrashMethod       CoreMethod = "core.crash"
+	networkTunnelStatusMethod  CoreMethod = "networkTunnel.status"
+	networkTunnelRefreshMethod CoreMethod = "networkTunnel.refresh"
+	coreInitMethod             CoreMethod = "core.init"
+	coreInitializedMethod      CoreMethod = "core.initialized"
+	coreGCMethod               CoreMethod = "core.gc"
+	coreMemoryMethod           CoreMethod = "core.memory"
+	coreCrashMethod            CoreMethod = "core.crash"
 
 	configSetupMethod    CoreMethod = "config.setup"
 	configUpdateMethod   CoreMethod = "config.update"
@@ -118,6 +120,8 @@ type DecryptConfigParams struct {
 }
 
 type SetupParams struct {
+	NetworkTunnel *NetworkTunnelConfig `json:"network-tunnel,omitempty"`
+
 	Base        *SetupBase        `json:"base,omitempty"`
 	SelectedMap map[string]string `json:"selected-map"`
 	Options     CoreOptions       `json:"options"`

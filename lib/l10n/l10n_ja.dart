@@ -4083,4 +4083,79 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get httpConditionTip => '同じフィールドの条件はいずれか一つ、異なるフィールドの条件はすべてに一致します。';
+
+  @override
+  String get networkTunnel => 'ネットワークトンネル';
+
+  @override
+  String get tunnelExtension => '拡張スクリプト';
+
+  @override
+  String get tunnelImport => 'トンネル設定をインポート';
+
+  @override
+  String get tunnelSelectProfile => '先にオフィスのサブスクリプションを選択してください。';
+
+  @override
+  String get tunnelImportDone => '現在のサブスクリプションに適用しました。両方のスイッチが有効です。';
+
+  @override
+  String get tunnelImportFailed => 'インポートに失敗しました。設定ファイルを確認してください。';
+
+  @override
+  String get tunnelImportHelp =>
+      'このオフィス端末専用の非公開 JSON 設定をインポートします。先に古い自宅 WG スクリプトを無効にし、オフィスの TUN はオフにしてください。秘密鍵を含むため共有しないでください。';
+
+  @override
+  String get tunnelDisableAll => '両方を無効にする';
+
+  @override
+  String get tunnelRoutingHelp =>
+      '拡張は既存の DIRECT ルールを保ち、ノードを WireGuard 経由で接続します。無効にすると元の設定に戻ります。拡張のみ有効の場合、WG が停止すると接続に失敗します。';
+
+  @override
+  String get tunnelStatus => '状態';
+
+  @override
+  String get tunnelUnconfigured => '設定が必要です';
+
+  @override
+  String get tunnelProfileMismatch => '別のサブスクリプションの設定です';
+
+  @override
+  String get tunnelCoreStopped => 'コアは停止中';
+
+  @override
+  String get tunnelDependencyOff => 'WireGuard が無効のため拡張は接続できません';
+
+  @override
+  String get tunnelDisabled => '無効';
+
+  @override
+  String get tunnelWaiting => 'トンネル通信を待機中';
+
+  @override
+  String get tunnelReceiving => '暗号化された応答を最近受信しました';
+
+  @override
+  String get tunnelEndpoint => '自宅のエンドポイント';
+
+  @override
+  String get tunnelTraffic => '暗号化 UDP 通信';
+
+  @override
+  String get tunnelDirectory => 'アドレス調整サービス';
+
+  @override
+  String get tunnelDirectoryReady => '照会可能';
+
+  @override
+  String get tunnelDirectoryFailed => '照会不可：前回のアドレスを維持';
+
+  @override
+  String get tunnelRefresh => 'エンドポイントを更新';
+
+  @override
+  String get tunnelStatusHelp =>
+      'アドレス照会の成功は WG 接続を保証しません。受信数は暗号化 UDP 通信を示します。Web サイトやルーターのテストで確認してください。';
 }

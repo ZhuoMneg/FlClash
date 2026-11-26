@@ -12,6 +12,11 @@ _SetupParams _$SetupParamsFromJson(Map<String, dynamic> json) => _SetupParams(
       : SetupBase.fromJson(json['base'] as Map<String, dynamic>),
   selectedMap: Map<String, String>.from(json['selected-map'] as Map),
   options: CoreOptions.fromJson(json['options'] as Map<String, dynamic>),
+  networkTunnel: json['network-tunnel'] == null
+      ? null
+      : NetworkTunnelSettings.fromJson(
+          json['network-tunnel'] as Map<String, dynamic>,
+        ),
 );
 
 Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
@@ -19,6 +24,7 @@ Map<String, dynamic> _$SetupParamsToJson(_SetupParams instance) =>
       'base': ?instance.base,
       'selected-map': instance.selectedMap,
       'options': instance.options,
+      'network-tunnel': ?instance.networkTunnel,
     };
 
 _CoreOptions _$CoreOptionsFromJson(Map<String, dynamic> json) => _CoreOptions(

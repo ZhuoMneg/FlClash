@@ -19,6 +19,12 @@ abstract class CoreHandlerInterface {
 
   Future<CoreLifecycleResult> close();
 
+  Future<Map<String, dynamic>> getNetworkTunnelStatus() =>
+      _query(CoreMethod.networkTunnelStatus, _json);
+
+  Future<bool> refreshNetworkTunnel() =>
+      _query(CoreMethod.networkTunnelRefresh, _cast<bool>);
+
   Future<Object?> invokeMethod({
     required CoreMethod method,
     Object? arguments,
@@ -34,9 +40,7 @@ abstract class CoreHandlerInterface {
   }) async {
     return await handleWatch(
       onStart: () {
-        commonPrint.log(
-          'Invoke method ${method.wireName} ${DateTime.now()} $arguments',
-        );
+        commonPrint.log('Invoke method ${method.wireName} ${DateTime.now()}');
       },
       function: () => invokeMethod(
         method: method,

@@ -558,6 +558,7 @@ enum PageLabel {
   requests,
   resources,
   dns,
+  networkTunnel,
 }
 
 enum RuleAction {

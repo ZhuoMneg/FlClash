@@ -4285,4 +4285,83 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get httpConditionTip =>
       'Условия по одному полю объединяются через «или», по разным полям — через «и».';
+
+  @override
+  String get networkTunnel => 'Сетевой туннель';
+
+  @override
+  String get tunnelExtension => 'Скрипт расширения';
+
+  @override
+  String get tunnelImport => 'Импорт конфигурации туннеля';
+
+  @override
+  String get tunnelSelectProfile => 'Сначала выберите офисную подписку.';
+
+  @override
+  String get tunnelImportDone =>
+      'Применено к текущей подписке. Оба переключателя включены.';
+
+  @override
+  String get tunnelImportFailed =>
+      'Ошибка импорта. Проверьте файл конфигурации.';
+
+  @override
+  String get tunnelImportHelp =>
+      'Импортируйте закрытый JSON для этого офисного компьютера. Сначала отключите старый скрипт домашнего WG. Офисный TUN должен быть выключен. Файл содержит закрытый ключ — не передавайте его другим.';
+
+  @override
+  String get tunnelDisableAll => 'Отключить оба';
+
+  @override
+  String get tunnelRoutingHelp =>
+      'Расширение подключает узлы через WireGuard, сохраняя правила DIRECT. Отключение возвращает исходную подписку. При включённом расширении и выключенном WG подключения завершаются ошибкой без перехода на офисный выход.';
+
+  @override
+  String get tunnelStatus => 'Состояние';
+
+  @override
+  String get tunnelUnconfigured => 'Требуется конфигурация';
+
+  @override
+  String get tunnelProfileMismatch => 'Настройки относятся к другой подписке';
+
+  @override
+  String get tunnelCoreStopped => 'Ядро остановлено';
+
+  @override
+  String get tunnelDependencyOff =>
+      'WireGuard выключен: расширение не может подключиться';
+
+  @override
+  String get tunnelDisabled => 'Отключено';
+
+  @override
+  String get tunnelWaiting => 'Ожидание трафика туннеля';
+
+  @override
+  String get tunnelReceiving => 'Недавно получены зашифрованные ответы';
+
+  @override
+  String get tunnelEndpoint => 'Домашний адрес';
+
+  @override
+  String get tunnelTraffic => 'Зашифрованный UDP-трафик';
+
+  @override
+  String get tunnelDirectory => 'Служба адресов';
+
+  @override
+  String get tunnelDirectoryReady => 'Запрос доступен';
+
+  @override
+  String get tunnelDirectoryFailed =>
+      'Запрос недоступен; используется прежний адрес';
+
+  @override
+  String get tunnelRefresh => 'Обновить адрес';
+
+  @override
+  String get tunnelStatusHelp =>
+      'Успешный запрос адреса не подтверждает связь WG. Счётчики показывают зашифрованный UDP-трафик. Проверьте доступ к сайту или маршрутизатору.';
 }

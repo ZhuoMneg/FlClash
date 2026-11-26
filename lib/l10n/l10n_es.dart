@@ -4335,4 +4335,84 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get httpConditionTip =>
       'Las condiciones de un mismo campo se cumplen con una de ellas; las de campos distintos, todas.';
+
+  @override
+  String get networkTunnel => 'Túnel de red';
+
+  @override
+  String get tunnelExtension => 'Script de extensión';
+
+  @override
+  String get tunnelImport => 'Importar configuración del túnel';
+
+  @override
+  String get tunnelSelectProfile =>
+      'Primero selecciona la suscripción de la oficina.';
+
+  @override
+  String get tunnelImportDone =>
+      'Importado para la suscripción actual. Ambas opciones están activadas.';
+
+  @override
+  String get tunnelImportFailed => 'Error al importar. Revisa el archivo.';
+
+  @override
+  String get tunnelImportHelp =>
+      'Importa el JSON privado de este equipo. Desactiva primero el script WG anterior de casa y mantén desactivado el TUN de la oficina. El archivo contiene una clave privada; no lo compartas.';
+
+  @override
+  String get tunnelDisableAll => 'Desactivar ambos';
+
+  @override
+  String get tunnelRoutingHelp =>
+      'La extensión conecta los nodos por WireGuard y conserva las reglas DIRECT. Al desactivarla se restaura la suscripción original. Si solo WG está desactivado, las conexiones fallan sin usar la salida de la oficina.';
+
+  @override
+  String get tunnelStatus => 'Estado';
+
+  @override
+  String get tunnelUnconfigured => 'Se requiere configuración';
+
+  @override
+  String get tunnelProfileMismatch => 'Configuración de otra suscripción';
+
+  @override
+  String get tunnelCoreStopped => 'El núcleo está detenido';
+
+  @override
+  String get tunnelDependencyOff =>
+      'WireGuard desactivado: la extensión no puede conectar';
+
+  @override
+  String get tunnelDisabled => 'Desactivado';
+
+  @override
+  String get tunnelWaiting => 'Esperando tráfico del túnel';
+
+  @override
+  String get tunnelReceiving =>
+      'Se han recibido respuestas cifradas recientemente';
+
+  @override
+  String get tunnelEndpoint => 'Dirección de casa';
+
+  @override
+  String get tunnelTraffic => 'Tráfico UDP cifrado';
+
+  @override
+  String get tunnelDirectory => 'Servicio de direcciones';
+
+  @override
+  String get tunnelDirectoryReady => 'Consulta disponible';
+
+  @override
+  String get tunnelDirectoryFailed =>
+      'Consulta no disponible; se conserva la dirección anterior';
+
+  @override
+  String get tunnelRefresh => 'Actualizar dirección';
+
+  @override
+  String get tunnelStatusHelp =>
+      'Una consulta correcta no confirma la conexión WG. Los contadores muestran actividad UDP cifrada. Comprueba el acceso a un sitio o al router.';
 }

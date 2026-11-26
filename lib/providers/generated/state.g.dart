@@ -100,16 +100,19 @@ final class SetupPatchProvider
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
+            NetworkTunnelSettings networkTunnel,
             PatchClashConfig patchConfig,
           }),
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
+            NetworkTunnelSettings networkTunnel,
             PatchClashConfig patchConfig,
           }),
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
+            NetworkTunnelSettings networkTunnel,
             PatchClashConfig patchConfig,
           })
         >
@@ -118,6 +121,7 @@ final class SetupPatchProvider
           ({
             bool appendSystemDns,
             bool bypassPrivateRoute,
+            NetworkTunnelSettings networkTunnel,
             PatchClashConfig patchConfig,
           })
         > {
@@ -141,6 +145,7 @@ final class SetupPatchProvider
     ({
       bool appendSystemDns,
       bool bypassPrivateRoute,
+      NetworkTunnelSettings networkTunnel,
       PatchClashConfig patchConfig,
     })
   >
@@ -150,6 +155,7 @@ final class SetupPatchProvider
   ({
     bool appendSystemDns,
     bool bypassPrivateRoute,
+    NetworkTunnelSettings networkTunnel,
     PatchClashConfig patchConfig,
   })
   create(Ref ref) {
@@ -161,6 +167,7 @@ final class SetupPatchProvider
     ({
       bool appendSystemDns,
       bool bypassPrivateRoute,
+      NetworkTunnelSettings networkTunnel,
       PatchClashConfig patchConfig,
     })
     value,
@@ -172,6 +179,7 @@ final class SetupPatchProvider
             ({
               bool appendSystemDns,
               bool bypassPrivateRoute,
+              NetworkTunnelSettings networkTunnel,
               PatchClashConfig patchConfig,
             })
           >(value),
@@ -179,7 +187,7 @@ final class SetupPatchProvider
   }
 }
 
-String _$setupPatchHash() => r'd09fb41d40ced4cd47c9131fe55e983e35128724';
+String _$setupPatchHash() => r'5021a00290a9f6e5dd1f0cc6e9c0a659b5649a3b';
 
 @ProviderFor(trayState)
 final trayStateProvider = TrayStateProvider._();

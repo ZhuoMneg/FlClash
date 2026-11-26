@@ -4338,4 +4338,85 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get httpConditionTip =>
       'Les conditions d’un même champ en demandent une seule, celles de champs différents toutes.';
+
+  @override
+  String get networkTunnel => 'Tunnel réseau';
+
+  @override
+  String get tunnelExtension => 'Script d’extension';
+
+  @override
+  String get tunnelImport => 'Importer la configuration du tunnel';
+
+  @override
+  String get tunnelSelectProfile =>
+      'Sélectionnez d’abord l’abonnement du bureau.';
+
+  @override
+  String get tunnelImportDone =>
+      'Importé pour l’abonnement actuel. Les deux options sont activées.';
+
+  @override
+  String get tunnelImportFailed =>
+      'Échec de l’importation. Vérifiez le fichier.';
+
+  @override
+  String get tunnelImportHelp =>
+      'Importez le JSON privé de cet ordinateur. Désactivez d’abord l’ancien script WG du domicile et laissez le TUN du bureau désactivé. Ce fichier contient une clé privée : ne le partagez pas.';
+
+  @override
+  String get tunnelDisableAll => 'Tout désactiver';
+
+  @override
+  String get tunnelRoutingHelp =>
+      'L’extension relie les nœuds via WireGuard et conserve les règles DIRECT. Sa désactivation rétablit l’abonnement initial. Si seul WG est désactivé, les connexions échouent sans utiliser la sortie du bureau.';
+
+  @override
+  String get tunnelStatus => 'État';
+
+  @override
+  String get tunnelUnconfigured => 'Configuration requise';
+
+  @override
+  String get tunnelProfileMismatch =>
+      'Configuration liée à un autre abonnement';
+
+  @override
+  String get tunnelCoreStopped => 'Le cœur est arrêté';
+
+  @override
+  String get tunnelDependencyOff =>
+      'WireGuard désactivé : l’extension ne peut pas se connecter';
+
+  @override
+  String get tunnelDisabled => 'Désactivé';
+
+  @override
+  String get tunnelWaiting => 'En attente de trafic';
+
+  @override
+  String get tunnelReceiving => 'Réponses chiffrées reçues récemment';
+
+  @override
+  String get tunnelEndpoint => 'Adresse du domicile';
+
+  @override
+  String get tunnelTraffic => 'Trafic UDP chiffré';
+
+  @override
+  String get tunnelDirectory => 'Service d’adresses';
+
+  @override
+  String get tunnelDirectoryReady => 'Requête disponible';
+
+  @override
+  String get tunnelDirectoryFailed =>
+      'Requête indisponible ; dernière adresse conservée';
+
+  @override
+  String get tunnelRefresh => 'Actualiser l’adresse';
+
+  @override
+  String get tunnelStatusHelp =>
+      'Une requête réussie ne prouve pas la connexion WG. Les compteurs indiquent une activité UDP chiffrée. Vérifiez l’accès à un site ou au routeur.';
 }

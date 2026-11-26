@@ -1846,7 +1846,7 @@ as String,
 /// @nodoc
 mixin _$NetworkProps {
 
- bool get systemProxy; List<String> get bypassDomain; bool get pacMode; String get pacScript; bool get bypassPrivateRoute; bool get appendSystemDns; AuthenticationProps get authentication;
+ bool get systemProxy; List<String> get bypassDomain; bool get pacMode; String get pacScript; bool get bypassPrivateRoute; bool get appendSystemDns; AuthenticationProps get authentication; NetworkTunnelSettings get networkTunnel;
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1860,20 +1860,20 @@ $NetworkPropsCopyWith<NetworkProps> get copyWith => _$NetworkPropsCopyWithImpl<N
 @override
 bool operator ==(Object other) {
   final _this = this as NetworkProps;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkProps&&(identical(other.systemProxy, _this.systemProxy) || other.systemProxy == _this.systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _this.bypassDomain)&&(identical(other.pacMode, _this.pacMode) || other.pacMode == _this.pacMode)&&(identical(other.pacScript, _this.pacScript) || other.pacScript == _this.pacScript)&&(identical(other.bypassPrivateRoute, _this.bypassPrivateRoute) || other.bypassPrivateRoute == _this.bypassPrivateRoute)&&(identical(other.appendSystemDns, _this.appendSystemDns) || other.appendSystemDns == _this.appendSystemDns)&&(identical(other.authentication, _this.authentication) || other.authentication == _this.authentication));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkProps&&(identical(other.systemProxy, _this.systemProxy) || other.systemProxy == _this.systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _this.bypassDomain)&&(identical(other.pacMode, _this.pacMode) || other.pacMode == _this.pacMode)&&(identical(other.pacScript, _this.pacScript) || other.pacScript == _this.pacScript)&&(identical(other.bypassPrivateRoute, _this.bypassPrivateRoute) || other.bypassPrivateRoute == _this.bypassPrivateRoute)&&(identical(other.appendSystemDns, _this.appendSystemDns) || other.appendSystemDns == _this.appendSystemDns)&&(identical(other.authentication, _this.authentication) || other.authentication == _this.authentication)&&(identical(other.networkTunnel, _this.networkTunnel) || other.networkTunnel == _this.networkTunnel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as NetworkProps;
-  return Object.hash(runtimeType,_this.systemProxy,const DeepCollectionEquality().hash(_this.bypassDomain),_this.pacMode,_this.pacScript,_this.bypassPrivateRoute,_this.appendSystemDns,_this.authentication);
+  return Object.hash(runtimeType,_this.systemProxy,const DeepCollectionEquality().hash(_this.bypassDomain),_this.pacMode,_this.pacScript,_this.bypassPrivateRoute,_this.appendSystemDns,_this.authentication,_this.networkTunnel);
 }
 
 @override
 String toString() {
   final _this = this as NetworkProps;
-  return 'NetworkProps(systemProxy: ${_this.systemProxy}, bypassDomain: ${_this.bypassDomain}, pacMode: ${_this.pacMode}, pacScript: ${_this.pacScript}, bypassPrivateRoute: ${_this.bypassPrivateRoute}, appendSystemDns: ${_this.appendSystemDns}, authentication: ${_this.authentication})';
+  return 'NetworkProps(systemProxy: ${_this.systemProxy}, bypassDomain: ${_this.bypassDomain}, pacMode: ${_this.pacMode}, pacScript: ${_this.pacScript}, bypassPrivateRoute: ${_this.bypassPrivateRoute}, appendSystemDns: ${_this.appendSystemDns}, authentication: ${_this.authentication}, networkTunnel: ${_this.networkTunnel})';
 }
 
 
@@ -1884,11 +1884,11 @@ abstract mixin class $NetworkPropsCopyWith<$Res>  {
   factory $NetworkPropsCopyWith(NetworkProps value, $Res Function(NetworkProps) _then) = _$NetworkPropsCopyWithImpl;
 @useResult
 $Res call({
- bool systemProxy, List<String> bypassDomain, bool pacMode, String pacScript, bool bypassPrivateRoute, bool appendSystemDns, AuthenticationProps authentication
+ bool systemProxy, List<String> bypassDomain, bool pacMode, String pacScript, bool bypassPrivateRoute, bool appendSystemDns, AuthenticationProps authentication, NetworkTunnelSettings networkTunnel
 });
 
 
-$AuthenticationPropsCopyWith<$Res> get authentication;
+$AuthenticationPropsCopyWith<$Res> get authentication;$NetworkTunnelSettingsCopyWith<$Res> get networkTunnel;
 
 }
 /// @nodoc
@@ -1901,7 +1901,7 @@ class _$NetworkPropsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? pacMode = null,Object? pacScript = null,Object? bypassPrivateRoute = null,Object? appendSystemDns = null,Object? authentication = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? pacMode = null,Object? pacScript = null,Object? bypassPrivateRoute = null,Object? appendSystemDns = null,Object? authentication = null,Object? networkTunnel = null,}) {
   return _then(NetworkProps(
 systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
 as bool,bypassDomain: null == bypassDomain ? _self.bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
@@ -1910,7 +1910,8 @@ as bool,pacScript: null == pacScript ? _self.pacScript : pacScript // ignore: ca
 as String,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
 as bool,appendSystemDns: null == appendSystemDns ? _self.appendSystemDns : appendSystemDns // ignore: cast_nullable_to_non_nullable
 as bool,authentication: null == authentication ? _self.authentication : authentication // ignore: cast_nullable_to_non_nullable
-as AuthenticationProps,
+as AuthenticationProps,networkTunnel: null == networkTunnel ? _self.networkTunnel : networkTunnel // ignore: cast_nullable_to_non_nullable
+as NetworkTunnelSettings,
   ));
 }
 /// Create a copy of NetworkProps
@@ -1921,6 +1922,15 @@ $AuthenticationPropsCopyWith<$Res> get authentication {
   
   return $AuthenticationPropsCopyWith<$Res>(_self.authentication, (value) {
     return _then(_self.copyWith(authentication: value));
+  });
+}/// Create a copy of NetworkProps
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$NetworkTunnelSettingsCopyWith<$Res> get networkTunnel {
+  
+  return $NetworkTunnelSettingsCopyWith<$Res>(_self.networkTunnel, (value) {
+    return _then(_self.copyWith(networkTunnel: value));
   });
 }
 }
@@ -2004,10 +2014,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication,  NetworkTunnelSettings networkTunnel)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NetworkProps() when $default != null:
-return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication,_that.networkTunnel);case _:
   return orElse();
 
 }
@@ -2025,10 +2035,10 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScri
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication,  NetworkTunnelSettings networkTunnel)  $default,) {final _that = this;
 switch (_that) {
 case _NetworkProps():
-return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication,_that.networkTunnel);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2045,10 +2055,10 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScri
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool systemProxy,  List<String> bypassDomain,  bool pacMode,  String pacScript,  bool bypassPrivateRoute,  bool appendSystemDns,  AuthenticationProps authentication,  NetworkTunnelSettings networkTunnel)?  $default,) {final _that = this;
 switch (_that) {
 case _NetworkProps() when $default != null:
-return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication);case _:
+return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScript,_that.bypassPrivateRoute,_that.appendSystemDns,_that.authentication,_that.networkTunnel);case _:
   return null;
 
 }
@@ -2060,7 +2070,7 @@ return $default(_that.systemProxy,_that.bypassDomain,_that.pacMode,_that.pacScri
 @JsonSerializable()
 
 class _NetworkProps implements NetworkProps {
-  const _NetworkProps({this.systemProxy = true,  List<String> bypassDomain = defaultBypassDomain, this.pacMode = false, this.pacScript = defaultPacScript, this.bypassPrivateRoute = true, this.appendSystemDns = false, this.authentication = defaultAuthenticationProps}): _bypassDomain = bypassDomain;
+  const _NetworkProps({this.systemProxy = true,  List<String> bypassDomain = defaultBypassDomain, this.pacMode = false, this.pacScript = defaultPacScript, this.bypassPrivateRoute = true, this.appendSystemDns = false, this.authentication = defaultAuthenticationProps, this.networkTunnel = const NetworkTunnelSettings()}): _bypassDomain = bypassDomain;
   factory _NetworkProps.fromJson(Map<String, dynamic> json) => _$NetworkPropsFromJson(json);
 
 @override@JsonKey() final  bool systemProxy;
@@ -2076,6 +2086,7 @@ class _NetworkProps implements NetworkProps {
 @override@JsonKey() final  bool bypassPrivateRoute;
 @override@JsonKey() final  bool appendSystemDns;
 @override@JsonKey() final  AuthenticationProps authentication;
+@override@JsonKey() final  NetworkTunnelSettings networkTunnel;
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
@@ -2090,18 +2101,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkProps&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _bypassDomain)&&(identical(other.pacMode, pacMode) || other.pacMode == pacMode)&&(identical(other.pacScript, pacScript) || other.pacScript == pacScript)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute)&&(identical(other.appendSystemDns, appendSystemDns) || other.appendSystemDns == appendSystemDns)&&(identical(other.authentication, authentication) || other.authentication == authentication));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkProps&&(identical(other.systemProxy, systemProxy) || other.systemProxy == systemProxy)&&const DeepCollectionEquality().equals(other.bypassDomain, _bypassDomain)&&(identical(other.pacMode, pacMode) || other.pacMode == pacMode)&&(identical(other.pacScript, pacScript) || other.pacScript == pacScript)&&(identical(other.bypassPrivateRoute, bypassPrivateRoute) || other.bypassPrivateRoute == bypassPrivateRoute)&&(identical(other.appendSystemDns, appendSystemDns) || other.appendSystemDns == appendSystemDns)&&(identical(other.authentication, authentication) || other.authentication == authentication)&&(identical(other.networkTunnel, networkTunnel) || other.networkTunnel == networkTunnel));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,systemProxy,const DeepCollectionEquality().hash(_bypassDomain),pacMode,pacScript,bypassPrivateRoute,appendSystemDns,authentication);
+    return Object.hash(runtimeType,systemProxy,const DeepCollectionEquality().hash(_bypassDomain),pacMode,pacScript,bypassPrivateRoute,appendSystemDns,authentication,networkTunnel);
 }
 
 @override
 String toString() {
-    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, pacMode: $pacMode, pacScript: $pacScript, bypassPrivateRoute: $bypassPrivateRoute, appendSystemDns: $appendSystemDns, authentication: $authentication)';
+    return 'NetworkProps(systemProxy: $systemProxy, bypassDomain: $bypassDomain, pacMode: $pacMode, pacScript: $pacScript, bypassPrivateRoute: $bypassPrivateRoute, appendSystemDns: $appendSystemDns, authentication: $authentication, networkTunnel: $networkTunnel)';
 }
 
 
@@ -2112,11 +2123,11 @@ abstract mixin class _$NetworkPropsCopyWith<$Res> implements $NetworkPropsCopyWi
   factory _$NetworkPropsCopyWith(_NetworkProps value, $Res Function(_NetworkProps) _then) = __$NetworkPropsCopyWithImpl;
 @override @useResult
 $Res call({
- bool systemProxy, List<String> bypassDomain, bool pacMode, String pacScript, bool bypassPrivateRoute, bool appendSystemDns, AuthenticationProps authentication
+ bool systemProxy, List<String> bypassDomain, bool pacMode, String pacScript, bool bypassPrivateRoute, bool appendSystemDns, AuthenticationProps authentication, NetworkTunnelSettings networkTunnel
 });
 
 
-@override $AuthenticationPropsCopyWith<$Res> get authentication;
+@override $AuthenticationPropsCopyWith<$Res> get authentication;@override $NetworkTunnelSettingsCopyWith<$Res> get networkTunnel;
 
 }
 /// @nodoc
@@ -2129,7 +2140,7 @@ class __$NetworkPropsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkProps
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? pacMode = null,Object? pacScript = null,Object? bypassPrivateRoute = null,Object? appendSystemDns = null,Object? authentication = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? systemProxy = null,Object? bypassDomain = null,Object? pacMode = null,Object? pacScript = null,Object? bypassPrivateRoute = null,Object? appendSystemDns = null,Object? authentication = null,Object? networkTunnel = null,}) {
   return _then(_NetworkProps(
 systemProxy: null == systemProxy ? _self.systemProxy : systemProxy // ignore: cast_nullable_to_non_nullable
 as bool,bypassDomain: null == bypassDomain ? _self._bypassDomain : bypassDomain // ignore: cast_nullable_to_non_nullable
@@ -2138,7 +2149,8 @@ as bool,pacScript: null == pacScript ? _self.pacScript : pacScript // ignore: ca
 as String,bypassPrivateRoute: null == bypassPrivateRoute ? _self.bypassPrivateRoute : bypassPrivateRoute // ignore: cast_nullable_to_non_nullable
 as bool,appendSystemDns: null == appendSystemDns ? _self.appendSystemDns : appendSystemDns // ignore: cast_nullable_to_non_nullable
 as bool,authentication: null == authentication ? _self.authentication : authentication // ignore: cast_nullable_to_non_nullable
-as AuthenticationProps,
+as AuthenticationProps,networkTunnel: null == networkTunnel ? _self.networkTunnel : networkTunnel // ignore: cast_nullable_to_non_nullable
+as NetworkTunnelSettings,
   ));
 }
 
@@ -2151,7 +2163,313 @@ $AuthenticationPropsCopyWith<$Res> get authentication {
   return $AuthenticationPropsCopyWith<$Res>(_self.authentication, (value) {
     return _then(_self.copyWith(authentication: value));
   });
+}/// Create a copy of NetworkProps
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$NetworkTunnelSettingsCopyWith<$Res> get networkTunnel {
+  
+  return $NetworkTunnelSettingsCopyWith<$Res>(_self.networkTunnel, (value) {
+    return _then(_self.copyWith(networkTunnel: value));
+  });
 }
+}
+
+
+/// @nodoc
+mixin _$NetworkTunnelSettings {
+
+ bool get enabled; bool get extension; String get host; int get port; String get pin; String get token; String get privateKey; String get publicKey; String get ip; String get ipv6; String get dns;@JsonKey(name: 'interface') String get interfaceName; int? get profileId;
+/// Create a copy of NetworkTunnelSettings
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NetworkTunnelSettingsCopyWith<NetworkTunnelSettings> get copyWith => _$NetworkTunnelSettingsCopyWithImpl<NetworkTunnelSettings>(this as NetworkTunnelSettings, _$identity);
+
+  /// Serializes this NetworkTunnelSettings to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as NetworkTunnelSettings;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkTunnelSettings&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.extension, _this.extension) || other.extension == _this.extension)&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.port, _this.port) || other.port == _this.port)&&(identical(other.pin, _this.pin) || other.pin == _this.pin)&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.privateKey, _this.privateKey) || other.privateKey == _this.privateKey)&&(identical(other.publicKey, _this.publicKey) || other.publicKey == _this.publicKey)&&(identical(other.ip, _this.ip) || other.ip == _this.ip)&&(identical(other.ipv6, _this.ipv6) || other.ipv6 == _this.ipv6)&&(identical(other.dns, _this.dns) || other.dns == _this.dns)&&(identical(other.interfaceName, _this.interfaceName) || other.interfaceName == _this.interfaceName)&&(identical(other.profileId, _this.profileId) || other.profileId == _this.profileId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as NetworkTunnelSettings;
+  return Object.hash(runtimeType,_this.enabled,_this.extension,_this.host,_this.port,_this.pin,_this.token,_this.privateKey,_this.publicKey,_this.ip,_this.ipv6,_this.dns,_this.interfaceName,_this.profileId);
+}
+
+
+
+}
+
+/// @nodoc
+abstract mixin class $NetworkTunnelSettingsCopyWith<$Res>  {
+  factory $NetworkTunnelSettingsCopyWith(NetworkTunnelSettings value, $Res Function(NetworkTunnelSettings) _then) = _$NetworkTunnelSettingsCopyWithImpl;
+@useResult
+$Res call({
+ bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId
+});
+
+
+
+
+}
+/// @nodoc
+class _$NetworkTunnelSettingsCopyWithImpl<$Res>
+    implements $NetworkTunnelSettingsCopyWith<$Res> {
+  _$NetworkTunnelSettingsCopyWithImpl(this._self, this._then);
+
+  final NetworkTunnelSettings _self;
+  final $Res Function(NetworkTunnelSettings) _then;
+
+/// Create a copy of NetworkTunnelSettings
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,}) {
+  return _then(NetworkTunnelSettings(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,extension: null == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
+as bool,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,pin: null == pin ? _self.pin : pin // ignore: cast_nullable_to_non_nullable
+as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,privateKey: null == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
+as String,publicKey: null == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
+as String,ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
+as String,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non_nullable
+as String,dns: null == dns ? _self.dns : dns // ignore: cast_nullable_to_non_nullable
+as String,interfaceName: null == interfaceName ? _self.interfaceName : interfaceName // ignore: cast_nullable_to_non_nullable
+as String,profileId: freezed == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NetworkTunnelSettings].
+extension NetworkTunnelSettingsPatterns on NetworkTunnelSettings {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NetworkTunnelSettings value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NetworkTunnelSettings value)  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NetworkTunnelSettings value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings() when $default != null:
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)  $default,) {final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings():
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)?  $default,) {final _that = this;
+switch (_that) {
+case _NetworkTunnelSettings() when $default != null:
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _NetworkTunnelSettings extends NetworkTunnelSettings {
+  const _NetworkTunnelSettings({this.enabled = true, this.extension = true, this.host = '', this.port = 27034, this.pin = '', this.token = '', this.privateKey = '', this.publicKey = '', this.ip = '', this.ipv6 = '', this.dns = '', @JsonKey(name: 'interface') this.interfaceName = '', this.profileId}): super._();
+  factory _NetworkTunnelSettings.fromJson(Map<String, dynamic> json) => _$NetworkTunnelSettingsFromJson(json);
+
+@override@JsonKey() final  bool enabled;
+@override@JsonKey() final  bool extension;
+@override@JsonKey() final  String host;
+@override@JsonKey() final  int port;
+@override@JsonKey() final  String pin;
+@override@JsonKey() final  String token;
+@override@JsonKey() final  String privateKey;
+@override@JsonKey() final  String publicKey;
+@override@JsonKey() final  String ip;
+@override@JsonKey() final  String ipv6;
+@override@JsonKey() final  String dns;
+@override@JsonKey(name: 'interface') final  String interfaceName;
+@override final  int? profileId;
+
+/// Create a copy of NetworkTunnelSettings
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NetworkTunnelSettingsCopyWith<_NetworkTunnelSettings> get copyWith => __$NetworkTunnelSettingsCopyWithImpl<_NetworkTunnelSettings>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$NetworkTunnelSettingsToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkTunnelSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.extension, extension) || other.extension == extension)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&(identical(other.pin, pin) || other.pin == pin)&&(identical(other.token, token) || other.token == token)&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey)&&(identical(other.ip, ip) || other.ip == ip)&&(identical(other.ipv6, ipv6) || other.ipv6 == ipv6)&&(identical(other.dns, dns) || other.dns == dns)&&(identical(other.interfaceName, interfaceName) || other.interfaceName == interfaceName)&&(identical(other.profileId, profileId) || other.profileId == profileId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,enabled,extension,host,port,pin,token,privateKey,publicKey,ip,ipv6,dns,interfaceName,profileId);
+}
+
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NetworkTunnelSettingsCopyWith<$Res> implements $NetworkTunnelSettingsCopyWith<$Res> {
+  factory _$NetworkTunnelSettingsCopyWith(_NetworkTunnelSettings value, $Res Function(_NetworkTunnelSettings) _then) = __$NetworkTunnelSettingsCopyWithImpl;
+@override @useResult
+$Res call({
+ bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId
+});
+
+
+
+
+}
+/// @nodoc
+class __$NetworkTunnelSettingsCopyWithImpl<$Res>
+    implements _$NetworkTunnelSettingsCopyWith<$Res> {
+  __$NetworkTunnelSettingsCopyWithImpl(this._self, this._then);
+
+  final _NetworkTunnelSettings _self;
+  final $Res Function(_NetworkTunnelSettings) _then;
+
+/// Create a copy of NetworkTunnelSettings
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,}) {
+  return _then(_NetworkTunnelSettings(
+enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
+as bool,extension: null == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
+as bool,host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,pin: null == pin ? _self.pin : pin // ignore: cast_nullable_to_non_nullable
+as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,privateKey: null == privateKey ? _self.privateKey : privateKey // ignore: cast_nullable_to_non_nullable
+as String,publicKey: null == publicKey ? _self.publicKey : publicKey // ignore: cast_nullable_to_non_nullable
+as String,ip: null == ip ? _self.ip : ip // ignore: cast_nullable_to_non_nullable
+as String,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non_nullable
+as String,dns: null == dns ? _self.dns : dns // ignore: cast_nullable_to_non_nullable
+as String,interfaceName: null == interfaceName ? _self.interfaceName : interfaceName // ignore: cast_nullable_to_non_nullable
+as String,profileId: freezed == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
+as int?,
+  ));
+}
+
+
 }
 
 

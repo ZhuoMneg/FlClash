@@ -182,10 +182,12 @@ func action(run func()) methodHandler {
 }
 
 var methodHandlers = map[CoreMethod]methodHandler{
-	coreInitMethod:        command(handleInit),
-	coreInitializedMethod: withoutArguments(handleInitialized),
-	coreGCMethod:          action(handleForceGC),
-	coreMemoryMethod:      withoutArguments(handleGetMemoryStats),
+	networkTunnelStatusMethod:  withoutArguments(handleNetworkTunnelStatus),
+	networkTunnelRefreshMethod: withoutArguments(handleRefreshNetworkTunnel),
+	coreInitMethod:             command(handleInit),
+	coreInitializedMethod:      withoutArguments(handleInitialized),
+	coreGCMethod:               action(handleForceGC),
+	coreMemoryMethod:           withoutArguments(handleGetMemoryStats),
 
 	configSetupMethod:    command(handleSetupConfig),
 	configUpdateMethod:   command(updateConfig),
@@ -228,12 +230,14 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	dnsClearCacheMethod:      action(handleClearDnsCache),
 	networkChangedMethod:     action(handleNetworkChanged),
 
-	logStartMethod:      action(handleStartLog),
-	logStopMethod:       action(handleStopLog),
-	listenerStartMethod: action(handleStartListener),
-	listenerStopMethod:  action(handleStopListener),
-	routeWatchMethod:    watchRouteHandler,
-	routeCheckMethod:    withArguments(handleCheckRoutes),
+	logStartMethod: action(handleStartLog),
+	logStopMethod:  action(handleStopLog),
+	listenerStartMethod: fallibleWithoutArguments(func() (any, error) {
+		return nil, handleStartListener()
+	}),
+	listenerStopMethod: action(handleStopListener),
+	routeWatchMethod:   watchRouteHandler,
+	routeCheckMethod:   withArguments(handleCheckRoutes),
 
 	probeOutboundIPMethod: withArguments(handleOutboundIp),
 	probeServicesMethod:   withArguments(handleServiceCheck),

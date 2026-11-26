@@ -4161,4 +4161,79 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get httpConditionTip =>
       '같은 필드의 조건은 하나만 맞으면 되고, 다른 필드의 조건은 모두 맞아야 합니다.';
+
+  @override
+  String get networkTunnel => '네트워크 터널';
+
+  @override
+  String get tunnelExtension => '확장 스크립트';
+
+  @override
+  String get tunnelImport => '터널 설정 가져오기';
+
+  @override
+  String get tunnelSelectProfile => '먼저 사무실 구독을 선택하세요.';
+
+  @override
+  String get tunnelImportDone => '현재 구독에 적용했습니다. 두 스위치가 모두 켜졌습니다.';
+
+  @override
+  String get tunnelImportFailed => '가져오지 못했습니다. 설정 파일을 확인하세요.';
+
+  @override
+  String get tunnelImportHelp =>
+      '이 사무실 컴퓨터의 비공개 JSON 설정을 가져오세요. 먼저 기존 홈 WG 스크립트를 끄고 사무실 TUN은 꺼 두세요. 개인 키가 포함되어 있으므로 공유하지 마세요.';
+
+  @override
+  String get tunnelDisableAll => '모두 끄기';
+
+  @override
+  String get tunnelRoutingHelp =>
+      '확장은 기존 DIRECT 규칙을 유지하고 노드를 WireGuard로 연결합니다. 끄면 원래 구독으로 복구됩니다. WG만 끄면 사무실 출구로 전환하지 않고 프록시 연결이 실패합니다.';
+
+  @override
+  String get tunnelStatus => '상태';
+
+  @override
+  String get tunnelUnconfigured => '설정이 필요합니다';
+
+  @override
+  String get tunnelProfileMismatch => '다른 구독에 연결된 설정입니다';
+
+  @override
+  String get tunnelCoreStopped => '코어가 중지되었습니다';
+
+  @override
+  String get tunnelDependencyOff => 'WireGuard가 꺼져 확장을 연결할 수 없습니다';
+
+  @override
+  String get tunnelDisabled => '꺼짐';
+
+  @override
+  String get tunnelWaiting => '터널 트래픽 대기 중';
+
+  @override
+  String get tunnelReceiving => '최근 암호화된 응답 수신';
+
+  @override
+  String get tunnelEndpoint => '집 엔드포인트';
+
+  @override
+  String get tunnelTraffic => '암호화된 UDP 트래픽';
+
+  @override
+  String get tunnelDirectory => '주소 조정 서비스';
+
+  @override
+  String get tunnelDirectoryReady => '조회 가능';
+
+  @override
+  String get tunnelDirectoryFailed => '조회 불가: 마지막 주소 유지';
+
+  @override
+  String get tunnelRefresh => '엔드포인트 새로 고침';
+
+  @override
+  String get tunnelStatusHelp =>
+      '주소 조회 성공은 WG 연결을 보장하지 않습니다. 수신 카운터는 암호화된 UDP 활동을 나타냅니다. 웹사이트나 라우터 테스트로 연결을 확인하세요.';
 }

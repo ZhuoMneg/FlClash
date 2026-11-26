@@ -4036,4 +4036,79 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get httpConditionTip => '同一字段的条件满足其一即可，不同字段的都要满足。';
+
+  @override
+  String get networkTunnel => '网络隧道';
+
+  @override
+  String get tunnelExtension => '扩展脚本';
+
+  @override
+  String get tunnelImport => '导入隧道配置';
+
+  @override
+  String get tunnelSelectProfile => '请先选择办公室使用的订阅。';
+
+  @override
+  String get tunnelImportDone => '已绑定当前订阅，两个开关均已开启。';
+
+  @override
+  String get tunnelImportFailed => '导入失败，请检查配置文件。';
+
+  @override
+  String get tunnelImportHelp =>
+      '导入办公室专用的私有 JSON 配置。请先在订阅中停用旧的回家 WG 扩展脚本，办公室 TUN 保持关闭。配置含私钥，请勿分享。';
+
+  @override
+  String get tunnelDisableAll => '一键关闭';
+
+  @override
+  String get tunnelRoutingHelp =>
+      '扩展通过 WireGuard 连接订阅节点，保留原有 DIRECT 规则。关闭扩展恢复原订阅；仅关闭 WireGuard、保留扩展时，代理连接会失败，不会自动改走办公室出口。';
+
+  @override
+  String get tunnelStatus => '运行状态';
+
+  @override
+  String get tunnelUnconfigured => '尚未导入配置';
+
+  @override
+  String get tunnelProfileMismatch => '配置绑定的是另一个订阅';
+
+  @override
+  String get tunnelCoreStopped => '核心未运行';
+
+  @override
+  String get tunnelDependencyOff => 'WireGuard 已关闭，扩展无法连接';
+
+  @override
+  String get tunnelDisabled => '已关闭';
+
+  @override
+  String get tunnelWaiting => '等待隧道流量';
+
+  @override
+  String get tunnelReceiving => '近期已收到加密回包';
+
+  @override
+  String get tunnelEndpoint => '家里端点';
+
+  @override
+  String get tunnelTraffic => '加密 UDP 流量';
+
+  @override
+  String get tunnelDirectory => '地址协调服务';
+
+  @override
+  String get tunnelDirectoryReady => '查询可用';
+
+  @override
+  String get tunnelDirectoryFailed => '查询暂不可用，继续使用上次地址';
+
+  @override
+  String get tunnelRefresh => '刷新端点';
+
+  @override
+  String get tunnelStatusHelp =>
+      '地址查询成功不代表 WG 已连通。回包计数反映加密 UDP 活动，请结合网站访问或路由器测试确认连接。';
 }
