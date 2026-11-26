@@ -16,10 +16,6 @@ import 'style.dart';
 import 'widget_registry.dart';
 import 'widgets/widgets.dart';
 
-// Narrower columns leave a pair of service cells too tight for a status, so
-// the grid stacks them in one.
-const _servicePairColumnMin = 290.0;
-
 const _maxColumnWidth = 440.0;
 
 class DashboardView extends ConsumerStatefulWidget {
@@ -63,7 +59,9 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
     final sideWidth = ref.watch(sideWidthProvider);
     final scale = math.max(1.0, MediaQuery.textScalerOf(context).scale(1));
     final size = Size(viewSize.width - sideWidth, viewSize.height) / scale;
-    final editable = !DashboardDensity.of(size).isDesktop;
+    final editable =
+        platform != SupportPlatform.Windows &&
+        !DashboardDensity.of(size).isDesktop;
     if (!editable) {
       _editing = false;
     }
@@ -97,7 +95,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final room = constraints.biggest / scale;
-          final layout = DashboardDensity.of(room);
+          final automatic = DashboardDensity.of(room);
+          final layout =
+              platform == SupportPlatform.Windows && !automatic.isDesktop
+              ? DashboardDensity.compact
+              : automatic;
           return DashboardDensityScope(
             density: layout,
             scale: scale,
@@ -122,9 +124,6 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
   }
 }
 
-/// Four columns fill the window, the tables taking what the rows above them
-/// leave. A window too short for the tables, and every two column one, gets
-/// the summary cards instead, so no list scrolls inside a page that scrolls.
 class _DesktopDashboard extends StatelessWidget {
   const _DesktopDashboard({
     required this.platform,
@@ -150,8 +149,6 @@ class _DesktopDashboard extends StatelessWidget {
     final topHeight = (compact ? 176 : 208) * scale;
     final controlHeight = (compact ? 56 : 64) * scale;
     final middleHeight = (compact ? 152 : 176) * scale;
-    final tablesHeight = connectionsTableMinHeight(density, scale);
-    final summaryHeight = (compact ? 112 : 120) * scale;
     return LayoutBuilder(
       builder: (context, constraints) {
         final room =
@@ -183,18 +180,13 @@ class _DesktopDashboard extends StatelessWidget {
                 (1, NetworkTakeoverTile(TakeoverSwitch.tun)),
               ]
             : const [(2, VpnTile())];
-        final half = columns ~/ 2;
-        final summaries = row([
-          (half, const ConnectionStatsCard()),
-          (half, const ProxyGroupsSummaryCard()),
-        ]);
-        if (columns == 2) {
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: padding,
-            child: Column(
-              spacing: gap,
-              children: [
+        return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: padding,
+          child: Column(
+            spacing: gap,
+            children: [
+              if (columns == 2) ...[
                 sized(
                   topHeight,
                   const RepaintBoundary(child: CurrentOutboundCard()),
@@ -213,89 +205,27 @@ class _DesktopDashboard extends StatelessWidget {
                 sized(controlHeight, row(switches)),
                 sized(
                   middleHeight,
-                  row(const [(1, IntranetIpCard()), (1, ProfilesCard())]),
+                  row(const [(1, IntranetIpCard()), (1, MemoryInfo())]),
+                ),
+              ] else ...[
+                sized(
+                  topHeight,
+                  row(const [
+                    (2, CurrentOutboundCard()),
+                    (1, SpeedCard(direction: TrafficDirection.upload)),
+                    (1, SpeedCard(direction: TrafficDirection.download)),
+                  ]),
+                ),
+                sized(
+                  controlHeight,
+                  row([(2, const OutboundModeBar()), ...switches]),
                 ),
                 sized(
                   middleHeight,
-                  row(const [(1, ServiceStatusCard()), (1, MemoryInfo())]),
+                  row(const [(2, IntranetIpCard()), (2, MemoryInfo())]),
                 ),
-                sized(summaryHeight, summaries),
               ],
-            ),
-          );
-        }
-        final rows = [
-          sized(
-            topHeight,
-            row(const [
-              (2, CurrentOutboundCard()),
-              (1, SpeedCard(direction: TrafficDirection.upload)),
-              (1, SpeedCard(direction: TrafficDirection.download)),
-            ]),
-          ),
-          sized(
-            controlHeight,
-            row([(2, const OutboundModeBar()), ...switches]),
-          ),
-          sized(
-            middleHeight,
-            row([
-              (1, const IntranetIpCard()),
-              (1, const ProfilesCard()),
-              (
-                1,
-                ServiceStatusCard(
-                  columns: column >= _servicePairColumnMin * scale ? 2 : 1,
-                ),
-              ),
-              (1, const MemoryInfo()),
-            ]),
-          ),
-        ];
-        final rowsHeight =
-            padding.vertical +
-            topHeight +
-            controlHeight +
-            middleHeight +
-            gap * 3;
-        final tablesFit = constraints.maxHeight >= rowsHeight + tablesHeight;
-        final fills = constraints.maxHeight >= rowsHeight + summaryHeight;
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: SizedBox(
-            height: fills ? constraints.maxHeight : null,
-            child: Padding(
-              padding: padding,
-              child: Column(
-                spacing: gap,
-                children: [
-                  ...rows,
-                  if (tablesFit)
-                    Expanded(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: gap,
-                        children: const [
-                          Expanded(
-                            flex: 3,
-                            child: RepaintBoundary(
-                              child: ConnectionsTableCard(),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: RepaintBoundary(child: ProxyGroupsCard()),
-                          ),
-                        ],
-                      ),
-                    )
-                  else if (fills)
-                    Expanded(child: summaries)
-                  else
-                    sized(summaryHeight, summaries),
-                ],
-              ),
-            ),
+            ],
           ),
         );
       },

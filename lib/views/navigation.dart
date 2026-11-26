@@ -54,19 +54,19 @@ class Navigation implements NavigationPort {
         builder: (_) => const LogsView(),
         modes: openLogs ? [NavigationItemMode.more] : [],
       ),
+      if (system.isWindows)
+        NavigationItem(
+          glyph: AppGlyphs.link,
+          label: PageLabel.networkTunnel,
+          builder: (_) => const NetworkTunnelView(),
+          modes: [NavigationItemMode.desktop],
+        ),
       NavigationItem(
         glyph: AppGlyphs.tools,
         label: PageLabel.tools,
         builder: (_) => const ToolsView(),
         modes: [NavigationItemMode.desktop, NavigationItemMode.mobile],
       ),
-      if (system.isWindows)
-        NavigationItem(
-          glyph: AppGlyphs.connections,
-          label: PageLabel.networkTunnel,
-          builder: (_) => const NetworkTunnelView(),
-          modes: [NavigationItemMode.desktop],
-        ),
     ];
   }
 

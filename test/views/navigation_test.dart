@@ -1,5 +1,6 @@
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/common/common.dart' show system;
+import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/navigation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,9 +45,27 @@ void main() {
         PageLabel.proxies,
         PageLabel.requests,
         PageLabel.profiles,
-        PageLabel.tools,
         if (system.isWindows) PageLabel.networkTunnel,
+        PageLabel.tools,
       ]);
+    }
+  });
+
+  test('the Windows tunnel precedes tools with a link glyph', () {
+    final items = navigation.getItems(openLogs: true, hasProxies: true);
+    final desktop = [
+      for (final item in items)
+        if (item.modes.contains(NavigationItemMode.desktop)) item,
+    ];
+    final index = desktop.indexWhere(
+      (item) => item.label == PageLabel.networkTunnel,
+    );
+    if (system.isWindows) {
+      expect(index, greaterThanOrEqualTo(0));
+      expect(desktop[index].glyph, AppGlyphs.link);
+      expect(desktop[index + 1].label, PageLabel.tools);
+    } else {
+      expect(index, -1);
     }
   });
 

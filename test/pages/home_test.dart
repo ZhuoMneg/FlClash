@@ -167,20 +167,31 @@ void main() {
         tester.element(find.byType(AppSidebarContainer)),
       ).colorScheme;
       expect(sidebarContainer.color, SurfaceLevel.page.colorOf(colorScheme));
-      final sidebarSurface = tester.widget<Surface>(
-        find
-            .ancestor(
-              of: find.byType(NavigationSidebar),
-              matching: find.byType(Surface),
-            )
-            .first,
-      );
+      final sidebarSurfaceFinder = find
+          .ancestor(
+            of: find.byType(NavigationSidebar),
+            matching: find.byType(Surface),
+          )
+          .first;
+      final sidebarSurface = tester.widget<Surface>(sidebarSurfaceFinder);
       expect(sidebarSurface.color, colorScheme.appChromeSurface);
+      final sidebarShape = sidebarSurface.shape! as RoundedSuperellipseBorder;
+      expect(sidebarShape.side, colorScheme.cardEdge);
+      expect(sidebarShape.borderRadius, AppRadius.all(32));
+      final sidebarRect = tester.getRect(sidebarSurfaceFinder);
+      final containerRect = tester.getRect(find.byType(AppSidebarContainer));
+      expect(sidebarRect.left - containerRect.left, 18);
+      expect(sidebarRect.top - containerRect.top, 14);
+      expect(sidebarRect.height, 610);
 
-      expect(
-        (sidebarSurface.shape! as BorderDirectional).end,
-        colorScheme.cardEdge,
-      );
+      tester.view.physicalSize = const Size(1200, 400);
+      container.read(viewSizeProvider.notifier).value = const Size(1200, 400);
+      await tester.pump();
+      expect(tester.getSize(sidebarSurfaceFinder).height, 372);
+      expect(tester.takeException(), isNull);
+      tester.view.physicalSize = const Size(1200, 800);
+      container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
+      await tester.pump();
 
       await tester.tap(find.text('count: 0'));
       await tester.pump();
