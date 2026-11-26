@@ -6,6 +6,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/icons/app_glyphs.dart';
 import 'package:fl_clash/views/dashboard/widgets/card.dart';
 import 'package:fl_clash/views/dashboard/widgets/network_tunnel.dart';
 import 'package:flutter/widgets.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/host_scaffold.dart';
+import '../../helpers/glyph_finders.dart';
 import '../../helpers/test_app.dart';
 
 class _Core extends Mock implements CoreHandlerInterface {}
@@ -71,6 +73,12 @@ void main() {
     );
     await tester.pump();
   }
+
+  testWidgets('card uses the network tunnel glyph', (tester) async {
+    await mount(tester);
+    expect(find.byGlyph(AppGlyphs.networkTunnel), findsOneWidget);
+    expect(find.byGlyph(AppGlyphs.link), findsNothing);
+  });
 
   testWidgets('unconfigured switch opens settings without changing them', (
     tester,

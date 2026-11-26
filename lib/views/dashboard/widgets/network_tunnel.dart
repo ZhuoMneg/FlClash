@@ -117,7 +117,7 @@ class _NetworkTunnelTileState extends ConsumerState<NetworkTunnelTile>
     return DashboardCard(
       padding: EdgeInsets.zero,
       child: DashboardSwitchRow(
-        glyph: AppGlyphs.link,
+        glyph: AppGlyphs.networkTunnel,
         title: l.networkTunnel,
         subtitle: subtitle,
         value: settings.configured && settings.enabled,

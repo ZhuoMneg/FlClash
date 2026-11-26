@@ -821,6 +821,21 @@ abstract final class AppGlyphs {
     ], role: GlyphRole.line),
   ]);
 
+  static const networkTunnel = Glyph([
+    GlyphPath(
+      'M4 18.5V12A8 8 0 0 1 20 12V18.5A1.5 1.5 0 0 1 18.5 20'
+      'H5.5A1.5 1.5 0 0 1 4 18.5Z',
+    ),
+    GlyphPath(
+      'M8.5 20V13.5A3.5 3.5 0 0 1 15.5 13.5V20',
+      role: GlyphRole.detail,
+    ),
+    GlyphPolyline([
+      GlyphVertex(12, 14.5),
+      GlyphVertex(12, 19.5),
+    ], role: GlyphRole.detail),
+  ]);
+
   static const send = Glyph([
     GlyphPolyline([
       GlyphVertex(3.2, 10.8, 1),

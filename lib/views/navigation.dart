@@ -56,7 +56,7 @@ class Navigation implements NavigationPort {
       ),
       if (system.isWindows)
         NavigationItem(
-          glyph: AppGlyphs.link,
+          glyph: AppGlyphs.networkTunnel,
           label: PageLabel.networkTunnel,
           builder: (_) => const NetworkTunnelView(),
           modes: [NavigationItemMode.desktop],

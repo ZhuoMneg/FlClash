@@ -51,7 +51,7 @@ void main() {
     }
   });
 
-  test('the Windows tunnel precedes tools with a link glyph', () {
+  test('the Windows tunnel precedes tools with a tunnel glyph', () {
     final items = navigation.getItems(openLogs: true, hasProxies: true);
     final desktop = [
       for (final item in items)
@@ -62,7 +62,7 @@ void main() {
     );
     if (system.isWindows) {
       expect(index, greaterThanOrEqualTo(0));
-      expect(desktop[index].glyph, AppGlyphs.link);
+      expect(desktop[index].glyph, AppGlyphs.networkTunnel);
       expect(desktop[index + 1].label, PageLabel.tools);
     } else {
       expect(index, -1);

@@ -77,6 +77,7 @@ final _glyphs = {
   'cloudDownload': AppGlyphs.cloudDownload,
   'cloudSync': AppGlyphs.cloudSync,
   'link': AppGlyphs.link,
+  'networkTunnel': AppGlyphs.networkTunnel,
   'send': AppGlyphs.send,
   'rules': AppGlyphs.rules,
   'rulePresets': AppGlyphs.rulePresets,
@@ -180,6 +181,26 @@ void main() {
       GlyphVertex(12, 20),
     ], role: GlyphRole.detail),
   ]);
+
+  test(
+    'network tunnel keeps both arches and its centerline distinct',
+    () async {
+      for (final fill in [0.0, 1.0]) {
+        final pixels = await _render(AppGlyphs.networkTunnel, fill);
+        final detailAlpha = fill == 0 ? 255 : 0;
+
+        expect(_alphaAt(pixels, 4, 15), 255, reason: 'outer arch');
+        expect(_alphaAt(pixels, 12, 4), 255, reason: 'outer crown');
+        expect(_alphaAt(pixels, 6, 15), fill == 0 ? 0 : 255);
+        expect(_alphaAt(pixels, 8.5, 15), detailAlpha, reason: 'inner arch');
+        expect(_alphaAt(pixels, 15.5, 15), detailAlpha, reason: 'inner arch');
+        expect(_alphaAt(pixels, 12, 10), detailAlpha, reason: 'inner crown');
+        expect(_alphaAt(pixels, 12, 17), detailAlpha, reason: 'centerline');
+        expect(_alphaAt(pixels, 10.5, 17), fill == 0 ? 0 : 255);
+        expect(_alphaAt(pixels, 13.5, 17), fill == 0 ? 0 : 255);
+      }
+    },
+  );
 
   test('a body fills inward from its outline', () async {
     final pixels = await _render(ring, 0.5);
