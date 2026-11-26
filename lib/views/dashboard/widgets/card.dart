@@ -57,9 +57,10 @@ class DashboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final density = DashboardDensityScope.of(context);
-    final shape = AppShape.all(
-      dashboardCardRadius(density),
-    ).copyWith(side: context.colorScheme.cardEdge);
+    final shape = AppShape.all(dashboardCardRadius(density));
+    final side = this.side == BorderSide.none
+        ? context.colorScheme.cardEdge
+        : this.side;
     final content = Padding(
       padding: padding ?? dashboardCardPadding(density),
       child: child,

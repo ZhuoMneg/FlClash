@@ -123,6 +123,15 @@ void main() {
             child: Column(
               children: [
                 DashboardCard(
+                  key: ValueKey('default-card'),
+                  child: SizedBox(
+                    key: ValueKey('dashboard-content'),
+                    width: 200,
+                    height: 50,
+                  ),
+                ),
+                DashboardCard(
+                  key: ValueKey('custom-card'),
                   side: foregroundSide,
                   child: SizedBox(width: 200, height: 50),
                 ),
@@ -135,7 +144,7 @@ void main() {
 
       final card = tester.widget<Container>(
         find.descendant(
-          of: find.byType(DashboardCard),
+          of: find.byKey(const ValueKey('default-card')),
           matching: find.byWidgetPredicate(
             (widget) =>
                 widget is Container && widget.decoration is ShapeDecoration,
@@ -143,13 +152,35 @@ void main() {
         ),
       );
       final decoration = card.decoration! as ShapeDecoration;
+      final cardRect = tester.getRect(find.byWidget(card));
+      final contentRect = tester.getRect(
+        find.byKey(const ValueKey('dashboard-content')),
+      );
+      expect(contentRect.left - cardRect.left, 22);
+      expect(contentRect.top - cardRect.top, 20);
+      expect(cardRect.height, 90);
       final shape = AppShape.all(
         dashboardCardRadius(DashboardDensity.standard),
       );
       expect(decoration.color, SurfaceLevel.card.colorOf(scheme));
-      expect(decoration.shape, shape.copyWith(side: scheme.cardEdge));
+      expect(decoration.shape, shape);
       expect(
-        (card.foregroundDecoration! as ShapeDecoration).shape,
+        card.foregroundDecoration,
+        scheme.cardEdge == BorderSide.none
+            ? null
+            : ShapeDecoration(shape: shape.copyWith(side: scheme.cardEdge)),
+      );
+      final customCard = tester.widget<Container>(
+        find.descendant(
+          of: find.byKey(const ValueKey('custom-card')),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is Container && widget.decoration is ShapeDecoration,
+          ),
+        ),
+      );
+      expect(
+        (customCard.foregroundDecoration! as ShapeDecoration).shape,
         shape.copyWith(side: foregroundSide),
       );
       final listCard = tester.widget<Card>(
