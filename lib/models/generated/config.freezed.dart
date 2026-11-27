@@ -2177,9 +2177,279 @@ $NetworkTunnelSettingsCopyWith<$Res> get networkTunnel {
 
 
 /// @nodoc
+mixin _$NetworkTunnelDirectory {
+
+ String get host; int get port; String get pin; String get token;
+/// Create a copy of NetworkTunnelDirectory
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NetworkTunnelDirectoryCopyWith<NetworkTunnelDirectory> get copyWith => _$NetworkTunnelDirectoryCopyWithImpl<NetworkTunnelDirectory>(this as NetworkTunnelDirectory, _$identity);
+
+  /// Serializes this NetworkTunnelDirectory to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as NetworkTunnelDirectory;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkTunnelDirectory&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.port, _this.port) || other.port == _this.port)&&(identical(other.pin, _this.pin) || other.pin == _this.pin)&&(identical(other.token, _this.token) || other.token == _this.token));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as NetworkTunnelDirectory;
+  return Object.hash(runtimeType,_this.host,_this.port,_this.pin,_this.token);
+}
+
+
+
+}
+
+/// @nodoc
+abstract mixin class $NetworkTunnelDirectoryCopyWith<$Res>  {
+  factory $NetworkTunnelDirectoryCopyWith(NetworkTunnelDirectory value, $Res Function(NetworkTunnelDirectory) _then) = _$NetworkTunnelDirectoryCopyWithImpl;
+@useResult
+$Res call({
+ String host, int port, String pin, String token
+});
+
+
+
+
+}
+/// @nodoc
+class _$NetworkTunnelDirectoryCopyWithImpl<$Res>
+    implements $NetworkTunnelDirectoryCopyWith<$Res> {
+  _$NetworkTunnelDirectoryCopyWithImpl(this._self, this._then);
+
+  final NetworkTunnelDirectory _self;
+  final $Res Function(NetworkTunnelDirectory) _then;
+
+/// Create a copy of NetworkTunnelDirectory
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? host = null,Object? port = null,Object? pin = null,Object? token = null,}) {
+  return _then(NetworkTunnelDirectory(
+host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,pin: null == pin ? _self.pin : pin // ignore: cast_nullable_to_non_nullable
+as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [NetworkTunnelDirectory].
+extension NetworkTunnelDirectoryPatterns on NetworkTunnelDirectory {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _NetworkTunnelDirectory value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _NetworkTunnelDirectory value)  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _NetworkTunnelDirectory value)?  $default,){
+final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String host,  int port,  String pin,  String token)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory() when $default != null:
+return $default(_that.host,_that.port,_that.pin,_that.token);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String host,  int port,  String pin,  String token)  $default,) {final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory():
+return $default(_that.host,_that.port,_that.pin,_that.token);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String host,  int port,  String pin,  String token)?  $default,) {final _that = this;
+switch (_that) {
+case _NetworkTunnelDirectory() when $default != null:
+return $default(_that.host,_that.port,_that.pin,_that.token);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _NetworkTunnelDirectory implements NetworkTunnelDirectory {
+  const _NetworkTunnelDirectory({required this.host, this.port = 27034, required this.pin, this.token = ''});
+  factory _NetworkTunnelDirectory.fromJson(Map<String, dynamic> json) => _$NetworkTunnelDirectoryFromJson(json);
+
+@override final  String host;
+@override@JsonKey() final  int port;
+@override final  String pin;
+@override@JsonKey() final  String token;
+
+/// Create a copy of NetworkTunnelDirectory
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$NetworkTunnelDirectoryCopyWith<_NetworkTunnelDirectory> get copyWith => __$NetworkTunnelDirectoryCopyWithImpl<_NetworkTunnelDirectory>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$NetworkTunnelDirectoryToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkTunnelDirectory&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&(identical(other.pin, pin) || other.pin == pin)&&(identical(other.token, token) || other.token == token));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,host,port,pin,token);
+}
+
+
+
+}
+
+/// @nodoc
+abstract mixin class _$NetworkTunnelDirectoryCopyWith<$Res> implements $NetworkTunnelDirectoryCopyWith<$Res> {
+  factory _$NetworkTunnelDirectoryCopyWith(_NetworkTunnelDirectory value, $Res Function(_NetworkTunnelDirectory) _then) = __$NetworkTunnelDirectoryCopyWithImpl;
+@override @useResult
+$Res call({
+ String host, int port, String pin, String token
+});
+
+
+
+
+}
+/// @nodoc
+class __$NetworkTunnelDirectoryCopyWithImpl<$Res>
+    implements _$NetworkTunnelDirectoryCopyWith<$Res> {
+  __$NetworkTunnelDirectoryCopyWithImpl(this._self, this._then);
+
+  final _NetworkTunnelDirectory _self;
+  final $Res Function(_NetworkTunnelDirectory) _then;
+
+/// Create a copy of NetworkTunnelDirectory
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? host = null,Object? port = null,Object? pin = null,Object? token = null,}) {
+  return _then(_NetworkTunnelDirectory(
+host: null == host ? _self.host : host // ignore: cast_nullable_to_non_nullable
+as String,port: null == port ? _self.port : port // ignore: cast_nullable_to_non_nullable
+as int,pin: null == pin ? _self.pin : pin // ignore: cast_nullable_to_non_nullable
+as String,token: null == token ? _self.token : token // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$NetworkTunnelSettings {
 
- bool get enabled; bool get extension; String get host; int get port; String get pin; String get token; String get privateKey; String get publicKey; String get ip; String get ipv6; String get dns;@JsonKey(name: 'interface') String get interfaceName; int? get profileId;
+ bool get enabled; bool get extension; String get host; int get port; String get pin; String get token; String get privateKey; String get publicKey; String get ip; String get ipv6; String get dns;@JsonKey(name: 'interface') String get interfaceName; int? get profileId; List<NetworkTunnelDirectory> get fallbacks;
 /// Create a copy of NetworkTunnelSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2193,14 +2463,14 @@ $NetworkTunnelSettingsCopyWith<NetworkTunnelSettings> get copyWith => _$NetworkT
 @override
 bool operator ==(Object other) {
   final _this = this as NetworkTunnelSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkTunnelSettings&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.extension, _this.extension) || other.extension == _this.extension)&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.port, _this.port) || other.port == _this.port)&&(identical(other.pin, _this.pin) || other.pin == _this.pin)&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.privateKey, _this.privateKey) || other.privateKey == _this.privateKey)&&(identical(other.publicKey, _this.publicKey) || other.publicKey == _this.publicKey)&&(identical(other.ip, _this.ip) || other.ip == _this.ip)&&(identical(other.ipv6, _this.ipv6) || other.ipv6 == _this.ipv6)&&(identical(other.dns, _this.dns) || other.dns == _this.dns)&&(identical(other.interfaceName, _this.interfaceName) || other.interfaceName == _this.interfaceName)&&(identical(other.profileId, _this.profileId) || other.profileId == _this.profileId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NetworkTunnelSettings&&(identical(other.enabled, _this.enabled) || other.enabled == _this.enabled)&&(identical(other.extension, _this.extension) || other.extension == _this.extension)&&(identical(other.host, _this.host) || other.host == _this.host)&&(identical(other.port, _this.port) || other.port == _this.port)&&(identical(other.pin, _this.pin) || other.pin == _this.pin)&&(identical(other.token, _this.token) || other.token == _this.token)&&(identical(other.privateKey, _this.privateKey) || other.privateKey == _this.privateKey)&&(identical(other.publicKey, _this.publicKey) || other.publicKey == _this.publicKey)&&(identical(other.ip, _this.ip) || other.ip == _this.ip)&&(identical(other.ipv6, _this.ipv6) || other.ipv6 == _this.ipv6)&&(identical(other.dns, _this.dns) || other.dns == _this.dns)&&(identical(other.interfaceName, _this.interfaceName) || other.interfaceName == _this.interfaceName)&&(identical(other.profileId, _this.profileId) || other.profileId == _this.profileId)&&const DeepCollectionEquality().equals(other.fallbacks, _this.fallbacks));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as NetworkTunnelSettings;
-  return Object.hash(runtimeType,_this.enabled,_this.extension,_this.host,_this.port,_this.pin,_this.token,_this.privateKey,_this.publicKey,_this.ip,_this.ipv6,_this.dns,_this.interfaceName,_this.profileId);
+  return Object.hash(runtimeType,_this.enabled,_this.extension,_this.host,_this.port,_this.pin,_this.token,_this.privateKey,_this.publicKey,_this.ip,_this.ipv6,_this.dns,_this.interfaceName,_this.profileId,const DeepCollectionEquality().hash(_this.fallbacks));
 }
 
 
@@ -2212,7 +2482,7 @@ abstract mixin class $NetworkTunnelSettingsCopyWith<$Res>  {
   factory $NetworkTunnelSettingsCopyWith(NetworkTunnelSettings value, $Res Function(NetworkTunnelSettings) _then) = _$NetworkTunnelSettingsCopyWithImpl;
 @useResult
 $Res call({
- bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId
+ bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId, List<NetworkTunnelDirectory> fallbacks
 });
 
 
@@ -2229,7 +2499,7 @@ class _$NetworkTunnelSettingsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkTunnelSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,Object? fallbacks = null,}) {
   return _then(NetworkTunnelSettings(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,extension: null == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
@@ -2244,7 +2514,8 @@ as String,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non
 as String,dns: null == dns ? _self.dns : dns // ignore: cast_nullable_to_non_nullable
 as String,interfaceName: null == interfaceName ? _self.interfaceName : interfaceName // ignore: cast_nullable_to_non_nullable
 as String,profileId: freezed == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,fallbacks: null == fallbacks ? _self.fallbacks : fallbacks // ignore: cast_nullable_to_non_nullable
+as List<NetworkTunnelDirectory>,
   ));
 }
 
@@ -2329,10 +2600,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId,  List<NetworkTunnelDirectory> fallbacks)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NetworkTunnelSettings() when $default != null:
-return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId,_that.fallbacks);case _:
   return orElse();
 
 }
@@ -2350,10 +2621,10 @@ return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId,  List<NetworkTunnelDirectory> fallbacks)  $default,) {final _that = this;
 switch (_that) {
 case _NetworkTunnelSettings():
-return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId,_that.fallbacks);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -2370,10 +2641,10 @@ return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool enabled,  bool extension,  String host,  int port,  String pin,  String token,  String privateKey,  String publicKey,  String ip,  String ipv6,  String dns, @JsonKey(name: 'interface')  String interfaceName,  int? profileId,  List<NetworkTunnelDirectory> fallbacks)?  $default,) {final _that = this;
 switch (_that) {
 case _NetworkTunnelSettings() when $default != null:
-return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId);case _:
+return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_that.token,_that.privateKey,_that.publicKey,_that.ip,_that.ipv6,_that.dns,_that.interfaceName,_that.profileId,_that.fallbacks);case _:
   return null;
 
 }
@@ -2382,10 +2653,10 @@ return $default(_that.enabled,_that.extension,_that.host,_that.port,_that.pin,_t
 }
 
 /// @nodoc
-@JsonSerializable()
 
+@JsonSerializable(explicitToJson: true)
 class _NetworkTunnelSettings extends NetworkTunnelSettings {
-  const _NetworkTunnelSettings({this.enabled = true, this.extension = true, this.host = '', this.port = 27034, this.pin = '', this.token = '', this.privateKey = '', this.publicKey = '', this.ip = '', this.ipv6 = '', this.dns = '', @JsonKey(name: 'interface') this.interfaceName = '', this.profileId}): super._();
+  const _NetworkTunnelSettings({this.enabled = true, this.extension = true, this.host = '', this.port = 27034, this.pin = '', this.token = '', this.privateKey = '', this.publicKey = '', this.ip = '', this.ipv6 = '', this.dns = '', @JsonKey(name: 'interface') this.interfaceName = '', this.profileId,  List<NetworkTunnelDirectory> fallbacks = const <NetworkTunnelDirectory>[]}): _fallbacks = fallbacks,super._();
   factory _NetworkTunnelSettings.fromJson(Map<String, dynamic> json) => _$NetworkTunnelSettingsFromJson(json);
 
 @override@JsonKey() final  bool enabled;
@@ -2401,6 +2672,13 @@ class _NetworkTunnelSettings extends NetworkTunnelSettings {
 @override@JsonKey() final  String dns;
 @override@JsonKey(name: 'interface') final  String interfaceName;
 @override final  int? profileId;
+ final  List<NetworkTunnelDirectory> _fallbacks;
+@override@JsonKey() List<NetworkTunnelDirectory> get fallbacks {
+  if (_fallbacks is EqualUnmodifiableListView) return _fallbacks;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_fallbacks);
+}
+
 
 /// Create a copy of NetworkTunnelSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -2415,13 +2693,13 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkTunnelSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.extension, extension) || other.extension == extension)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&(identical(other.pin, pin) || other.pin == pin)&&(identical(other.token, token) || other.token == token)&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey)&&(identical(other.ip, ip) || other.ip == ip)&&(identical(other.ipv6, ipv6) || other.ipv6 == ipv6)&&(identical(other.dns, dns) || other.dns == dns)&&(identical(other.interfaceName, interfaceName) || other.interfaceName == interfaceName)&&(identical(other.profileId, profileId) || other.profileId == profileId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _NetworkTunnelSettings&&(identical(other.enabled, enabled) || other.enabled == enabled)&&(identical(other.extension, extension) || other.extension == extension)&&(identical(other.host, host) || other.host == host)&&(identical(other.port, port) || other.port == port)&&(identical(other.pin, pin) || other.pin == pin)&&(identical(other.token, token) || other.token == token)&&(identical(other.privateKey, privateKey) || other.privateKey == privateKey)&&(identical(other.publicKey, publicKey) || other.publicKey == publicKey)&&(identical(other.ip, ip) || other.ip == ip)&&(identical(other.ipv6, ipv6) || other.ipv6 == ipv6)&&(identical(other.dns, dns) || other.dns == dns)&&(identical(other.interfaceName, interfaceName) || other.interfaceName == interfaceName)&&(identical(other.profileId, profileId) || other.profileId == profileId)&&const DeepCollectionEquality().equals(other.fallbacks, _fallbacks));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,enabled,extension,host,port,pin,token,privateKey,publicKey,ip,ipv6,dns,interfaceName,profileId);
+    return Object.hash(runtimeType,enabled,extension,host,port,pin,token,privateKey,publicKey,ip,ipv6,dns,interfaceName,profileId,const DeepCollectionEquality().hash(_fallbacks));
 }
 
 
@@ -2433,7 +2711,7 @@ abstract mixin class _$NetworkTunnelSettingsCopyWith<$Res> implements $NetworkTu
   factory _$NetworkTunnelSettingsCopyWith(_NetworkTunnelSettings value, $Res Function(_NetworkTunnelSettings) _then) = __$NetworkTunnelSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId
+ bool enabled, bool extension, String host, int port, String pin, String token, String privateKey, String publicKey, String ip, String ipv6, String dns,@JsonKey(name: 'interface') String interfaceName, int? profileId, List<NetworkTunnelDirectory> fallbacks
 });
 
 
@@ -2450,7 +2728,7 @@ class __$NetworkTunnelSettingsCopyWithImpl<$Res>
 
 /// Create a copy of NetworkTunnelSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? enabled = null,Object? extension = null,Object? host = null,Object? port = null,Object? pin = null,Object? token = null,Object? privateKey = null,Object? publicKey = null,Object? ip = null,Object? ipv6 = null,Object? dns = null,Object? interfaceName = null,Object? profileId = freezed,Object? fallbacks = null,}) {
   return _then(_NetworkTunnelSettings(
 enabled: null == enabled ? _self.enabled : enabled // ignore: cast_nullable_to_non_nullable
 as bool,extension: null == extension ? _self.extension : extension // ignore: cast_nullable_to_non_nullable
@@ -2465,7 +2743,8 @@ as String,ipv6: null == ipv6 ? _self.ipv6 : ipv6 // ignore: cast_nullable_to_non
 as String,dns: null == dns ? _self.dns : dns // ignore: cast_nullable_to_non_nullable
 as String,interfaceName: null == interfaceName ? _self.interfaceName : interfaceName // ignore: cast_nullable_to_non_nullable
 as String,profileId: freezed == profileId ? _self.profileId : profileId // ignore: cast_nullable_to_non_nullable
-as int?,
+as int?,fallbacks: null == fallbacks ? _self._fallbacks : fallbacks // ignore: cast_nullable_to_non_nullable
+as List<NetworkTunnelDirectory>,
   ));
 }
 

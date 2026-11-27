@@ -5,7 +5,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Map<String, dynamic> validConfig() => {
-  'host': '179.253.249.97',
+  'host': '192.0.2.10',
   'pin': 'a' * 64,
   'token': 't' * 48,
   'privateKey': base64Encode(List.filled(32, 1)),
@@ -13,6 +13,11 @@ Map<String, dynamic> validConfig() => {
   'ip': '10.203.77.2',
   'ipv6': 'fd42:203:77::2',
   'dns': '10.203.77.1',
+};
+
+Map<String, Object> fallbackConfig() => {
+  'host': '198.51.100.20',
+  'pin': 'b' * 64,
 };
 
 void main() {
@@ -35,10 +40,79 @@ void main() {
     expect(settings.appliesTo(42), isTrue);
     expect(settings.appliesTo(999), isFalse);
     expect(settings.enabled && settings.extension, isTrue);
+    expect(settings.port, 27034);
+    expect(settings.fallbacks, isEmpty);
     expect(settings.toString(), isNot(contains(settings.privateKey)));
     expect(settings.toString(), isNot(contains(settings.token)));
     final disabled = settings.copyWith(enabled: false, extension: false);
     expect(NetworkTunnelSettings.fromJson(disabled.toJson()), disabled);
+  });
+
+  test('fallbacks keep their order and defaults through JSON round-trip', () {
+    final override = {
+      ...fallbackConfig(),
+      'host': '203.0.113.20',
+      'port': 27035,
+      'token': 'f' * 40,
+    };
+    final settings = parseNetworkTunnelImport(
+      jsonEncode({
+        ...validConfig(),
+        'fallbacks': [fallbackConfig(), override],
+      }),
+      42,
+    );
+    final first = settings.fallbacks.first;
+    expect(first.host, '198.51.100.20');
+    expect(first.port, 27034);
+    expect(first.token, isEmpty);
+    expect(settings.fallbacks.last.toJson(), override);
+    expect(
+      settings.fallbacks.last.toString(),
+      isNot(contains(override['token'])),
+    );
+    expect(settings.toJson()['fallbacks'], [first.toJson(), override]);
+    expect(NetworkTunnelSettings.fromJson(settings.toJson()), settings);
+    expect(
+      NetworkTunnelSettings.fromJson(
+        jsonDecode(jsonEncode(settings)) as Map<String, dynamic>,
+      ),
+      settings,
+    );
+  });
+
+  test('reject invalid fallbacks with FormatException', () {
+    for (final fallbacks in [
+      'invalid',
+      [null],
+      List.filled(5, fallbackConfig()),
+      for (final change in [
+        {'host': '192.168.1.1'},
+        {'host': '198.051.100.20'},
+        {'host': 1},
+        {'port': 0},
+        {'port': 65536},
+        {'port': 27034.0},
+        {'port': '27034'},
+        {'pin': 'x' * 64},
+        {'pin': '${'b' * 64}\n'},
+        {'token': 'é' * 39},
+        {'token': 't' * 513},
+        {'token': '${'t' * 40}\r'},
+        {'token': false},
+      ])
+        [
+          {...fallbackConfig(), ...change},
+        ],
+    ]) {
+      expect(
+        () => parseNetworkTunnelImport(
+          jsonEncode({...validConfig(), 'fallbacks': fallbacks}),
+          1,
+        ),
+        throwsFormatException,
+      );
+    }
   });
 
   test('reject malformed imports without exposing their contents', () {

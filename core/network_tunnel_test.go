@@ -16,6 +16,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -26,7 +27,67 @@ import (
 
 func testTunnelConfig() NetworkTunnelConfig {
 	key := base64.StdEncoding.EncodeToString(make([]byte, 32))
-	return NetworkTunnelConfig{Enabled: true, Extension: true, Host: "179.253.249.97", Port: 27034, Pin: strings.Repeat("a", 64), Token: strings.Repeat("t", 48), PrivateKey: key, PublicKey: key, IP: "10.203.77.2", IPv6: "fd42:203:77::2", DNS: "10.203.77.1"}
+	return NetworkTunnelConfig{Enabled: true, Extension: true, Host: "192.0.2.10", Port: 27034, Pin: strings.Repeat("a", 64), Token: strings.Repeat("t", 48), PrivateKey: key, PublicKey: key, IP: "10.203.77.2", IPv6: "fd42:203:77::2", DNS: "10.203.77.1"}
+}
+
+func TestNetworkTunnelLegacyConfig(t *testing.T) {
+	c := testTunnelConfig()
+	data, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var decoded NetworkTunnelConfig
+	if err := json.Unmarshal(data, &decoded); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), `"fallbacks"`) || !reflect.DeepEqual(decoded, c) {
+		t.Fatal("legacy config did not round-trip")
+	}
+	if err := decoded.validate(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNetworkTunnelFallbackValidation(t *testing.T) {
+	c := testTunnelConfig()
+	var directory NetworkTunnelDirectory
+	data := `{"host":"198.51.100.20","pin":"` + c.Pin + `"}`
+	if err := json.Unmarshal([]byte(data), &directory); err != nil {
+		t.Fatal(err)
+	}
+	if directory.Port != 27034 || directory.Token != "" {
+		t.Fatal("wrong fallback defaults")
+	}
+	c.Fallbacks = []NetworkTunnelDirectory{directory, directory, directory, directory}
+	if err := c.validate(); err != nil {
+		t.Fatal(err)
+	}
+	c.Fallbacks = append(c.Fallbacks, directory)
+	if c.validate() == nil {
+		t.Fatal("accepted five fallbacks")
+	}
+	for _, item := range []struct {
+		name   string
+		modify func(*NetworkTunnelDirectory)
+	}{
+		{"private host", func(d *NetworkTunnelDirectory) { d.Host = "192.168.1.1" }},
+		{"noncanonical IPv4", func(d *NetworkTunnelDirectory) { d.Host = "198.051.100.20" }},
+		{"zero port", func(d *NetworkTunnelDirectory) { d.Port = 0 }},
+		{"port out of range", func(d *NetworkTunnelDirectory) { d.Port = 65536 }},
+		{"bad pin", func(d *NetworkTunnelDirectory) { d.Pin = strings.Repeat("x", 64) }},
+		{"short token", func(d *NetworkTunnelDirectory) { d.Token = strings.Repeat("é", 39) }},
+		{"long token", func(d *NetworkTunnelDirectory) { d.Token = strings.Repeat("t", 513) }},
+		{"line break", func(d *NetworkTunnelDirectory) { d.Token = c.Token + "\r" }},
+	} {
+		t.Run(item.name, func(t *testing.T) {
+			invalid := directory
+			item.modify(&invalid)
+			c.Fallbacks = []NetworkTunnelDirectory{invalid}
+			if c.validate() == nil {
+				t.Fatal("accepted invalid fallback")
+			}
+		})
+	}
 }
 
 func TestTunnelValidation(t *testing.T) {
@@ -280,7 +341,7 @@ func TestTunnelLoadPersistsCompleteConfig(t *testing.T) {
 }
 
 func TestTunnelDirectoryPinsAndRejectsStaleOrPrivateEndpoints(t *testing.T) {
-	endpoint := tunnelEndpoint{IP: "119.39.89.123", Port: 15140, HandshakeAge: 1, ServerTime: time.Now().Unix()}
+	endpoint := tunnelEndpoint{IP: "203.0.113.30", Port: 15140, HandshakeAge: 1, ServerTime: time.Now().Unix()}
 	token := strings.Repeat("t", 48)
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Authorization") != "Bearer "+token || r.URL.Path != "/v1/endpoint" {
@@ -295,7 +356,7 @@ func TestTunnelDirectoryPinsAndRejectsStaleOrPrivateEndpoints(t *testing.T) {
 	c := NetworkTunnelConfig{Host: host, Port: number, Pin: hex.EncodeToString(digest[:]), Token: token}
 	dial := (&net.Dialer{}).DialContext
 	result, err := queryTunnelDirectory(context.Background(), c, dial)
-	if err != nil || result.String() != "119.39.89.123:15140" {
+	if err != nil || result.String() != "203.0.113.30:15140" {
 		t.Fatalf("query: %v %v", result, err)
 	}
 	c.Pin = strings.Repeat("0", 64)
@@ -311,6 +372,98 @@ func TestTunnelDirectoryPinsAndRejectsStaleOrPrivateEndpoints(t *testing.T) {
 	endpoint.IP = "192.168.6.1"
 	if _, err = queryTunnelDirectory(context.Background(), c, dial); err == nil {
 		t.Fatal("accepted private home endpoint")
+	}
+}
+
+func TestNetworkTunnelDirectoryFailover(t *testing.T) {
+	const primaryAddress = "192.0.2.10:27034"
+	const fallbackAddress = "198.51.100.20:27035"
+	for _, name := range []string{"primary succeeds", "HTTP 503", "wrong pin", "connection failure", "stale", "timeout", "all fail"} {
+		t.Run(name, func(t *testing.T) {
+			c := testTunnelConfig()
+			serveEndpoint := func(w http.ResponseWriter, r *http.Request, token string, age int64) {
+				if r.Header.Get("Authorization") != "Bearer "+token || r.URL.Path != "/v1/endpoint" {
+					t.Error("wrong directory request")
+				}
+				_ = json.NewEncoder(w).Encode(tunnelEndpoint{IP: "203.0.113.30", Port: 15140, HandshakeAge: age, ServerTime: time.Now().Unix()})
+			}
+			primary := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				switch name {
+				case "HTTP 503", "all fail":
+					w.WriteHeader(http.StatusServiceUnavailable)
+				case "stale":
+					serveEndpoint(w, r, c.Token, 201)
+				case "timeout":
+					<-r.Context().Done()
+				default:
+					serveEndpoint(w, r, c.Token, 1)
+				}
+			}))
+			defer primary.Close()
+			primaryPin := sha256.Sum256(primary.Certificate().Raw)
+			c.Pin = hex.EncodeToString(primaryPin[:])
+			if name == "wrong pin" {
+				c.Pin = strings.Repeat("0", 64)
+			}
+			fallbackToken := ""
+			if name == "wrong pin" {
+				fallbackToken = strings.Repeat("f", 40)
+			}
+			fallback := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if name == "all fail" {
+					w.WriteHeader(http.StatusBadGateway)
+					return
+				}
+				token := fallbackToken
+				if token == "" {
+					token = c.Token
+				}
+				serveEndpoint(w, r, token, 1)
+			}))
+			defer fallback.Close()
+			fallbackPin := sha256.Sum256(fallback.Certificate().Raw)
+			directory := NetworkTunnelDirectory{Host: "198.51.100.20", Port: 27035, Pin: hex.EncodeToString(fallbackPin[:]), Token: fallbackToken}
+			c.Fallbacks = []NetworkTunnelDirectory{directory}
+			if name != "all fail" {
+				c.Fallbacks = append(c.Fallbacks, directory)
+			}
+
+			dialer := &net.Dialer{}
+			var attempts atomic.Int32
+			dial := func(ctx context.Context, network, address string) (net.Conn, error) {
+
+				attempt := attempts.Add(1)
+				switch {
+				case attempt == 1 && address == primaryAddress:
+					if name == "connection failure" {
+						return nil, errors.New("connection refused")
+					}
+					return dialer.DialContext(ctx, network, primary.Listener.Addr().String())
+				case attempt == 2 && address == fallbackAddress:
+					return dialer.DialContext(ctx, network, fallback.Listener.Addr().String())
+				default:
+					t.Errorf("unexpected directory attempt %d to %s", attempt, address)
+					return nil, errors.New("unexpected directory")
+				}
+			}
+			ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
+			defer cancel()
+			result, err := queryTunnelDirectory(ctx, c, dial)
+			if name == "all fail" {
+				if err == nil || !strings.Contains(err.Error(), "directory 1: directory HTTP 503") || !strings.Contains(err.Error(), "directory 2: directory HTTP 502") {
+					t.Fatalf("expected errors from both directories, got %v", err)
+				}
+			} else if err != nil || result.String() != "203.0.113.30:15140" {
+				t.Fatalf("unexpected query result: %v, %v", result, err)
+			}
+			wantAttempts := int32(2)
+			if name == "primary succeeds" {
+				wantAttempts = 1
+			}
+			if got := attempts.Load(); got != wantAttempts {
+				t.Fatalf("queried %d directories, want %d", got, wantAttempts)
+			}
+		})
 	}
 }
 

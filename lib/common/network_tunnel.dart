@@ -9,7 +9,16 @@ NetworkTunnelSettings parseNetworkTunnelImport(String text, int profileId) {
   if (data is! Map<String, dynamic>) {
     throw const FormatException('Invalid tunnel config');
   }
-  final value = NetworkTunnelSettings.fromJson(data);
+  final fallbacks = data['fallbacks'];
+  if (fallbacks is List && fallbacks.length > 4) {
+    throw const FormatException('Invalid tunnel config');
+  }
+  final NetworkTunnelSettings value;
+  try {
+    value = NetworkTunnelSettings.fromJson(data);
+  } on TypeError {
+    throw const FormatException('Invalid tunnel config');
+  }
   bool address(String text, InternetAddressType type) {
     final ip = InternetAddress.tryParse(text);
     if (ip == null || ip.type != type || ip.isLoopback || ip.isLinkLocal) {
@@ -44,13 +53,25 @@ NetworkTunnelSettings parseNetworkTunnelImport(String text, int profileId) {
     }
   }
 
-  if (!publicHost(value.host) ||
-      value.port < 1 ||
-      value.port > 65535 ||
-      !RegExp(r'^[a-fA-F0-9]{64}$').hasMatch(value.pin) ||
-      value.token.length < 40 ||
-      value.token.length > 512 ||
-      value.token.contains(RegExp(r'[\r\n]')) ||
+  final pinPattern = RegExp(r'^[a-fA-F0-9]{64}$');
+  final lineBreak = RegExp(r'[\r\n]');
+  bool directory(String host, int port, String pin) =>
+      publicHost(host) &&
+      port >= 1 &&
+      port <= 65535 &&
+      pinPattern.hasMatch(pin);
+
+  bool token(String text, int length) =>
+      length >= 40 && length <= 512 && !text.contains(lineBreak);
+
+  if (!directory(value.host, value.port, value.pin) ||
+      !token(value.token, value.token.length) ||
+      value.fallbacks.any(
+        (fallback) =>
+            !directory(fallback.host, fallback.port, fallback.pin) ||
+            (fallback.token.isNotEmpty &&
+                !token(fallback.token, fallback.token.runes.length)),
+      ) ||
       !key(value.privateKey) ||
       !key(value.publicKey) ||
       !address(value.ip, InternetAddressType.IPv4) ||

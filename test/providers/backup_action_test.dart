@@ -433,7 +433,7 @@ void main() {
         final localTunnel = NetworkTunnelSettings(
           enabled: true,
           extension: true,
-          host: '179.253.249.97',
+          host: '192.0.2.10',
           port: 27034,
           pin: 'a' * 64,
           token: 't' * 48,
@@ -442,6 +442,13 @@ void main() {
           ip: '10.203.77.2',
           dns: '10.203.77.1',
           profileId: 1,
+          fallbacks: [
+            NetworkTunnelDirectory(
+              host: '198.51.100.20',
+              pin: 'b' * 64,
+              token: 'f' * 48,
+            ),
+          ],
         );
         final tempDir = Directory.systemTemp.createTempSync('flclash-tunnel-');
         addTearDown(() => tempDir.deleteSync(recursive: true));
@@ -465,6 +472,7 @@ void main() {
         expect(backupTunnel.configured, isFalse);
         expect(backupTunnel.privateKey, isEmpty);
         expect(backupTunnel.token, isEmpty);
+        expect(backupTunnel.fallbacks, isEmpty);
 
         final target = buildContainer();
         target

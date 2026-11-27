@@ -17,10 +17,12 @@ import (
 	"net/netip"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/metacubex/mihomo/adapter/outboundgroup"
 	"github.com/metacubex/mihomo/component/dialer"
@@ -32,31 +34,72 @@ import (
 const networkTunnelName = "__HOME_ROUTER_WG__"
 const networkTunnelPort = 51832
 
+type NetworkTunnelDirectory struct {
+	Host  string `json:"host"`
+	Port  int    `json:"port"`
+	Pin   string `json:"pin"`
+	Token string `json:"token"`
+}
+
+func (d *NetworkTunnelDirectory) UnmarshalJSON(data []byte) error {
+	type directory NetworkTunnelDirectory
+	value := directory{Port: 27034}
+	if err := json.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	*d = NetworkTunnelDirectory(value)
+	return nil
+}
+
 type NetworkTunnelConfig struct {
-	Enabled    bool   `json:"enabled"`
-	Extension  bool   `json:"extension"`
-	Host       string `json:"host"`
-	Port       int    `json:"port"`
-	Pin        string `json:"pin"`
-	Token      string `json:"token"`
-	PrivateKey string `json:"privateKey"`
-	PublicKey  string `json:"publicKey"`
-	IP         string `json:"ip"`
-	IPv6       string `json:"ipv6"`
-	DNS        string `json:"dns"`
-	Interface  string `json:"interface"`
+	Enabled    bool                     `json:"enabled"`
+	Extension  bool                     `json:"extension"`
+	Host       string                   `json:"host"`
+	Port       int                      `json:"port"`
+	Pin        string                   `json:"pin"`
+	Token      string                   `json:"token"`
+	PrivateKey string                   `json:"privateKey"`
+	PublicKey  string                   `json:"publicKey"`
+	IP         string                   `json:"ip"`
+	IPv6       string                   `json:"ipv6"`
+	DNS        string                   `json:"dns"`
+	Interface  string                   `json:"interface"`
+	Fallbacks  []NetworkTunnelDirectory `json:"fallbacks,omitempty"`
 }
 
 func (c *NetworkTunnelConfig) configured() bool { return c != nil && c.Host != "" }
 
-func (c *NetworkTunnelConfig) validate() error {
-	ip, err := netip.ParseAddr(c.Host)
-	if err != nil || !publicTunnelIPv4(ip) || c.Port < 1 || c.Port > 65535 {
+func (c NetworkTunnelConfig) primaryDirectory() NetworkTunnelDirectory {
+	return NetworkTunnelDirectory{Host: c.Host, Port: c.Port, Pin: c.Pin, Token: c.Token}
+}
+
+func (d NetworkTunnelDirectory) validate(tokenLength int) error {
+	ip, err := netip.ParseAddr(d.Host)
+	if err != nil || !publicTunnelIPv4(ip) || d.Port < 1 || d.Port > 65535 {
 		return errors.New("network tunnel: invalid directory IPv4 or port")
 	}
-	pin, err := hex.DecodeString(c.Pin)
-	if err != nil || len(pin) != sha256.Size || len(c.Token) < 40 || len(c.Token) > 512 || strings.ContainsAny(c.Token, "\r\n") {
+	pin, err := hex.DecodeString(d.Pin)
+	if err != nil || len(pin) != sha256.Size || tokenLength < 40 || tokenLength > 512 || strings.ContainsAny(d.Token, "\r\n") {
 		return errors.New("network tunnel: invalid directory credentials")
+	}
+	return nil
+}
+
+func (c *NetworkTunnelConfig) validate() error {
+	if err := c.primaryDirectory().validate(len(c.Token)); err != nil {
+		return err
+	}
+	if len(c.Fallbacks) > 4 {
+		return errors.New("network tunnel: at most 4 fallback directories are allowed")
+	}
+	for i, directory := range c.Fallbacks {
+		tokenLength := len(c.Token)
+		if directory.Token != "" {
+			tokenLength = utf8.RuneCountInString(directory.Token)
+		}
+		if err := directory.validate(tokenLength); err != nil {
+			return fmt.Errorf("fallback directory %d: %w", i+1, err)
+		}
 	}
 	for _, key := range []string{c.PrivateKey, c.PublicKey} {
 		decoded, err := base64.StdEncoding.DecodeString(key)
@@ -64,7 +107,7 @@ func (c *NetworkTunnelConfig) validate() error {
 			return errors.New("network tunnel: invalid WireGuard key")
 		}
 	}
-	ip, err = netip.ParseAddr(c.IP)
+	ip, err := netip.ParseAddr(c.IP)
 	dns, dnsErr := netip.ParseAddr(c.DNS)
 	if err != nil || !ip.Is4() || !ip.IsGlobalUnicast() || dnsErr != nil || !dns.Is4() || !dns.IsGlobalUnicast() {
 		return errors.New("network tunnel: invalid tunnel IPv4 or DNS")
@@ -132,6 +175,7 @@ func configureNetworkTunnel(c *NetworkTunnelConfig) error {
 			return err
 		}
 		copy := *c
+		copy.Fallbacks = append([]NetworkTunnelDirectory(nil), c.Fallbacks...)
 		c = &copy
 	} else {
 		c = nil
@@ -148,7 +192,7 @@ func reconcileNetworkTunnelLocked() error {
 	if c != nil && c.Enabled && isRunning.Load() && s != nil {
 		previous, next := s.cfg, *c
 		previous.Extension = next.Extension
-		if previous == next {
+		if reflect.DeepEqual(previous, next) {
 			return nil
 		}
 	}
@@ -345,6 +389,25 @@ func (s *networkTunnelSession) query() (netip.AddrPort, error) {
 }
 
 func queryTunnelDirectory(ctx context.Context, c NetworkTunnelConfig, physicalDial func(context.Context, string, string) (net.Conn, error)) (netip.AddrPort, error) {
+	directories := append([]NetworkTunnelDirectory{c.primaryDirectory()}, c.Fallbacks...)
+	var failures []error
+	for i, directory := range directories {
+		if err := ctx.Err(); err != nil {
+			return netip.AddrPort{}, err
+		}
+		if directory.Token == "" {
+			directory.Token = c.Token
+		}
+		endpoint, err := querySingleTunnelDirectory(ctx, directory, physicalDial)
+		if err == nil {
+			return endpoint, nil
+		}
+		failures = append(failures, fmt.Errorf("directory %d: %w", i+1, err))
+	}
+	return netip.AddrPort{}, fmt.Errorf("network tunnel directory lookup failed: %w", errors.Join(failures...))
+}
+
+func querySingleTunnelDirectory(ctx context.Context, c NetworkTunnelDirectory, physicalDial func(context.Context, string, string) (net.Conn, error)) (netip.AddrPort, error) {
 	pin, _ := hex.DecodeString(c.Pin)
 	transport := &http.Transport{
 		Proxy: nil, MaxResponseHeaderBytes: 8192,
@@ -362,7 +425,7 @@ func queryTunnelDirectory(ctx context.Context, c NetworkTunnelConfig, physicalDi
 		}},
 	}
 	defer transport.CloseIdleConnections()
-	client := &http.Client{Transport: transport, Timeout: 8 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("directory redirect refused") }}
+	client := &http.Client{Transport: transport, Timeout: 4 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return errors.New("directory redirect refused") }}
 	request, err := http.NewRequestWithContext(ctx, "GET", "https://"+net.JoinHostPort(c.Host, fmt.Sprint(c.Port))+"/v1/endpoint", nil)
 	if err != nil {
 		return netip.AddrPort{}, err

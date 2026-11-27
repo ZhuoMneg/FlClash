@@ -425,9 +425,26 @@ abstract class NetworkProps with _$NetworkProps {
 }
 
 @Freezed(toStringOverride: false)
+abstract class NetworkTunnelDirectory with _$NetworkTunnelDirectory {
+  const factory NetworkTunnelDirectory({
+    required String host,
+    @Default(27034) int port,
+    required String pin,
+    @Default('') String token,
+  }) = _NetworkTunnelDirectory;
+
+  factory NetworkTunnelDirectory.fromJson(Map<String, dynamic> json) =>
+      switch (json['port']) {
+        null || int() => _$NetworkTunnelDirectoryFromJson(json),
+        _ => throw const FormatException('Invalid tunnel directory port'),
+      };
+}
+
+@Freezed(toStringOverride: false)
 abstract class NetworkTunnelSettings with _$NetworkTunnelSettings {
   const NetworkTunnelSettings._();
 
+  @JsonSerializable(explicitToJson: true)
   const factory NetworkTunnelSettings({
     @Default(true) bool enabled,
     @Default(true) bool extension,
@@ -442,6 +459,7 @@ abstract class NetworkTunnelSettings with _$NetworkTunnelSettings {
     @Default('') String dns,
     @Default('') @JsonKey(name: 'interface') String interfaceName,
     int? profileId,
+    @Default(<NetworkTunnelDirectory>[]) List<NetworkTunnelDirectory> fallbacks,
   }) = _NetworkTunnelSettings;
 
   bool get configured =>

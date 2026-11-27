@@ -299,6 +299,24 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'networkTunnel': instance.networkTunnel,
     };
 
+_NetworkTunnelDirectory _$NetworkTunnelDirectoryFromJson(
+  Map<String, dynamic> json,
+) => _NetworkTunnelDirectory(
+  host: json['host'] as String,
+  port: (json['port'] as num?)?.toInt() ?? 27034,
+  pin: json['pin'] as String,
+  token: json['token'] as String? ?? '',
+);
+
+Map<String, dynamic> _$NetworkTunnelDirectoryToJson(
+  _NetworkTunnelDirectory instance,
+) => <String, dynamic>{
+  'host': instance.host,
+  'port': instance.port,
+  'pin': instance.pin,
+  'token': instance.token,
+};
+
 _NetworkTunnelSettings _$NetworkTunnelSettingsFromJson(
   Map<String, dynamic> json,
 ) => _NetworkTunnelSettings(
@@ -315,6 +333,13 @@ _NetworkTunnelSettings _$NetworkTunnelSettingsFromJson(
   dns: json['dns'] as String? ?? '',
   interfaceName: json['interface'] as String? ?? '',
   profileId: (json['profileId'] as num?)?.toInt(),
+  fallbacks:
+      (json['fallbacks'] as List<dynamic>?)
+          ?.map(
+            (e) => NetworkTunnelDirectory.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const <NetworkTunnelDirectory>[],
 );
 
 Map<String, dynamic> _$NetworkTunnelSettingsToJson(
@@ -333,6 +358,7 @@ Map<String, dynamic> _$NetworkTunnelSettingsToJson(
   'dns': instance.dns,
   'interface': instance.interfaceName,
   'profileId': instance.profileId,
+  'fallbacks': instance.fallbacks.map((e) => e.toJson()).toList(),
 };
 
 _ProxiesStyleProps _$ProxiesStylePropsFromJson(Map<String, dynamic> json) =>

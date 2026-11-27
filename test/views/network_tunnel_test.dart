@@ -68,13 +68,17 @@ void main() {
   testWidgets(
     'independent switches, one-click disable and refresh failure are safe',
     (tester) async {
+      const fallbacks = [
+        NetworkTunnelDirectory(host: '198.51.100.20', pin: 'test-pin'),
+      ];
       final container = await pumpPage(
         tester,
         const NetworkTunnelSettings(
-          host: '179.253.249.97',
+          host: '192.0.2.10',
           token: 'test-token',
           privateKey: 'test-key',
           profileId: 1,
+          fallbacks: fallbacks,
         ),
       );
       await tester.tap(find.text('Refresh endpoint'));
@@ -95,6 +99,7 @@ void main() {
       await tester.pumpAndSettle();
       settings = container.read(networkSettingProvider).networkTunnel;
       expect(settings.enabled || settings.extension, isFalse);
+      expect(settings.fallbacks, fallbacks);
       await tester.pumpWidget(const SizedBox());
     },
   );
