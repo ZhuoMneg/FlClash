@@ -160,6 +160,9 @@ void main() {
     tester,
   ) async {
     final container = _containerFor(tester);
+    container
+        .read(proxiesStyleSettingProvider.notifier)
+        .update((state) => state.copyWith(type: ProxiesType.list));
 
     await tester.pumpWidget(
       UncontrolledProviderScope(
