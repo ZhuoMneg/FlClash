@@ -16,9 +16,9 @@ final _appThemes = <Brightness, ({Object inputs, ThemeData theme})>{};
 
 ThemeData watchAppTheme(WidgetRef ref, Brightness brightness) {
   final locale = ref.watch(appSettingProvider.select((state) => state.locale));
-  final fontFamily = ref.watch(
-    themeSettingProvider.select((state) => state.fontFamily),
-  );
+  final fontFamily =
+      ref.watch(themeSettingProvider.select((state) => state.fontFamily)) ??
+      FontFamily.inter.value;
   final colorScheme = ref.watch(genColorSchemeProvider(brightness));
   final locales = [
     ?getLocaleForString(locale),

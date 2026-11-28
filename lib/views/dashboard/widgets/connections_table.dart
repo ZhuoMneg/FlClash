@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/controller.dart';
@@ -334,7 +335,9 @@ class _ConnectionsTableCardState extends ConsumerState<ConnectionsTableCard>
         children: [
           Container(
             height: headerHeight,
-            padding: EdgeInsets.symmetric(horizontal: tabInset - cellStart),
+            padding: EdgeInsets.symmetric(
+              horizontal: math.max(0, tabInset - cellStart),
+            ),
             child: LayoutBuilder(
               builder: (context, constraints) => DashboardCappedRow(
                 share: 0.45,

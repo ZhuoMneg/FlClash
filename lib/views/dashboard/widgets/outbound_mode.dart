@@ -85,89 +85,69 @@ class OutboundModeCard extends ConsumerWidget {
   }
 }
 
-/// The desktop control row's mode switch; its buttons sit as far in from the
-/// card's ends as from its edges so their corners stay concentric.
 class OutboundModeBar extends ConsumerWidget {
   const OutboundModeBar({super.key});
 
-  static const _inset = 8.0;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final density = DashboardDensityScope.of(context);
     final mode = ref.watch(
       patchClashConfigProvider.select((state) => state.mode),
     );
-    final appLocalizations = context.appLocalizations;
-    final outer = dashboardCardRadius(density) - _inset;
-    final style = AppTextStyle.subheadline.of(context, emphasized: true);
+    final l = context.appLocalizations;
+    final tone = DashboardColors.of(context).tone2;
     return DashboardCard(
-      semanticLabel: appLocalizations.outboundMode,
-      padding: EdgeInsetsDirectional.fromSTEB(
-        dashboardCardPadding(density).left,
-        _inset,
-        _inset,
-        _inset,
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Row(
-          spacing: 16,
-          children: [
-            GlyphIcon(
-              AppGlyphs.split,
-              size: 18,
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: constraints.maxWidth / 4),
-              child: Text(
-                appLocalizations.outbound,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: DashboardText.cardTitle(context),
-              ),
-            ),
-            Expanded(
+      semanticLabel: l.outboundMode,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          Text(l.outboundMode, style: DashboardText.rowTitle(context)),
+          DecoratedBox(
+            decoration: ShapeDecoration(color: tone, shape: AppShape.all(18)),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
               child: ConnectedButtonGroup(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (final (index, item) in Mode.values.indexed)
+                  for (final item in Mode.values)
                     Expanded(
                       child: ConnectedButton(
                         selected: item == mode,
-                        first: index == 0,
-                        last: index == Mode.values.length - 1,
-                        outer: outer,
-                        inner: 10,
-                        background: DashboardColors.of(context).tone,
+                        first: true,
+                        last: true,
+                        outer: 14,
+                        inner: 14,
+                        background: tone,
                         semanticLabel: item.label,
                         onTap: () => _changeMode(ref, item),
-                        builder: (foreground) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 6,
-                          children: [
-                            GlyphIcon(
-                              _glyphOf(item),
-                              size: 18,
-                              color: foreground,
-                            ),
-                            Flexible(
-                              child: Text(
-                                item.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: style.copyWith(color: foreground),
-                              ),
-                            ),
-                          ],
+                        builder: (foreground) => Container(
+                          constraints: BoxConstraints(
+                            minHeight:
+                                38 * DashboardDensityScope.scaleOf(context),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyle.subheadline
+                                .of(context, emphasized: true)
+                                .copyWith(color: foreground),
+                          ),
                         ),
                       ),
                     ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Text(switch (mode) {
+            Mode.rule => l.dashboardRuleModeDescription,
+            Mode.global => l.dashboardGlobalModeDescription,
+            Mode.direct => l.dashboardDirectModeDescription,
+          }, style: DashboardText.label(context)),
+        ],
       ),
     );
   }

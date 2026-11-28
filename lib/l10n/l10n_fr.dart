@@ -4343,6 +4343,39 @@ class AppLocalizationsFr extends AppLocalizations {
   String get networkTunnel => 'Tunnel réseau';
 
   @override
+  String get tunnelPrimaryDirectory => 'Annuaire principal';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return 'Annuaire de secours $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => 'Stratégie de basculement';
+
+  @override
+  String get tunnelFailoverInOrder =>
+      'Essayer l’annuaire principal, puis les secours dans l’ordre';
+
+  @override
+  String get tunnelNoFallback => 'Aucun annuaire de secours';
+
+  @override
+  String get tunnelLastReply => 'Dernière réponse';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      'Appliquer les règles de routage. En l’absence de règle, utiliser le groupe de stratégies principal.';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      'Acheminer toutes les requêtes via le nœud sélectionné dans le groupe GLOBAL.';
+
+  @override
+  String get dashboardDirectModeDescription =>
+      'Connecter toutes les requêtes directement à leur destination.';
+
+  @override
   String get tunnelExtension => 'Script d’extension';
 
   @override

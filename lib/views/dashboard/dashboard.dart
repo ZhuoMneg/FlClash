@@ -16,7 +16,7 @@ import 'style.dart';
 import 'widget_registry.dart';
 import 'widgets/widgets.dart';
 
-const _maxColumnWidth = 440.0;
+const _overviewWidth = 940.0;
 
 class DashboardView extends ConsumerStatefulWidget {
   const DashboardView({super.key, this.platform});
@@ -106,8 +106,8 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
             child: layout.isDesktop
                 ? _DesktopDashboard(
                     platform: platform,
-                    columns: dashboardColumnsOf(room.width),
                     gap: gap,
+                    narrow: room.width < 540,
                   )
                 : _MobileDashboard(
                     controller: _controller,
@@ -127,12 +127,13 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
 class _DesktopDashboard extends StatelessWidget {
   const _DesktopDashboard({
     required this.platform,
-    required this.columns,
     required this.gap,
+    required this.narrow,
   });
 
+  final bool narrow;
+
   final SupportPlatform platform;
-  final int columns;
   final double gap;
 
   @override
@@ -146,91 +147,60 @@ class _DesktopDashboard extends StatelessWidget {
       24,
       24 + MediaQuery.paddingOf(context).bottom,
     );
-    final topHeight = (compact ? 176 : 208) * scale;
-    final controlHeight = (compact ? 56 : 64) * scale;
-    final pairHeight = controlHeight * 2 + gap;
-    final showTunnel = platform == SupportPlatform.Windows;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final room =
-            constraints.maxWidth - base.horizontal - gap * (columns - 1);
-        final column = math.min(room / columns, _maxColumnWidth * scale);
-        final inset = (room - column * columns) / 2;
-        final padding = base.copyWith(
-          start: base.start + inset,
-          end: base.end + inset,
-        );
-        double span(int columns) => column * columns + gap * (columns - 1);
-        Widget row(List<(int, Widget)> cards) => Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: gap,
-          children: [
-            for (final (columns, card) in cards)
-              SizedBox(
-                width: span(columns),
-                child: RepaintBoundary(child: card),
-              ),
-          ],
-        );
-        Widget sized(double height, Widget child) =>
-            SizedBox(height: height, child: child);
-        final switches =
-            DashboardWidget.networkTakeover.platforms.contains(platform)
-            ? Column(
-                spacing: gap,
-                children: const [
-                  Expanded(
-                    child: NetworkTakeoverTile(TakeoverSwitch.systemProxy),
-                  ),
-                  Expanded(child: NetworkTakeoverTile(TakeoverSwitch.tun)),
-                ],
-              )
-            : const VpnTile();
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: padding,
+    final controlHeight = (compact ? 68.0 : 74.0) * scale;
+    final controls =
+        DashboardWidget.networkTakeover.platforms.contains(platform)
+        ? const Column(
+            spacing: 12,
+            children: [
+              Expanded(child: NetworkTakeoverTile(TakeoverSwitch.systemProxy)),
+              Expanded(child: NetworkTakeoverTile(TakeoverSwitch.tun)),
+            ],
+          )
+        : const VpnTile();
+    return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: base,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _overviewWidth),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: gap,
             children: [
-              if (columns == 2) ...[
-                sized(
-                  topHeight,
-                  const RepaintBoundary(child: CurrentOutboundCard()),
+              SizedBox(
+                height: 166 * scale,
+                child: const _OnScreen(
+                  child: RepaintBoundary(child: CurrentOutboundCard.overview()),
                 ),
-                sized(
-                  pairHeight,
-                  row([(1, const TrafficOverviewCard()), (1, switches)]),
+              ),
+              if (narrow) ...[
+                SizedBox(
+                  height: controlHeight * 2 + 12,
+                  child: const TrafficOverviewCard(),
                 ),
-                sized(
-                  controlHeight,
-                  const RepaintBoundary(child: OutboundModeBar()),
-                ),
-                if (showTunnel)
-                  sized(
-                    controlHeight,
-                    const RepaintBoundary(child: NetworkTunnelTile()),
+                SizedBox(height: controlHeight * 2 + 12, child: controls),
+              ] else
+                SizedBox(
+                  height: controlHeight * 2 + 12,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: gap,
+                    children: [
+                      const Expanded(
+                        child: RepaintBoundary(child: TrafficOverviewCard()),
+                      ),
+                      Expanded(child: controls),
+                    ],
                   ),
-              ] else ...[
-                sized(
-                  topHeight,
-                  row([
-                    (2, const CurrentOutboundCard()),
-                    (1, const TrafficOverviewCard()),
-                    (1, switches),
-                  ]),
                 ),
-                sized(
-                  controlHeight,
-                  row([
-                    (2, const OutboundModeBar()),
-                    if (showTunnel) (2, const NetworkTunnelTile()),
-                  ]),
-                ),
-              ],
+              const RepaintBoundary(child: OutboundModeBar()),
+              if (platform == SupportPlatform.Windows)
+                SizedBox(height: 70 * scale, child: const NetworkTunnelTile()),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

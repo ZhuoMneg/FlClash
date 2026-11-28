@@ -160,7 +160,7 @@ void main() {
     expect(swellOf(Mode.rule), moreOrLessEquals(1));
   });
 
-  testWidgets('the desktop bar fills its height and switches the mode', (
+  testWidgets('the desktop mode card switches its explanation with the mode', (
     tester,
   ) async {
     await pump(
@@ -168,16 +168,24 @@ void main() {
       const DashboardDensityScope(
         density: DashboardDensity.standard,
         scale: 1,
-        child: SizedBox(height: 64, child: OutboundModeBar()),
+        child: OutboundModeBar(),
       ),
       width: 600,
     );
-    expect(tester.getSize(buttonOf(Mode.rule)).height, 64 - 8 * 2);
+    expect(tester.getSize(buttonOf(Mode.rule)).height, 38);
+    expect(
+      find.text(currentAppLocalizations.dashboardRuleModeDescription),
+      findsOneWidget,
+    );
 
     await tester.tap(buttonOf(Mode.global));
     await tester.pumpAndSettle();
 
     expect(container.read(patchClashConfigProvider).mode, Mode.global);
+    expect(
+      find.text(currentAppLocalizations.dashboardGlobalModeDescription),
+      findsOneWidget,
+    );
   });
 
   testWidgets('large text on a narrow phone still fits', (tester) async {

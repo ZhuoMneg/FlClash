@@ -3,6 +3,8 @@ import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
+import '../../helpers/glyph_finders.dart';
 import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/views/dashboard/widgets/card.dart';
 import 'package:fl_clash/views/dashboard/widgets/network_takeover.dart';
@@ -196,10 +198,11 @@ void main() {
     }
 
     await pumpTile(400);
-    expect(find.byType(ShapeBadge), findsOneWidget);
+    expect(find.byGlyph(AppGlyphs.shuffle), findsOneWidget);
 
     await pumpTile(160);
-    expect(find.byType(ShapeBadge), findsNothing);
+    expect(find.byGlyph(AppGlyphs.shuffle), findsNothing);
+    expect(find.byGlyph(AppGlyphs.vpn), findsNothing);
     expect(find.byType(DashboardSwitch), findsOneWidget);
     expect(
       tester.getTopLeft(find.text('System proxy')).dx,
@@ -208,6 +211,7 @@ void main() {
     expect(tester.takeException(), isNull);
 
     await pumpTile(200, TakeoverSwitch.tun);
-    expect(find.byType(ShapeBadge), findsNothing);
+    expect(find.byGlyph(AppGlyphs.shuffle), findsNothing);
+    expect(find.byGlyph(AppGlyphs.vpn), findsNothing);
   });
 }

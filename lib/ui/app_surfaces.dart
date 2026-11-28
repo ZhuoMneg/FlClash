@@ -10,9 +10,9 @@ ColorScheme appSurfaceColors(ColorScheme scheme) =>
         surfaceContainerLowest: Colors.white,
         surfaceContainerLow: Colors.white,
         surfaceContainer: Colors.white,
-        surfaceBright: const Color(0xFFFCFCFE),
-        surfaceContainerHigh: const Color(0xFFF3F5F9),
-        surfaceContainerHighest: const Color(0xFFE9EDF4),
+        surfaceBright: Colors.white,
+        surfaceContainerHigh: const Color(0xFFF3F8FF),
+        surfaceContainerHighest: const Color(0xFFE9F3FF),
       );
 
 extension AppSurfaces on ColorScheme {
@@ -21,5 +21,5 @@ extension AppSurfaces on ColorScheme {
 
   BorderSide get cardEdge => brightness == Brightness.dark
       ? BorderSide.none
-      : const BorderSide(color: Color(0xFFE6EAF1));
+      : const BorderSide(color: Color(0xFFDEEBFA));
 }

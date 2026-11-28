@@ -180,7 +180,7 @@ const proxiesListStoreKey = PageStorageKey<String>('proxies_list');
 const toolsStoreKey = PageStorageKey<String>('tools');
 const profilesStoreKey = PageStorageKey<String>('profiles');
 
-const defaultPrimaryColor = 0xFF007AFF;
+const defaultPrimaryColor = 0xFF006BEA;
 
 const maxLogsLength = 5000;
 const maxRequestsLength = 2000;
@@ -190,8 +190,7 @@ const pausedMaxDnsQueriesLength = maxDnsQueriesLength * 2;
 
 const trafficSampleLength = 30;
 
-// iOS 27's system colors but the deeper blue of earlier iOS, in the order of the
-// macOS accent colors.
+// Sky blue followed by iOS 27's system colors in macOS accent order.
 const defaultPrimaryColors = [
   defaultPrimaryColor,
   0xFFCB30E0,

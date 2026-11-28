@@ -4340,6 +4340,39 @@ class AppLocalizationsEs extends AppLocalizations {
   String get networkTunnel => 'Túnel de red';
 
   @override
+  String get tunnelPrimaryDirectory => 'Directorio principal';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return 'Directorio de respaldo $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => 'Política de conmutación';
+
+  @override
+  String get tunnelFailoverInOrder =>
+      'Probar el directorio principal y después los de respaldo en orden';
+
+  @override
+  String get tunnelNoFallback => 'No hay directorios de respaldo';
+
+  @override
+  String get tunnelLastReply => 'Última respuesta';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      'Aplicar las reglas de enrutamiento. Si no hay una regla específica, usar el grupo de políticas principal.';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      'Enviar todas las solicitudes por el nodo seleccionado en el grupo de políticas GLOBAL.';
+
+  @override
+  String get dashboardDirectModeDescription =>
+      'Conectar todas las solicitudes directamente con su destino.';
+
+  @override
   String get tunnelExtension => 'Script de extensión';
 
   @override

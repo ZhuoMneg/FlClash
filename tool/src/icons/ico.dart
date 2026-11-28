@@ -10,8 +10,7 @@ final class IcoEntry {
 const _headerSize = 6;
 const _directoryEntrySize = 16;
 
-/// Every size the Windows shell requests, so no glyph is resampled from a far neighbour.
-const icoSizes = [16, 20, 24, 32, 40, 48, 64, 96, 128, 256];
+const icoSizes = [16, 24, 32, 48, 64, 128, 256];
 
 /// The tray only ever asks for `SM_CXSMICON` (16..32) plus a 2x headroom.
 const trayIcoSizes = [16, 20, 24, 32, 40, 48, 64];

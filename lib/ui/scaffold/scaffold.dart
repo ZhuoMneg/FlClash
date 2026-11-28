@@ -774,7 +774,7 @@ class ScaffoldState extends State<Scaffold>
         form.pop == null &&
         isMobileView &&
         ModalRoute.of(context)?.impliesAppBarDismissal == true;
-    final compactTitle = isCompact || pushed;
+    final compactTitle = isCompact || pushed || !isMobileView;
     final titleEndInset = appBarActionInset(
       context,
       isCompactBar(context, isMobileView),

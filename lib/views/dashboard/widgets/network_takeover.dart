@@ -15,7 +15,6 @@ typedef _RowMetrics = ({
   double titleStart,
   double radius,
   double icon,
-  bool subtitle,
 });
 
 const _RowMetrics _cardRowMetrics = (
@@ -23,7 +22,6 @@ const _RowMetrics _cardRowMetrics = (
   titleStart: 14,
   radius: 20,
   icon: 38,
-  subtitle: true,
 );
 
 /// A tile's icon and switch sit as far in from its ends as from its edges, so
@@ -35,14 +33,12 @@ _RowMetrics _tileMetricsOf(DashboardDensity density) => density.isCompact
         titleStart: dashboardCardPadding(density).left,
         radius: dashboardCardRadius(density),
         icon: 36,
-        subtitle: false,
       )
     : (
         padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
         titleStart: dashboardCardPadding(density).left,
         radius: dashboardCardRadius(density),
         icon: 40,
-        subtitle: true,
       );
 
 enum TakeoverSwitch { systemProxy, tun }
@@ -70,12 +66,12 @@ class _TakeoverRow extends ConsumerWidget {
         : ref.watch(
             patchClashConfigProvider.select((state) => state.tun.enable),
           );
+    final desktop = DashboardDensityScope.of(context).isDesktop;
+    final port = systemProxy
+        ? ref.watch(patchClashConfigProvider.select((s) => s.mixedPort))
+        : null;
     final on = systemProxy
-        ? appLocalizations.portValue(
-            ref.watch(
-              patchClashConfigProvider.select((state) => state.mixedPort),
-            ),
-          )
+        ? appLocalizations.portValue(port!)
         : appLocalizations.enabled;
     void change(bool value) => systemProxy
         ? ref
@@ -87,11 +83,13 @@ class _TakeoverRow extends ConsumerWidget {
     return DashboardSwitchRow(
       glyph: systemProxy ? AppGlyphs.shuffle : AppGlyphs.vpn,
       title: title,
-      subtitle: metrics.subtitle
-          ? value
-                ? on
-                : appLocalizations.disabled
-          : null,
+      subtitle: desktop && systemProxy
+          ? '127.0.0.1:$port'
+          : desktop
+          ? appLocalizations.networkTakeover
+          : value
+          ? on
+          : appLocalizations.disabled,
       value: value,
       iconSize: metrics.icon,
       padding: showIcon
@@ -212,11 +210,9 @@ class VpnTile extends ConsumerWidget {
       child: DashboardSwitchRow(
         glyph: AppGlyphs.vpn,
         title: 'VPN',
-        subtitle: metrics.subtitle
-            ? enabled
-                  ? appLocalizations.enabled
-                  : appLocalizations.disabled
-            : null,
+        subtitle: enabled
+            ? appLocalizations.enabled
+            : appLocalizations.disabled,
         value: enabled,
         iconSize: metrics.icon,
         padding: metrics.padding,

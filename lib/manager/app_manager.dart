@@ -142,6 +142,8 @@ class AppEnvManager extends ConsumerWidget {
 }
 
 class _Sidebar extends ConsumerWidget {
+  static const _brandHeight = 48.0;
+
   const _Sidebar({
     required this.items,
     required this.currentIndex,
@@ -160,28 +162,81 @@ class _Sidebar extends ConsumerWidget {
     final sidebarExpanded = ref.watch(
       appSettingProvider.select((state) => state.sidebarExpanded),
     );
-    final version = ref.watch(versionProvider);
-    return NavigationSidebar(
-      destinations: [
-        for (final item in items)
-          SidebarDestination(glyph: item.glyph, label: item.label.label),
-      ],
-      selectedIndex: currentIndex,
-      expanded: canExpand && sidebarExpanded,
-      onSelected: onSelected,
-      onToggle: canExpand
-          ? () {
-              ref
-                  .read(appSettingProvider.notifier)
-                  .update(
-                    (state) =>
-                        state.copyWith(sidebarExpanded: !state.sidebarExpanded),
-                  );
-            }
-          : null,
-      windowControls: windowControlsOverSidebar(
-        isMacOS: system.isMacOS,
-        version: version,
+    final controls = windowControlsOverSidebar(
+      isMacOS: system.isMacOS,
+      version: ref.watch(versionProvider),
+    );
+    final fontSize = AppTextStyle.subheadline.size;
+    final rowHeight =
+        44 + MediaQuery.textScalerOf(context).scale(fontSize) - fontSize;
+    return SizedBox(
+      height:
+          _brandHeight +
+          controls.height +
+          MediaQuery.paddingOf(context).vertical +
+          16 +
+          rowHeight * (items.length + 1),
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: _brandHeight),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(boldText: true),
+              child: NavigationSidebar(
+                destinations: [
+                  for (final item in items)
+                    SidebarDestination(
+                      glyph: item.glyph,
+                      label: item.label.label,
+                    ),
+                ],
+                selectedIndex: currentIndex,
+                expanded: canExpand && sidebarExpanded,
+                onSelected: onSelected,
+                onToggle: canExpand
+                    ? () {
+                        ref
+                            .read(appSettingProvider.notifier)
+                            .update(
+                              (state) => state.copyWith(
+                                sidebarExpanded: !state.sidebarExpanded,
+                              ),
+                            );
+                      }
+                    : null,
+                windowControls: controls,
+              ),
+            ),
+          ),
+          PositionedDirectional(
+            top: controls.height,
+            start: 6,
+            end: 6,
+            height: _brandHeight,
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  Image.asset('assets/images/icon.png', width: 36, height: 36),
+                  if (constraints.maxWidth >= 128) ...[
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        appName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyle.title3.of(
+                          context,
+                          emphasized: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -263,6 +318,10 @@ class AppSidebarContainer extends ConsumerWidget {
                       ? chrome.withValues(alpha: backdropOpacity)
                       : chrome,
                   shape: dockShape,
+                  elevation: backdropOpacity == null ? 2 : 0,
+                  shadowColor: context.colorScheme.primary.withValues(
+                    alpha: 0.14,
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: MediaQuery.removePadding(
@@ -333,7 +392,7 @@ class _SidebarBackdropCutout extends SingleChildRenderObjectWidget {
 class _RenderSidebarBackdropCutout extends RenderAligningShiftedBox {
   _RenderSidebarBackdropCutout(this._configuration, TextDirection textDirection)
     : super(
-        alignment: AlignmentDirectional.topStart,
+        alignment: AlignmentDirectional.centerStart,
         textDirection: textDirection,
       );
 

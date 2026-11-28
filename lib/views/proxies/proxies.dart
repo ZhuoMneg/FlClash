@@ -26,7 +26,10 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
 
   // The same instance on every build, so the bar changing with the current
   // group or its delay test leaves the page alone.
-  late final _tabView = ProxiesTabView(key: _proxiesTabKey);
+  late final _tabView = ProxiesTabView(
+    key: _proxiesTabKey,
+    workspace: !widget.picker,
+  );
   bool _isTab = false;
 
   void _updateStyle(
@@ -173,11 +176,61 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
       ],
       menuItems: picker ? const [] : _buildMenuItems(context, style),
       title: context.appLocalizations.proxies,
+      titleWidget: _isTab && !picker && !ViewScope.isMobileOf(context)
+          ? const _ProxyWorkspaceTitle()
+          : null,
       searchState: AppBarSearchState(onSearch: _onSearch),
       body: switch (style.type) {
         ProxiesType.tab => _tabView,
         ProxiesType.list => const ProxiesListView(),
       },
+    );
+  }
+}
+
+class _ProxyWorkspaceTitle extends ConsumerWidget {
+  const _ProxyWorkspaceTitle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final group = ref.watch(
+      proxiesTabControllerStateProvider.select(
+        (v) => v.groupNames.contains(v.currentGroupName)
+            ? v.currentGroupName
+            : null,
+      ),
+    );
+    if (group == null) return Text(context.appLocalizations.proxies);
+    final selected = ref.watch(realSelectedProxyStateProvider(group)).proxyName;
+    return Row(
+      spacing: 10,
+      children: [
+        GlyphIcon(
+          AppGlyphs.proxies,
+          color: context.colorScheme.primary,
+          size: 22,
+        ),
+        Flexible(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${context.appLocalizations.proxyGroup} · $group',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.caption1.of(context),
+              ),
+              EmojiText(
+                selected,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.headline.of(context),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

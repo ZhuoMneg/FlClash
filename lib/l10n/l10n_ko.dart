@@ -4166,6 +4166,37 @@ class AppLocalizationsKo extends AppLocalizations {
   String get networkTunnel => '네트워크 터널';
 
   @override
+  String get tunnelPrimaryDirectory => '기본 디렉터리';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return '예비 디렉터리 $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => '장애 조치 정책';
+
+  @override
+  String get tunnelFailoverInOrder => '기본 디렉터리부터 시도하고 실패하면 예비 디렉터리를 차례로 시도';
+
+  @override
+  String get tunnelNoFallback => '예비 디렉터리가 없습니다';
+
+  @override
+  String get tunnelLastReply => '마지막 응답';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      '라우팅 규칙에 따라 요청을 처리하며, 별도 지정이 없으면 기본 정책 그룹을 사용합니다.';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      '모든 요청에 GLOBAL 정책 그룹에서 선택한 노드를 사용합니다.';
+
+  @override
+  String get dashboardDirectModeDescription => '모든 요청을 대상에 직접 연결합니다.';
+
+  @override
   String get tunnelExtension => '확장 스크립트';
 
   @override

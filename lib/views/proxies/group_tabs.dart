@@ -2,11 +2,12 @@ import 'dart:math';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/models/common.dart';
+import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/widgets.dart';
-import 'package:prism_ui/prism_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _stripInset = 16.0;
 const _tabSpacing = 8.0;
@@ -16,10 +17,16 @@ const _tabPadding = 16.0;
 /// built: each chip's width comes from its label, so the strip can scroll to
 /// one it has not built.
 class GroupTabs extends StatefulWidget {
-  const GroupTabs({super.key, required this.controller, required this.groups});
+  const GroupTabs({
+    super.key,
+    required this.controller,
+    required this.groups,
+    this.spacious = false,
+  });
 
   final TabController controller;
   final List<Group> groups;
+  final bool spacious;
 
   @override
   State<GroupTabs> createState() => _GroupTabsState();
@@ -181,6 +188,7 @@ class _GroupTabsState extends State<GroupTabs> {
           ),
           child: _GroupTab(
             name: groups[index].name,
+            count: widget.spacious ? groups[index].all.length : null,
             index: index,
             selected: _selected,
             onPressed: () => _select(index),
@@ -194,9 +202,16 @@ class _GroupTabsState extends State<GroupTabs> {
 
   @override
   Widget build(BuildContext context) {
-    final extents = _extents = _TabExtents.of(context, widget.groups, _extents);
+    final extents = _extents = _TabExtents.of(
+      context,
+      widget.groups,
+      _extents,
+      widget.spacious,
+    );
     return SizedBox(
-      height: TonalButtonSize.section.button,
+      height: widget.spacious
+          ? max(56, MediaQuery.textScalerOf(context).scale(40) + 12)
+          : TonalButtonSize.section.button,
       child: ValueListenableBuilder(
         valueListenable: _hasMore,
         builder: (_, hasMore, moreButton) {
@@ -261,6 +276,7 @@ class _TabExtents {
     BuildContext context,
     List<Group> groups,
     _TabExtents? previous,
+    bool spacious,
   ) {
     final style = AppTextStyle.subheadline.of(context, emphasized: true);
     final minWidth = Card.minimumOf(context).minWidth;
@@ -270,6 +286,7 @@ class _TabExtents {
     ).horizontal;
     final names = [for (final group in groups) group.name];
     final key = (
+      spacious,
       _NamesKey(names),
       style,
       MediaQuery.boldTextOf(context),
@@ -285,12 +302,13 @@ class _TabExtents {
     return _TabExtents._(key, [
       for (final name in names)
         max(
-          minWidth,
+          spacious ? 156.0 : minWidth,
           min(
                 EmojiText.widthOf(context, name, style),
                 PopupMenu.labelMaxWidth,
               ).ceilToDouble() +
-              padding,
+              padding +
+              (spacious ? 28 : 0),
         ),
     ]);
   }
@@ -336,10 +354,12 @@ class _GroupTab extends StatefulWidget {
     required this.name,
     required this.index,
     required this.selected,
+    required this.count,
     required this.onPressed,
   });
 
   final String name;
+  final int? count;
   final int index;
   final ValueListenable<int> selected;
   final VoidCallback onPressed;
@@ -385,6 +405,56 @@ class _GroupTabState extends State<_GroupTab> {
   Widget build(BuildContext context) {
     final selected = _isSelected;
     final colorScheme = context.colorScheme;
+    if (widget.count case final int count) {
+      return PressSurface(
+        shape: AppShape.md,
+        side: selected
+            ? BorderSide(color: colorScheme.primary)
+            : colorScheme.cardEdge,
+        fill: selected
+            ? Color.alphaBlend(
+                colorScheme.primary.withValues(alpha: .09),
+                colorScheme.surface,
+              )
+            : context.raisedSurfaceLevel.colorOf(colorScheme),
+        selected: selected,
+        padding: const EdgeInsets.symmetric(horizontal: _tabPadding),
+        onPressed: widget.onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 6,
+              children: [
+                Expanded(
+                  child: EmojiText(
+                    widget.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyle.subheadline.of(
+                      context,
+                      emphasized: true,
+                    ),
+                  ),
+                ),
+                Text('$count', style: AppTextStyle.caption1.of(context)),
+              ],
+            ),
+            Consumer(
+              builder: (context, ref, _) => EmojiText(
+                ref.watch(selectedProxyNameProvider(widget.name)) ?? '—',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyle.caption1
+                    .of(context)
+                    .copyWith(color: colorScheme.onSurfaceVariant),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Card(
       isSelected: selected,
       fillsSelection: true,

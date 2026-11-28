@@ -26,12 +26,12 @@ void main() {
         expect(scheme.surfaceContainerLowest, Colors.white);
         expect(scheme.surfaceContainerLow, Colors.white);
         expect(SurfaceLevel.page.colorOf(scheme), Colors.white);
-        expect(SurfaceLevel.card.colorOf(scheme), const Color(0xFFFCFCFE));
+        expect(SurfaceLevel.card.colorOf(scheme), Colors.white);
         expect(SurfaceLevel.block.colorOf(scheme), Colors.white);
-        expect(scheme.surfaceContainerHigh, const Color(0xFFF3F5F9));
-        expect(SurfaceLevel.inset.colorOf(scheme), const Color(0xFFE9EDF4));
+        expect(scheme.surfaceContainerHigh, const Color(0xFFF3F8FF));
+        expect(SurfaceLevel.inset.colorOf(scheme), const Color(0xFFE9F3FF));
         expect(scheme.appChromeSurface, Colors.white);
-        expect(scheme.cardEdge, const BorderSide(color: Color(0xFFE6EAF1)));
+        expect(scheme.cardEdge, const BorderSide(color: Color(0xFFDEEBFA)));
         expect(scheme.primary, original.primary);
         expect(scheme.onSurface, original.onSurface);
       }

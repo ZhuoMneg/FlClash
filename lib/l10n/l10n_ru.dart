@@ -4290,6 +4290,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get networkTunnel => 'Сетевой туннель';
 
   @override
+  String get tunnelPrimaryDirectory => 'Основной каталог';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return 'Резервный каталог $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => 'Политика переключения';
+
+  @override
+  String get tunnelFailoverInOrder =>
+      'Сначала основной каталог, затем резервные по порядку';
+
+  @override
+  String get tunnelNoFallback => 'Нет резервных каталогов';
+
+  @override
+  String get tunnelLastReply => 'Последний ответ';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      'Запросы направляются по правилам маршрутизации. По умолчанию используется основная группа политик.';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      'Все запросы идут через узел, выбранный в группе GLOBAL.';
+
+  @override
+  String get dashboardDirectModeDescription =>
+      'Все запросы идут напрямую к месту назначения.';
+
+  @override
   String get tunnelExtension => 'Скрипт расширения';
 
   @override

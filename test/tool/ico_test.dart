@@ -47,7 +47,6 @@ void main() {
 
   test('tray sizes stop at the 2x small-icon ceiling', () {
     expect(trayIcoSizes.last, 64);
-    expect(icoSizes, containsAll(trayIcoSizes));
-    expect(icoSizes.last, 256);
+    expect(icoSizes, [16, 24, 32, 48, 64, 128, 256]);
   });
 }

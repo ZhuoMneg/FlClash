@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/common/service_probe.dart';
@@ -33,7 +34,10 @@ const _decorationTurn = 2 * math.pi / 12;
 
 /// The address the proxied traffic leaves by, next to the start button.
 class CurrentOutboundCard extends ConsumerStatefulWidget {
-  const CurrentOutboundCard({super.key});
+  const CurrentOutboundCard({super.key}) : _overview = false;
+  const CurrentOutboundCard.overview({super.key}) : _overview = true;
+
+  final bool _overview;
 
   @override
   ConsumerState<CurrentOutboundCard> createState() =>
@@ -78,7 +82,7 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard> {
     final ipInfo = entry.value;
     final phase = entry.phase;
     final failed = phase == ProbePhase.failed && ipInfo == null;
-    final qualityState = ipInfo == null
+    final qualityState = widget._overview || ipInfo == null
         ? null
         : ref.watch(ipQualityProvider(ipInfo.ip));
     final quality = qualityState?.value;
@@ -110,116 +114,129 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard> {
               ),
         child: child!,
       ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: ClipPath(
-              clipper: ShapeBorderClipper(
-                shape: AppShape.all(dashboardCardRadius(density)),
-                textDirection: Directionality.of(context),
-              ),
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  PositionedDirectional(
-                    end: metrics.decorationEnd,
-                    top: metrics.decorationTop,
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(end: isStart ? 1 : 0),
-                      duration: context.motionDuration(_morphDuration),
-                      curve: Curves.easeOutBack,
-                      builder: (_, progress, _) => Transform.rotate(
-                        angle: _decorationTurn * progress,
-                        child: Transform.scale(
-                          scale: 1 + _decorationGrowth * progress,
-                          child: ShapeBadge(
-                            shape: MaterialShapes.cookie12Sided,
-                            color: Color.lerp(
-                              colorScheme.brightness == Brightness.light
-                                  ? Color.alphaBlend(
+      child: widget._overview
+          ? _OverviewHero(
+              running: isStart,
+              suspended: suspended,
+              enabled: hasProfile,
+              ip: ipInfo?.ip,
+              onRefresh: () => _refresh(ipInfo?.ip),
+              label: chipLabel,
+              tone: chipTone,
+            )
+          : Stack(
+              children: [
+                Positioned.fill(
+                  child: ClipPath(
+                    clipper: ShapeBorderClipper(
+                      shape: AppShape.all(dashboardCardRadius(density)),
+                      textDirection: Directionality.of(context),
+                    ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        PositionedDirectional(
+                          end: metrics.decorationEnd,
+                          top: metrics.decorationTop,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(end: isStart ? 1 : 0),
+                            duration: context.motionDuration(_morphDuration),
+                            curve: Curves.easeOutBack,
+                            builder: (_, progress, _) => Transform.rotate(
+                              angle: _decorationTurn * progress,
+                              child: Transform.scale(
+                                scale: 1 + _decorationGrowth * progress,
+                                child: ShapeBadge(
+                                  shape: MaterialShapes.cookie12Sided,
+                                  color: Color.lerp(
+                                    colorScheme.brightness == Brightness.light
+                                        ? Color.alphaBlend(
+                                            colorScheme.primary.withValues(
+                                              alpha: 0.08,
+                                            ),
+                                            colors.card,
+                                          )
+                                        : colors.tone,
+                                    Color.alphaBlend(
                                       colorScheme.primary.withValues(
-                                        alpha: 0.08,
+                                        alpha: 0.1,
                                       ),
                                       colors.card,
-                                    )
-                                  : colors.tone,
-                              Color.alphaBlend(
-                                colorScheme.primary.withValues(alpha: 0.1),
-                                colors.card,
+                                    ),
+                                    progress.clamp(0, 1),
+                                  )!,
+                                  size: metrics.decorationSize,
+                                ),
                               ),
-                              progress.clamp(0, 1),
-                            )!,
-                            size: metrics.decorationSize,
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: metrics.padding,
-            child: Row(
-              spacing: metrics.gap,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                Padding(
+                  padding: metrics.padding,
+                  child: Row(
+                    spacing: metrics.gap,
                     children: [
-                      DashboardCardHeader(
-                        glyph: AppGlyphs.status,
-                        title: appLocalizations.status,
-                        leading: [
-                          DashboardChip(
-                            label: chipLabel,
-                            tone: chipTone,
-                            dot: isStart,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DashboardCardHeader(
+                              glyph: AppGlyphs.status,
+                              title: appLocalizations.status,
+                              leading: [
+                                DashboardChip(
+                                  label: chipLabel,
+                                  tone: chipTone,
+                                  dot: isStart,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: metrics.ipTop),
+                            _ExitRow(
+                              info: ipInfo,
+                              failed: failed,
+                              loading: loading,
+                              checking:
+                                  phase == ProbePhase.probing || qualityLoading,
+                              onRefresh: () => _refresh(ipInfo?.ip),
+                              quality: quality,
+                              active: isStart,
+                              metrics: metrics,
+                              large: !density.isDesktop,
+                            ),
+                            if (density.isDesktop)
+                              const Spacer()
+                            else
+                              const SizedBox(height: 16),
+                            _Cells(
+                              quality: quality,
+                              loading: loading,
+                              active: isStart && !suspended,
+                              gap: metrics.cellGap,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: metrics.buttonSlot,
+                        child: Center(
+                          child: _StartToggle(
+                            size: metrics.buttonSize,
+                            enabled: hasProfile,
+                            running: isStart,
+                            suspended: suspended,
                           ),
-                        ],
-                      ),
-                      SizedBox(height: metrics.ipTop),
-                      _ExitRow(
-                        info: ipInfo,
-                        failed: failed,
-                        loading: loading,
-                        checking: phase == ProbePhase.probing || qualityLoading,
-                        onRefresh: () => _refresh(ipInfo?.ip),
-                        quality: quality,
-                        active: isStart,
-                        metrics: metrics,
-                        large: !density.isDesktop,
-                      ),
-                      if (density.isDesktop)
-                        const Spacer()
-                      else
-                        const SizedBox(height: 16),
-                      _Cells(
-                        quality: quality,
-                        loading: loading,
-                        active: isStart && !suspended,
-                        gap: metrics.cellGap,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: metrics.buttonSlot,
-                  child: Center(
-                    child: _StartToggle(
-                      size: metrics.buttonSize,
-                      enabled: hasProfile,
-                      running: isStart,
-                      suspended: suspended,
-                    ),
-                  ),
-                ),
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -954,4 +971,413 @@ class _MorphClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(_MorphClipper oldClipper) =>
       oldClipper.progress != progress;
+}
+
+class _OverviewHero extends ConsumerWidget {
+  const _OverviewHero({
+    required this.running,
+    required this.suspended,
+    required this.enabled,
+    required this.ip,
+    required this.onRefresh,
+    required this.label,
+    required this.tone,
+  });
+
+  final bool running, suspended, enabled;
+  final String? ip;
+  final VoidCallback onRefresh;
+  final String label;
+  final DashboardChipTone tone;
+
+  static const _power = Glyph([
+    GlyphArc(12, 13, 8, -math.pi / 3, 5 * math.pi / 3),
+    GlyphPolyline([GlyphVertex(12, 2), GlyphVertex(12, 12)]),
+  ]);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.appLocalizations;
+    final scheme = context.colorScheme;
+    final active = running && !suspended;
+    final mode = ref.watch(patchClashConfigProvider.select((s) => s.mode));
+    final group = !active || mode == Mode.direct
+        ? null
+        : mode == Mode.global
+        ? 'GLOBAL'
+        : ref.watch(
+            groupsProvider.select(
+              (groups) => groups
+                  .where((g) => g.hidden == false && g.name != 'GLOBAL')
+                  .firstOrNull
+                  ?.name,
+            ),
+          );
+    final name = group == null
+        ? null
+        : ref.watch(
+            realSelectedProxyStateProvider(group).select((s) => s.proxyName),
+          );
+    final latency = group == null
+        ? null
+        : ref.watch(delayProvider(proxyName: group));
+    final title = !running
+        ? l.coreStopped
+        : suspended
+        ? l.suspended
+        : mode == Mode.direct
+        ? l.direct
+        : name ?? l.unknown;
+    final detail = active && mode == Mode.direct
+        ? l.dashboardDirectModeDescription
+        : [
+            mode.label,
+            ?group,
+            if (latency != null && latency > 0) '$latency ms',
+          ].join(' · ');
+    final hideIp = ref.watch(appSettingProvider.select((s) => s.hideIp));
+    final action = running ? l.stop : l.start;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 550;
+        final edge = narrow ? 14.0 : 30.0;
+        final slot = narrow ? 112.0 : 152.0;
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: ClipPath(
+                clipper: ShapeBorderClipper(
+                  shape: AppShape.all(
+                    dashboardCardRadius(DashboardDensityScope.of(context)),
+                  ),
+                ),
+                child: _FiberField(active: active, inset: edge + slot / 2),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: edge),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DashboardCardHeader(
+                          title: l.outbound,
+                          leading: [
+                            DashboardChip(
+                              label: label,
+                              tone: tone,
+                              dot: active,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyle.title1.of(
+                            context,
+                            emphasized: true,
+                          ),
+                        ),
+                        Text(
+                          detail,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: DashboardText.label(context),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          spacing: narrow ? 8 : 26,
+                          children: [
+                            Flexible(
+                              child: _Cell(
+                                label: l.outboundIp,
+                                value: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Tooltip(
+                                        message: ip == null
+                                            ? l.retry
+                                            : l.details(l.outboundIp),
+                                        child: PressRegion(
+                                          onTap: !active
+                                              ? null
+                                              : ip == null
+                                              ? onRefresh
+                                              : () => showIpQualitySheet(
+                                                  context,
+                                                  ip: ip!,
+                                                ),
+                                          child: Text(
+                                            !active || ip == null
+                                                ? '—'
+                                                : hideIp
+                                                ? _ipMask
+                                                : ip!,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: _cellStyle(context),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    if (active && ip != null)
+                                      IconButton(
+                                        tooltip: hideIp ? l.show : l.hideIp,
+                                        icon: GlyphIcon(
+                                          hideIp
+                                              ? AppGlyphs.eyeOff
+                                              : AppGlyphs.eye,
+                                          size: 15,
+                                        ),
+                                        onPressed: () => ref
+                                            .read(appSettingProvider.notifier)
+                                            .update(
+                                              (s) =>
+                                                  s.copyWith(hideIp: !hideIp),
+                                            ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: _Cell(
+                                label: l.runTime,
+                                value: active
+                                    ? const _RunTimeValue()
+                                    : const _Placeholder(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: slot,
+                    child: Center(
+                      child: Tooltip(
+                        message: action,
+                        child: Semantics(
+                          button: true,
+                          toggled: running,
+                          enabled: enabled,
+                          label: action,
+                          child: FocusRing(
+                            shape: AppShape.circle,
+                            child: PressSurface(
+                              shape: AppShape.circle,
+                              fill: active
+                                  ? scheme.primary
+                                  : DashboardColors.of(context).tone,
+                              onPressed: enabled
+                                  ? () => ref
+                                        .read(commonActionProvider.notifier)
+                                        .toggleRunning()
+                                  : null,
+                              child: SizedBox.square(
+                                dimension: 78,
+                                child: Center(
+                                  child: GlyphIcon(
+                                    _power,
+                                    size: 32,
+                                    color: active
+                                        ? scheme.onPrimary
+                                        : scheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FiberField extends StatefulWidget {
+  const _FiberField({required this.active, required this.inset});
+  final bool active;
+  final double inset;
+  @override
+  State<_FiberField> createState() => _FiberFieldState();
+}
+
+class _FiberFieldState extends State<_FiberField>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _clock = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 3312),
+  );
+
+  void _sync() {
+    if (widget.active &&
+        !context.disableAnimations &&
+        TickerMode.valuesOf(context).enabled) {
+      if (!_clock.isAnimating) _clock.repeat();
+    } else {
+      _clock.stop();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_FiberField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _sync();
+  }
+
+  @override
+  void dispose() {
+    _clock.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+    child: AnimatedOpacity(
+      opacity: widget.active ? 1 : 0,
+      duration: context.motionDuration(const Duration(milliseconds: 550)),
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: _FiberPainter(
+            _clock,
+            widget.inset,
+            Directionality.of(context),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class _FiberPainter extends CustomPainter {
+  _FiberPainter(this.clock, this.inset, this.direction) : super(repaint: clock);
+  final Animation<double> clock;
+  final double inset;
+  final TextDirection direction;
+  static const _ink = Color(0xff39aaff);
+  static const _delays = [.3, 1.7, 3.1, .9, 2.4, 3.9, 1.3, 2.8, 4.2, .6];
+  static final _fibers = [
+    for (final p in const <List<double>>[
+      [210, 14, 380, 4, 560, 12, 710, 46, 794, 74],
+      [245, 38, 410, 18, 575, 44, 705, 64, 790, 80],
+      [265, 64, 430, 82, 585, 38, 718, 68, 795, 84],
+      [250, 92, 415, 112, 575, 72, 715, 86, 795, 90],
+      [275, 118, 435, 98, 590, 132, 722, 108, 796, 98],
+      [240, 144, 415, 162, 580, 126, 712, 116, 792, 104],
+      [205, 168, 395, 178, 585, 156, 720, 128, 796, 108],
+      [944, 14, 898, 12, 868, 28, 852, 54, 842, 78],
+      [944, 76, 904, 60, 882, 68, 864, 78, 846, 90],
+      [944, 160, 902, 174, 872, 150, 854, 124, 842, 102],
+    ])
+      Path()
+        ..moveTo(p[0], p[1])
+        ..cubicTo(p[2], p[3], p[4], p[5], p[6], p[7])
+        ..cubicTo(2 * p[6] - p[4], 2 * p[7] - p[5], p[8], p[9], 834, 90),
+  ];
+  static final _metrics = [
+    for (final path in _fibers) path.computeMetrics().first,
+  ];
+  static final _guide = ui.Gradient.linear(
+    const Offset(205, 0),
+    const Offset(450, 0),
+    [_ink.withValues(alpha: 0), _ink.withValues(alpha: .22)],
+  );
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final seconds = clock.value * 3312;
+    final center = Offset(size.width - inset, size.height / 2);
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.05
+      ..strokeCap = StrokeCap.round;
+    canvas.save();
+    if (direction == TextDirection.rtl) {
+      canvas.translate(size.width, 0);
+      canvas.scale(-1, 1);
+    }
+    for (var i = 0; i < _fibers.length; i++) {
+      canvas.save();
+      final scale = i < 7 ? center.dx / 834 : inset / 106;
+      canvas.translate(center.dx, center.dy);
+      canvas.scale(scale, size.height / 180);
+      canvas.translate(-834, -90);
+      canvas.drawPath(
+        _fibers[i],
+        line
+          ..color = _ink
+          ..shader = _guide,
+      );
+      line.shader = null;
+      final metric = _metrics[i];
+      for (var tail = 2; tail >= 0; tail--) {
+        final t = ((seconds + _delays[i] - tail * .125) / 4.6) % 1;
+        final end = (t * 1.133 - .078) * metric.length;
+        if (end <= 0 || end - .042 * metric.length >= metric.length) continue;
+        canvas.drawPath(
+          metric.extractPath(end - .042 * metric.length, end),
+          line
+            ..color = _ink.withValues(
+              alpha: (1 - tail * .36) * (i < 7 ? (t * 3).clamp(0, 1) : 1),
+            ),
+        );
+      }
+      canvas.restore();
+    }
+    for (final (radius, turn) in [
+      (52.0, seconds / 9),
+      (45.0, -seconds / 6 + .5),
+    ]) {
+      final arc = Rect.fromCircle(center: Offset.zero, radius: radius);
+      canvas.save();
+      canvas.translate(center.dx, center.dy);
+      canvas.rotate(turn * 2 * math.pi);
+      line
+        ..color = _ink
+        ..strokeWidth = 1.5
+        ..shader = _arcInk;
+      canvas.drawArc(arc, 0, 2.7, false, line);
+      canvas.restore();
+    }
+    final ripple = (seconds % 3.2 / 3.2 / .85).clamp(0.0, 1.0);
+    canvas.drawCircle(
+      center,
+      39 + 19 * Curves.easeOut.transform(ripple),
+      line
+        ..shader = null
+        ..strokeWidth = 1
+        ..color = _ink.withValues(alpha: (1 - ripple) * .5),
+    );
+    canvas.restore();
+  }
+
+  static final _arcInk = ui.Gradient.sweep(
+    Offset.zero,
+    [_ink.withValues(alpha: 0), _ink],
+    [0, .43],
+  );
+  @override
+  bool shouldRepaint(_FiberPainter old) =>
+      old.clock != clock || old.inset != inset || old.direction != direction;
 }

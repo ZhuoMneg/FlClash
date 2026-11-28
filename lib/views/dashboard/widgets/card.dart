@@ -387,13 +387,16 @@ class DashboardChip extends StatelessWidget {
               ),
               child: const SizedBox.square(dimension: 6),
             ),
-          Text(
-            label,
-            maxLines: 1,
-            style: AppTextStyle.caption1
-                .of(context, emphasized: true)
-                .toTabular
-                .copyWith(color: foreground),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.caption1
+                  .of(context, emphasized: true)
+                  .toTabular
+                  .copyWith(color: foreground),
+            ),
           ),
         ],
       ),
@@ -584,6 +587,7 @@ class DashboardSwitchRow extends StatelessWidget {
     this.color,
     this.onTap,
     this.showIcon = true,
+    this.status,
   });
 
   final Glyph glyph;
@@ -597,6 +601,7 @@ class DashboardSwitchRow extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
   final bool showIcon;
+  final DashboardChip? status;
 
   static const _gap = 12.0;
 
@@ -639,7 +644,21 @@ class DashboardSwitchRow extends StatelessWidget {
       child: Row(
         spacing: _gap,
         children: [
-          if (showIcon)
+          if (showIcon &&
+              (status != null || DashboardDensityScope.of(context).isDesktop))
+            DecoratedBox(
+              decoration: ShapeDecoration(
+                color: colors.okContainer,
+                shape: AppShape.all(16),
+              ),
+              child: SizedBox.square(
+                dimension: iconSize,
+                child: Center(
+                  child: GlyphIcon(glyph, size: glyphSize, color: colors.ok),
+                ),
+              ),
+            )
+          else if (showIcon)
             AnimatedSwitcher(
               duration: context.motionDuration(commonDuration),
               child: value
@@ -671,12 +690,30 @@ class DashboardSwitchRow extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: DashboardText.rowTitle(context),
-                ),
+                if (status case final badge?)
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: DashboardText.rowTitle(context),
+                        ),
+                      ),
+                      Flexible(
+                        child: Tooltip(message: badge.label, child: badge),
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: DashboardText.rowTitle(context),
+                  ),
                 if (subtitle case final subtitle?)
                   Text(
                     subtitle,
@@ -687,6 +724,12 @@ class DashboardSwitchRow extends StatelessWidget {
               ],
             ),
           ),
+          if (status != null)
+            GlyphIcon(
+              AppGlyphs.chevronForward,
+              size: 16,
+              color: colorScheme.onSurfaceVariant,
+            ),
           DashboardSwitch(
             value: value,
             onChanged: onChanged,

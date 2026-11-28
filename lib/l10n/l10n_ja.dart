@@ -4088,6 +4088,37 @@ class AppLocalizationsJa extends AppLocalizations {
   String get networkTunnel => 'ネットワークトンネル';
 
   @override
+  String get tunnelPrimaryDirectory => 'プライマリディレクトリ';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return '予備ディレクトリ $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => 'フェイルオーバーポリシー';
+
+  @override
+  String get tunnelFailoverInOrder => 'プライマリを優先し、失敗時は予備を順に試行';
+
+  @override
+  String get tunnelNoFallback => '予備ディレクトリがありません';
+
+  @override
+  String get tunnelLastReply => '最終応答';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      'ルーティングルールに従い、指定がなければメインポリシーグループを使用します。';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      'すべてのリクエストに GLOBAL ポリシーグループで選択中のノードを使用します。';
+
+  @override
+  String get dashboardDirectModeDescription => 'すべてのリクエストを宛先に直接接続します。';
+
+  @override
   String get tunnelExtension => '拡張スクリプト';
 
   @override

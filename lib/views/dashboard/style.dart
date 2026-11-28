@@ -23,6 +23,8 @@ class DashboardColors {
   factory DashboardColors.of(BuildContext context) {
     final colorScheme = context.colorScheme;
     final card = SurfaceLevel.card.colorOf(colorScheme);
+    final light = colorScheme.brightness == Brightness.light;
+    final sky = light ? const Color(0xff0062d6) : const Color(0xff93d2ff);
     return DashboardColors._(
       page: SurfaceLevel.page.colorOf(colorScheme),
       card: card,
@@ -34,9 +36,12 @@ class DashboardColors {
         colorScheme.primary.withValues(alpha: 0.45),
         card,
       ),
-      ok: colorScheme.success,
-      okContainer: colorScheme.successContainer,
-      onOkContainer: colorScheme.onSuccessContainer,
+      ok: sky,
+      okContainer: Color.alphaBlend(
+        const Color(0xff2a91ff).withValues(alpha: light ? .09 : .16),
+        card,
+      ),
+      onOkContainer: sky,
       warn: colorScheme.warning,
       warnContainer: colorScheme.warningContainer,
       onWarnContainer: colorScheme.onWarningContainer,
@@ -85,7 +90,14 @@ abstract final class DashboardShadows {
   static double _blur(double cssBlur) =>
       cssBlur <= 1 ? 0 : (cssBlur / 2 - 0.5) / 0.57735;
 
-  static final _e1Light = [_shadow(0x06, 3, 5), _shadow(0x0B, 9, 22)];
+  static final _e1Light = [
+    BoxShadow(
+      color: const Color(0x173a90f5),
+      offset: const Offset(0, 3),
+      blurRadius: _blur(14),
+      spreadRadius: -5,
+    ),
+  ];
 
   static final _e1Dark = [_shadow(0x80, 1, 2), _shadow(0x8C, 10, 28, -6)];
 
@@ -101,7 +113,7 @@ abstract final class DashboardShadows {
 /// Off the [AppCorner] scale: a dashboard card is taller than any other
 /// surface in the app and keeps a larger corner than a sheet.
 abstract final class DashboardCorner {
-  static const desktopCard = 32.0;
+  static const desktopCard = 24.0;
   static const mobileCard = 34.0;
   static const block = 20.0;
   static const mobileBlock = 22.0;

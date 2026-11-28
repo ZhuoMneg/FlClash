@@ -14,7 +14,9 @@ import 'common.dart';
 import 'group_tabs.dart';
 
 class ProxiesTabView extends ConsumerStatefulWidget {
-  const ProxiesTabView({super.key});
+  const ProxiesTabView({super.key, this.workspace = false});
+
+  final bool workspace;
 
   static Map<String, PageStorageKey> pageListStoreMap = {};
 
@@ -174,6 +176,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
         QueryTag.proxies,
       ).select((query) => SearchQuery(query).isNotEmpty),
     );
+    final spacious = widget.workspace && !ViewScope.isMobileOf(context);
     _pruneScrollControllers(groups);
     final controller = _tabController;
     return NullStatusSwitcher(
@@ -193,15 +196,26 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                       top: context.contentTopPadding - context.appBarInset,
                       bottom: 16,
                     ),
-                    child: GroupTabs(controller: controller, groups: groups),
+                    child: GroupTabs(
+                      controller: controller,
+                      groups: groups,
+                      spacious: spacious,
+                    ),
                   ),
                   Expanded(
                     child: WidthBuilder(
                       builder: (_, width) {
-                        final columns = getProxiesColumns(
-                          max(width - 32, 0),
-                          proxiesLayout,
-                        );
+                        final available = max(width - 32, 0.0);
+                        final columns = spacious && width >= 700
+                            ? switch (proxiesLayout) {
+                                ProxiesLayout.standard =>
+                                  ((available + 12) / 252).floor().clamp(3, 4),
+                                ProxiesLayout.tight =>
+                                  ((available + 8) / 200).floor().clamp(3, 6),
+                                ProxiesLayout.loose =>
+                                  ((available + 12) / 290).floor().clamp(2, 4),
+                              }
+                            : getProxiesColumns(available, proxiesLayout);
                         _columns = columns;
                         return TabBarView(
                           controller: controller,
@@ -212,6 +226,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
                                 controller: _scrollControllerOf(group.name),
                                 group: group,
                                 columns: columns,
+                                spacious: spacious,
                                 cardType: cardType,
                               ),
                           ],
@@ -230,6 +245,7 @@ class ProxyGroupView extends ConsumerWidget {
   final Group group;
   final ScrollController controller;
   final int columns;
+  final bool spacious;
   final ProxyCardType cardType;
 
   const ProxyGroupView({
@@ -237,6 +253,7 @@ class ProxyGroupView extends ConsumerWidget {
     required this.group,
     required this.controller,
     required this.columns,
+    this.spacious = false,
     required this.cardType,
   });
 
@@ -265,7 +282,7 @@ class ProxyGroupView extends ConsumerWidget {
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: columns,
             mainAxisSpacing: proxyGridSpacing,
-            crossAxisSpacing: 8,
+            crossAxisSpacing: spacious ? 12 : 8,
             mainAxisExtent: getItemHeight(cardType),
           ),
           itemCount: proxies.length,
@@ -275,13 +292,21 @@ class ProxyGroupView extends ConsumerWidget {
             final proxy = proxies[index];
             return MemoBuilder(
               key: ValueKey(proxy.name),
-              inputs: [proxy, group.name, group.type, group.testUrl, cardType],
+              inputs: [
+                proxy,
+                group.name,
+                group.type,
+                group.testUrl,
+                cardType,
+                spacious,
+              ],
               builder: (_) => ProxyCard(
                 testUrl: group.testUrl,
                 groupType: group.type,
                 type: cardType,
                 proxy: proxy,
                 groupName: group.name,
+                spacious: spacious,
               ),
             );
           },

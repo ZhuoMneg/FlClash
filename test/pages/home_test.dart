@@ -181,13 +181,13 @@ void main() {
       final sidebarRect = tester.getRect(sidebarSurfaceFinder);
       final containerRect = tester.getRect(find.byType(AppSidebarContainer));
       expect(sidebarRect.left - containerRect.left, 18);
-      expect(sidebarRect.top - containerRect.top, 14);
-      expect(sidebarRect.height, 610);
+      expect(sidebarRect.center.dy, containerRect.center.dy);
+      expect(sidebarRect.height, lessThan(610));
 
       tester.view.physicalSize = const Size(1200, 400);
       container.read(viewSizeProvider.notifier).value = const Size(1200, 400);
       await tester.pump();
-      expect(tester.getSize(sidebarSurfaceFinder).height, 372);
+      expect(tester.getSize(sidebarSurfaceFinder).height, sidebarRect.height);
       expect(tester.takeException(), isNull);
       tester.view.physicalSize = const Size(1200, 800);
       container.read(viewSizeProvider.notifier).value = const Size(1200, 800);
@@ -316,7 +316,7 @@ void main() {
             expect(shape.side, scheme.cardEdge);
             final outer = tester.getRect(shell);
             final dock = tester.getRect(surface).shift(-outer.topLeft);
-            expect(dock.top, 14);
+            expect(dock.center.dy, outer.height / 2);
             expect(dock.height, height);
             expect(
               direction == TextDirection.ltr
@@ -389,13 +389,14 @@ void main() {
             expect(tester.takeException(), isNull);
           }
 
-          expectBackdrop(width: 220, height: 610);
+          final dockHeight = tester.getSize(surface).height;
+          expectBackdrop(width: 220, height: dockHeight);
           await tester.tap(find.byTooltip('Collapse'));
           await tester.pumpAndSettle();
-          expectBackdrop(width: 48, height: 610);
+          expectBackdrop(width: 48, height: dockHeight);
           await tester.tap(find.byTooltip('Expand'));
           await tester.pumpAndSettle();
-          expectBackdrop(width: 220, height: 610);
+          expectBackdrop(width: 220, height: dockHeight);
 
           tester.view.physicalSize = const Size(1200, 400);
           container.read(viewSizeProvider.notifier).value = const Size(
@@ -403,8 +404,7 @@ void main() {
             400,
           );
           await tester.pumpAndSettle();
-          final availableHeight = tester.getSize(shell).height - 28;
-          expectBackdrop(width: 220, height: availableHeight);
+          expectBackdrop(width: 220, height: dockHeight);
 
           container.read(windowBlurProvider.notifier).value = null;
           await tester.pumpAndSettle();
@@ -416,7 +416,7 @@ void main() {
           expect(tester.takeException(), isNull);
           container.read(windowBlurProvider.notifier).value = 0.5;
           await tester.pumpAndSettle();
-          expectBackdrop(width: 220, height: availableHeight);
+          expectBackdrop(width: 220, height: dockHeight);
         },
       );
     }

@@ -81,6 +81,13 @@ void main() {
           fallbacks: fallbacks,
         ),
       );
+      expect(find.text('192.0.2.10:27034'), findsOneWidget);
+      expect(find.text('198.51.100.20:27034'), findsOneWidget);
+      expect(find.text('Backup directory 1'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Failover policy')).dy,
+        greaterThan(tester.getTopLeft(find.text('Backup directory 1')).dy),
+      );
       await tester.tap(find.text('Refresh endpoint'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

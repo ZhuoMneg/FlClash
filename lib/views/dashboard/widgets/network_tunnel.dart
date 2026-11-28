@@ -5,6 +5,7 @@ import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'card.dart';
@@ -111,15 +112,26 @@ class _NetworkTunnelTileState extends ConsumerState<NetworkTunnelTile>
         ? l.tunnelReceiving
         : l.tunnelWaiting;
     final endpoint = _status['home'] as String?;
-    final subtitle = settings.configured && settings.enabled
-        ? '$state · ${endpoint?.isNotEmpty == true ? endpoint : '${settings.host}:${settings.port}'}'
-        : state;
+    final peer = endpoint?.isNotEmpty == true
+        ? '${l.tunnelEndpoint} $endpoint'
+        : settings.configured
+        ? '${l.tunnelDirectory} ${settings.host}:${settings.port}'
+        : '${l.tunnelEndpoint} —';
+    final reply = lastReply > 0
+        ? DateFormat.Hms('en_US').format(
+            DateTime.fromMillisecondsSinceEpoch((lastReply * 1000).round()),
+          )
+        : '—';
     return DashboardCard(
       padding: EdgeInsets.zero,
       child: DashboardSwitchRow(
         glyph: AppGlyphs.networkTunnel,
         title: l.networkTunnel,
-        subtitle: subtitle,
+        status: DashboardChip(
+          label: state,
+          tone: receiving ? DashboardChipTone.ok : DashboardChipTone.idle,
+        ),
+        subtitle: '$peer · ${l.tunnelLastReply} $reply',
         value: settings.configured && settings.enabled,
         onChanged: _change,
         iconSize: compact ? 36 : 40,

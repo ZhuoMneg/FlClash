@@ -4038,7 +4038,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get httpConditionTip => '同一字段的条件满足其一即可，不同字段的都要满足。';
 
   @override
-  String get networkTunnel => '网络隧道';
+  String get networkTunnel => '隧道';
+
+  @override
+  String get tunnelPrimaryDirectory => '主目录';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return '备用目录 $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => '容灾策略';
+
+  @override
+  String get tunnelFailoverInOrder => '主目录优先，失败后按顺序尝试备用目录';
+
+  @override
+  String get tunnelNoFallback => '未配置备用目录';
+
+  @override
+  String get tunnelLastReply => '最近回包';
+
+  @override
+  String get dashboardRuleModeDescription => '按分流规则匹配请求，未单独指定时使用主策略组。';
+
+  @override
+  String get dashboardGlobalModeDescription => '所有请求使用 GLOBAL 策略组当前选择的节点。';
+
+  @override
+  String get dashboardDirectModeDescription => '所有请求直接连接目的地址。';
 
   @override
   String get tunnelExtension => '扩展脚本';

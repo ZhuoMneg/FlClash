@@ -24,14 +24,12 @@ void main() {
     expect(of(1220, 824), DashboardDensity.standard);
     expect(of(1220, 823), DashboardDensity.compact);
     expect(of(1220, 500), DashboardDensity.compact);
-    expect(of(1039, 900), DashboardDensity.compact);
-    expect(of(860, 900), DashboardDensity.compact);
+    expect(of(1039, 900), DashboardDensity.standard);
+    expect(of(860, 900), DashboardDensity.standard);
     expect(of(859, 900), DashboardDensity.standard);
     expect(of(640, 900), DashboardDensity.standard);
     expect(of(640, 823), DashboardDensity.compact);
     expect(of(639, 900), DashboardDensity.mobile);
-    expect(dashboardColumnsOf(860), 4);
-    expect(dashboardColumnsOf(859), 2);
   });
 
   late ProviderContainer container;
@@ -87,40 +85,44 @@ void main() {
       .position
       .maxScrollExtent;
 
-  testWidgets('the desktop keeps the fixed cards in two rows', (tester) async {
-    await pumpDashboard(tester, const Size(1220, 824));
-    final current = rectOf(tester, CurrentOutboundCard);
-    final traffic = rectOf(tester, TrafficOverviewCard);
-    final mode = rectOf(tester, OutboundModeBar);
-    final proxy = tester.getRect(find.byType(NetworkTakeoverTile).first);
-    final tun = tester.getRect(find.byType(NetworkTakeoverTile).last);
-    expect(current.height, 208);
-    expect(current.width, closeTo(traffic.width * 2 + 16, 0.01));
-    expect(traffic.left, closeTo(current.right + 16, 0.01));
-    expect(proxy.left, closeTo(traffic.right + 16, 0.01));
-    expect(proxy.top, current.top);
-    expect(tun.bottom, current.bottom);
-    expect(mode.top, current.bottom + 16);
-    expect(mode.height, 64);
-    expect(mode.width, closeTo(current.width, 0.01));
-    expect(find.byType(NetworkTunnelTile), findsNothing);
-    expect(find.byType(IntranetIpCard), findsNothing);
-    expect(find.byType(MemoryInfo), findsNothing);
-    expect(find.byType(SpeedCard), findsNothing);
-    expect(find.byType(ProfilesCard), findsNothing);
-    expect(find.byType(ServiceStatusCard), findsNothing);
-    expect(find.byType(ConnectionsTableCard), findsNothing);
-    expect(find.byType(ProxyGroupsCard), findsNothing);
-    expect(find.byType(ConnectionStatsCard), findsNothing);
-    expect(find.byType(ProxyGroupsSummaryCard), findsNothing);
-    expect(find.byType(OutboundModeCard), findsNothing);
-    expect(find.byType(LiveStatusButton), findsOneWidget);
-    expect(scrollExtentOf(tester), 0);
-    expect(tester.takeException(), isNull);
-    await teardown(tester);
-  });
+  testWidgets(
+    'the desktop aligns both traffic rows with the takeover controls',
+    (tester) async {
+      await pumpDashboard(tester, const Size(1220, 824));
+      final current = rectOf(tester, CurrentOutboundCard);
+      final traffic = rectOf(tester, TrafficOverviewCard);
+      final mode = rectOf(tester, OutboundModeBar);
+      final proxy = tester.getRect(find.byType(NetworkTakeoverTile).first);
+      final tun = tester.getRect(find.byType(NetworkTakeoverTile).last);
+      expect(current.height, 166);
+      expect(current.width, 940);
+      expect(traffic.left, current.left);
+      expect(traffic.top, current.bottom + 16);
+      expect(proxy.left, closeTo(traffic.right + 16, 0.01));
+      expect(proxy.top, traffic.top);
+      expect(tun.bottom, traffic.bottom);
+      expect(tun.height, proxy.height);
+      expect(mode.top, traffic.bottom + 16);
+      expect(mode.width, current.width);
+      expect(find.byType(NetworkTunnelTile), findsNothing);
+      expect(find.byType(IntranetIpCard), findsNothing);
+      expect(find.byType(MemoryInfo), findsNothing);
+      expect(find.byType(SpeedCard), findsNothing);
+      expect(find.byType(ProfilesCard), findsNothing);
+      expect(find.byType(ServiceStatusCard), findsNothing);
+      expect(find.byType(ConnectionsTableCard), findsNothing);
+      expect(find.byType(ProxyGroupsCard), findsNothing);
+      expect(find.byType(ConnectionStatsCard), findsNothing);
+      expect(find.byType(ProxyGroupsSummaryCard), findsNothing);
+      expect(find.byType(OutboundModeCard), findsNothing);
+      expect(find.byType(LiveStatusButton), findsOneWidget);
+      expect(scrollExtentOf(tester), 0);
+      expect(tester.takeException(), isNull);
+      await teardown(tester);
+    },
+  );
 
-  testWidgets('the default window opens on four full columns beside the '
+  testWidgets('the default window opens the full overview beside the '
       'expanded sidebar and a title bar', (tester) async {
     const sidebar = 220.0;
     const titleBar = 32.0;
@@ -132,7 +134,7 @@ void main() {
       ),
     );
 
-    expect(rectOf(tester, CurrentOutboundCard).height, 208);
+    expect(rectOf(tester, CurrentOutboundCard).height, 166);
     expect(find.byType(TrafficOverviewCard), findsOneWidget);
     expect(tester.takeException(), isNull);
 
@@ -144,8 +146,8 @@ void main() {
   ) async {
     await pumpDashboard(tester, const Size(1220, 720));
 
-    expect(rectOf(tester, CurrentOutboundCard).height, 176);
-    expect(rectOf(tester, OutboundModeBar).height, 56);
+    expect(rectOf(tester, CurrentOutboundCard).height, 166);
+    expect(tester.getSize(find.byType(NetworkTakeoverTile).first).height, 68);
     expect(scrollExtentOf(tester), 0);
     expect(tester.takeException(), isNull);
 
@@ -176,7 +178,7 @@ void main() {
 
     final current = rectOf(tester, CurrentOutboundCard);
     final tun = tester.getRect(find.byType(NetworkTakeoverTile).last);
-    expect(rectOf(tester, TrafficOverviewCard).width, 440);
+    expect(rectOf(tester, TrafficOverviewCard).width, (940 - 16) / 2);
     expect(current.left - 16, closeTo(2560 - 24 - tun.right, 0.01));
     expect(tester.takeException(), isNull);
 
@@ -255,8 +257,8 @@ void main() {
     expect(traffic.top, current.bottom + gap);
     expect(proxy.left, closeTo(traffic.right + gap, 0.01));
     expect(proxy.top, traffic.top);
-    expect(proxy.height, 64);
-    expect(tun.top, proxy.bottom + gap);
+    expect(proxy.height, 74);
+    expect(tun.top, proxy.bottom + 12);
     expect(tun.bottom, traffic.bottom);
     expect(mode.top, traffic.bottom + gap);
     expect(mode.width, current.width);
@@ -272,7 +274,7 @@ void main() {
     await teardown(tester);
   });
 
-  testWidgets('Windows places the tunnel after the mode in both grids', (
+  testWidgets('Windows keeps the compact tunnel strip fourth at both widths', (
     tester,
   ) async {
     for (final size in const [Size(800, 900), Size(1220, 824)]) {
@@ -285,16 +287,10 @@ void main() {
         tester.element(find.byType(CurrentOutboundCard)),
         container.read(viewModeProvider),
       );
-      if (size.width < 860) {
-        expect(tunnel.top, mode.bottom + gap);
-        expect(tunnel.width, current.width);
-      } else {
-        expect(tunnel.left, mode.right + gap);
-        expect(tunnel.top, mode.top);
-        expect(tunnel.width, mode.width);
-        expect(traffic.top, current.top);
-      }
-      expect(tunnel.height, 64);
+      expect(tunnel.top, mode.bottom + gap);
+      expect(tunnel.width, current.width);
+      expect(traffic.top, current.bottom + gap);
+      expect(tunnel.height, 70);
       expect(tester.takeException(), isNull);
     }
     await teardown(tester);
@@ -337,14 +333,14 @@ void main() {
     await pumpDashboard(tester, const Size(1400, 1000), textScale: 1.2);
     expect(
       rectOf(tester, CurrentOutboundCard).height,
-      closeTo(208 * 1.2, 0.01),
+      closeTo(166 * 1.2, 0.01),
     );
     expect(tester.takeException(), isNull);
 
     await pumpDashboard(tester, const Size(1000, 1000), textScale: 1.2);
     final current = rectOf(tester, CurrentOutboundCard);
-    expect(current.width, 1000 - 16 - 24);
-    expect(current.height, closeTo(208 * 1.2, 0.01));
+    expect(current.width, 940);
+    expect(current.height, closeTo(166 * 1.2, 0.01));
     expect(tester.takeException(), isNull);
 
     await pumpDashboard(tester, const Size(760, 1000), textScale: 1.2);
@@ -419,7 +415,7 @@ void main() {
       final mode = rectOf(tester, OutboundModeBar);
       final vpn = rectOf(tester, VpnTile);
       expect(vpn.width * 2 + 16, closeTo(mode.width, 0.01));
-      expect(vpn.height, rectOf(tester, CurrentOutboundCard).height);
+      expect(vpn.height, rectOf(tester, TrafficOverviewCard).height);
       expect(find.byType(NetworkTakeoverTile), findsNothing);
       expect(find.byType(CurrentOutboundCard), findsOneWidget);
       expect(find.byType(NetworkSpeedCard), findsNothing);

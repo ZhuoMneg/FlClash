@@ -4293,6 +4293,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get networkTunnel => 'Network Tunnel';
 
   @override
+  String get tunnelPrimaryDirectory => 'Primary directory';
+
+  @override
+  String tunnelBackupDirectory(int index) {
+    return 'Backup directory $index';
+  }
+
+  @override
+  String get tunnelFailoverPolicy => 'Failover policy';
+
+  @override
+  String get tunnelFailoverInOrder =>
+      'Try the primary, then the backups in order';
+
+  @override
+  String get tunnelNoFallback => 'No backup directories';
+
+  @override
+  String get tunnelLastReply => 'Last reply';
+
+  @override
+  String get dashboardRuleModeDescription =>
+      'Match requests against routing rules. Use the primary policy group when unspecified.';
+
+  @override
+  String get dashboardGlobalModeDescription =>
+      'Send all requests through the selected node in the GLOBAL policy group.';
+
+  @override
+  String get dashboardDirectModeDescription =>
+      'Connect directly to the destination for every request.';
+
+  @override
   String get tunnelExtension => 'Extension script';
 
   @override

@@ -7536,6 +7536,60 @@ abstract class AppLocalizations {
   /// **'Network Tunnel'**
   String get networkTunnel;
 
+  /// No description provided for @tunnelPrimaryDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary directory'**
+  String get tunnelPrimaryDirectory;
+
+  /// No description provided for @tunnelBackupDirectory.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup directory {index}'**
+  String tunnelBackupDirectory(int index);
+
+  /// No description provided for @tunnelFailoverPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Failover policy'**
+  String get tunnelFailoverPolicy;
+
+  /// No description provided for @tunnelFailoverInOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Try the primary, then the backups in order'**
+  String get tunnelFailoverInOrder;
+
+  /// No description provided for @tunnelNoFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup directories'**
+  String get tunnelNoFallback;
+
+  /// No description provided for @tunnelLastReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Last reply'**
+  String get tunnelLastReply;
+
+  /// No description provided for @dashboardRuleModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Match requests against routing rules. Use the primary policy group when unspecified.'**
+  String get dashboardRuleModeDescription;
+
+  /// No description provided for @dashboardGlobalModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Send all requests through the selected node in the GLOBAL policy group.'**
+  String get dashboardGlobalModeDescription;
+
+  /// No description provided for @dashboardDirectModeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect directly to the destination for every request.'**
+  String get dashboardDirectModeDescription;
+
   /// No description provided for @tunnelExtension.
   ///
   /// In en, this message translates to:

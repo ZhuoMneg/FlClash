@@ -6,6 +6,7 @@ import 'package:fl_clash/common/network_tunnel.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/widgets.dart';
@@ -163,82 +164,206 @@ class _NetworkTunnelViewState extends ConsumerState<NetworkTunnelView> {
         : recent && received > 0
         ? l.tunnelReceiving
         : l.tunnelWaiting;
-    return BaseScaffold(
-      title: l.networkTunnel,
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16).copyWith(
-          top: context.sectionsTopPadding,
-          bottom: 16 + context.bottomInset,
+    final colors = context.colorScheme;
+    final caption = AppTextStyle.footnote
+        .of(context)
+        .copyWith(color: colors.onSurfaceVariant);
+    Widget panel(List<Widget> children) => DecoratedBox(
+      decoration: ShapeDecoration(
+        color: context.raisedSurfaceLevel.colorOf(colors),
+        shape: AppShape.lg.copyWith(side: colors.cardEdge),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 8,
+          children: children,
         ),
+      ),
+    );
+    Widget heading(Glyph glyph, String label) => Row(
+      spacing: 8,
+      children: [
+        GlyphIcon(glyph, size: 19, color: colors.primary),
+        Expanded(child: Text(label, style: AppTextStyle.headline.of(context))),
+      ],
+    );
+    Widget fact(String label, String value) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        spacing: 12,
         children: [
-          generateSection(
-            items: [
-              ListItem(
-                title: Text(l.tunnelImport),
-                onTap: _importing ? null : _import,
-              ),
-              if (_message != null) ListItem(title: Text(_message!)),
-            ],
-            footer: l.tunnelImportHelp,
-          ),
-          if (settings.configured)
-            generateSection(
-              items: [
-                ConfigToggleItem(
-                  title: (_) => 'WireGuard',
-                  selector: networkSettingProvider.select(
-                    (v) => v.networkTunnel.enabled,
-                  ),
-                  onChanged: (_, value) =>
-                      _update((v) => v.copyWith(enabled: value)),
-                ),
-                ConfigToggleItem(
-                  title: (l) => l.tunnelExtension,
-                  selector: networkSettingProvider.select(
-                    (v) => v.networkTunnel.extension,
-                  ),
-                  onChanged: (_, value) =>
-                      _update((v) => v.copyWith(extension: value)),
-                ),
-                ListItem(
-                  title: Text(l.tunnelDisableAll),
-                  onTap: () => _update(
-                    (v) => v.copyWith(enabled: false, extension: false),
-                  ),
-                ),
-              ],
-              footer: l.tunnelRoutingHelp,
-            ),
-          generateSection(
-            title: l.tunnelStatus,
-            items: [
-              ListItem(title: Text(state)),
-              if (running) ...[
-                ListItem(
-                  title: Text(l.tunnelEndpoint),
-                  subtitle: Text('${_status['home'] ?? '—'}'),
-                ),
-                ListItem(
-                  title: Text(l.tunnelTraffic),
-                  subtitle: Text('↑ ${_status['sent'] ?? 0} B   ↓ $received B'),
-                ),
-                ListItem(
-                  title: Text(l.tunnelDirectory),
-                  subtitle: Text(
-                    error.isNotEmpty
-                        ? l.tunnelDirectoryFailed
-                        : (_status['lastQuery'] as num? ?? 0) > 0
-                        ? l.tunnelDirectoryReady
-                        : l.tunnelWaiting,
-                  ),
-                ),
-                ListItem(title: Text(l.tunnelRefresh), onTap: _refresh),
-              ],
-            ],
-            footer: l.tunnelStatusHelp,
+          Text(label, style: caption),
+          Text(
+            value,
+            style: AppTextStyle.subheadline.of(context, emphasized: true),
           ),
         ],
       ),
     );
+    final desktop =
+        !ViewScope.isMobileOf(context) &&
+        !ScaffoldSurface.of(context).isModal &&
+        ModalRoute.of(context)?.impliesAppBarDismissal != true;
+    final summary = panel([
+      Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 6,
+        children: [
+          if (desktop)
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 10,
+              runSpacing: 4,
+              children: [
+                Text(
+                  'WireGuard ${l.networkTunnel}',
+                  style: AppTextStyle.headline.of(context),
+                ),
+                DecoratedBox(
+                  decoration: ShapeDecoration(
+                    shape: AppShape.full,
+                    color: colors.primary.withValues(alpha: .10),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    child: Text(
+                      state,
+                      style: caption.copyWith(color: colors.primary),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(state, style: AppTextStyle.headline.of(context)),
+          Wrap(
+            spacing: 6,
+            children: [
+              if (running)
+                TextButton(onPressed: _refresh, child: Text(l.tunnelRefresh)),
+              FilledButton(
+                onPressed: _importing ? null : _import,
+                child: Text(l.tunnelImport),
+              ),
+            ],
+          ),
+        ],
+      ),
+      if (settings.configured)
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 12,
+          runSpacing: 4,
+          children: [
+            SizedBox(
+              width: 170,
+              child: ListItem.toggle(
+                padding: EdgeInsets.zero,
+                title: const Text('WireGuard'),
+                value: settings.enabled,
+                onChanged: (value) =>
+                    _update((v) => v.copyWith(enabled: value)),
+              ),
+            ),
+            SizedBox(
+              width: 216,
+              child: ListItem.toggle(
+                padding: EdgeInsets.zero,
+                title: Text(l.tunnelExtension),
+                value: settings.extension,
+                onChanged: (value) =>
+                    _update((v) => v.copyWith(extension: value)),
+              ),
+            ),
+            TextButton(
+              onPressed: () =>
+                  _update((v) => v.copyWith(enabled: false, extension: false)),
+              child: Text(l.tunnelDisableAll),
+            ),
+          ],
+        ),
+      if (_message != null) Text(_message!),
+      Text(l.tunnelImportHelp, style: caption),
+      if (settings.configured) Text(l.tunnelRoutingHelp, style: caption),
+    ]);
+    final status = panel([
+      heading(AppGlyphs.networkTunnel, l.tunnelStatus),
+      if (running) ...[
+        fact(l.tunnelEndpoint, '${_status['home'] ?? '—'}'),
+        if (_status['physical'] case final String nic when nic.isNotEmpty)
+          fact(l.interfaceName, nic),
+        if (lastReply > 0)
+          fact(
+            l.tunnelLastReply,
+            DateTime.fromMillisecondsSinceEpoch(lastReply * 1000).showFull,
+          ),
+        fact(
+          l.tunnelTraffic,
+          '${l.upload} ${_status['sent'] ?? 0} B · ${l.download} $received B',
+        ),
+        fact(
+          l.tunnelDirectory,
+          error.isNotEmpty
+              ? l.tunnelDirectoryFailed
+              : (_status['lastQuery'] as num? ?? 0) > 0
+              ? l.tunnelDirectoryReady
+              : l.tunnelWaiting,
+        ),
+      ],
+      Text(l.tunnelStatusHelp, style: caption),
+    ]);
+    final directories = panel([
+      heading(AppGlyphs.link, l.tunnelDirectory),
+      if (settings.configured) ...[
+        fact(l.tunnelPrimaryDirectory, '${settings.host}:${settings.port}'),
+        for (final (i, backup) in settings.fallbacks.indexed)
+          fact(l.tunnelBackupDirectory(i + 1), '${backup.host}:${backup.port}'),
+      ] else
+        const Text('—'),
+      const Divider(height: 1),
+      fact(
+        l.tunnelFailoverPolicy,
+        settings.fallbacks.isEmpty
+            ? l.tunnelNoFallback
+            : l.tunnelFailoverInOrder,
+      ),
+    ]);
+    final body = LayoutBuilder(
+      builder: (context, constraints) => ListView(
+        padding: EdgeInsets.fromLTRB(
+          16,
+          desktop ? 16 : context.sectionsTopPadding,
+          16,
+          16 + context.bottomInset,
+        ),
+        children: [
+          summary,
+          const SizedBox(height: 14),
+          if (constraints.maxWidth >= 700)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 14,
+              children: [
+                Expanded(flex: 43, child: status),
+                Expanded(flex: 57, child: directories),
+              ],
+            )
+          else ...[
+            status,
+            const SizedBox(height: 14),
+            directories,
+          ],
+        ],
+      ),
+    );
+    return desktop ? body : BaseScaffold(title: l.networkTunnel, body: body);
   }
 }

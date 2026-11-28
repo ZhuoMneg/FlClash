@@ -45,6 +45,7 @@ class ProxyCard extends ConsumerWidget {
   final Proxy proxy;
   final GroupType groupType;
   final ProxyCardType type;
+  final bool spacious;
   final String? testUrl;
 
   const ProxyCard({
@@ -54,6 +55,7 @@ class ProxyCard extends ConsumerWidget {
     required this.proxy,
     required this.groupType,
     required this.type,
+    this.spacious = false,
   });
 
   Measure get measure => globalState.measure;
@@ -189,6 +191,44 @@ class ProxyCard extends ConsumerWidget {
             (profile) => profile?.type == ProfileType.custom,
           ),
         );
+        final card = Card(
+          radius: AppCorner.lg,
+          fill: spacious && inUse
+              ? context.colorScheme.primary.withValues(alpha: .09)
+              : null,
+          enterActionsOnRight: true,
+          key: key,
+          onPressed: () => _handleSelect(ref),
+          isSelected: inUse,
+          padding: EdgeInsets.symmetric(horizontal: spacious ? 16 : 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 4,
+                children: [
+                  if (spacious)
+                    GlyphIcon(
+                      GroupTypeExtension.getGroupType(proxy.type) == null
+                          ? AppGlyphs.proxies
+                          : AppGlyphs.layers,
+                      size: 21,
+                      color: context.colorScheme.primary,
+                    ),
+                  Expanded(child: proxyNameText),
+                  if (pinned)
+                    SelectionBadge(glyph: Glyphs.pin, tonal: !inUse)
+                  else if (inUse)
+                    const SelectionBadge(),
+                ],
+              ),
+              const SizedBox(height: 8),
+              details,
+            ],
+          ),
+        );
         return ContextMenuRegion(
           menuItems: _menuItems(
             context,
@@ -197,33 +237,19 @@ class ProxyCard extends ConsumerWidget {
             pinned: pinned,
             addable: _isAddableToLocal(proxy, isCustomProfile: isCustomProfile),
           ),
-          child: Card(
-            radius: AppCorner.lg,
-            enterActionsOnRight: true,
-            key: key,
-            onPressed: () => _handleSelect(ref),
-            isSelected: inUse,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 4,
-                  children: [
-                    Expanded(child: proxyNameText),
-                    if (pinned)
-                      SelectionBadge(glyph: Glyphs.pin, tonal: !inUse)
-                    else if (inUse)
-                      const SelectionBadge(),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                details,
-              ],
-            ),
-          ),
+          child: spacious
+              ? DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: ShapeDecoration(
+                    shape: AppShape.lg.copyWith(
+                      side: inUse
+                          ? BorderSide(color: context.colorScheme.primary)
+                          : context.colorScheme.cardEdge,
+                    ),
+                  ),
+                  child: card,
+                )
+              : card,
         );
       },
     );

@@ -3,18 +3,14 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 
 const _minDesktopWidth = 640.0;
-const _minFourColumnWidth = 860.0;
-const _minStandardFourColumnWidth = 1040.0;
 const _minStandardHeight = 824.0;
 const _mobileMaxWidth = 560.0;
-
-int dashboardColumnsOf(double width) => width < _minFourColumnWidth ? 2 : 4;
 
 /// The mobile cards and their editor share one centered column.
 double dashboardMobileSideOf(double width) =>
     math.max(16, (width - _mobileMaxWidth) / 2);
 
-/// [compact] shrinks type, the start button and tiles, and drops subtitles.
+/// [compact] reduces card padding and control heights.
 enum DashboardDensity {
   standard,
   compact,
@@ -28,12 +24,7 @@ enum DashboardDensity {
     if (size.width < _minDesktopWidth) {
       return mobile;
     }
-    final narrowColumns =
-        dashboardColumnsOf(size.width) == 4 &&
-        size.width < _minStandardFourColumnWidth;
-    return narrowColumns || size.height < _minStandardHeight
-        ? compact
-        : standard;
+    return size.height < _minStandardHeight ? compact : standard;
   }
 }
 
